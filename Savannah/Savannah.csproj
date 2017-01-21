@@ -8,8 +8,8 @@
     <ProjectGuid>{2B989DA8-7DB9-4FA7-BC93-DEC188C4732D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Savanna</RootNamespace>
-    <AssemblyName>Savanna</AssemblyName>
+    <RootNamespace>Savannah</RootNamespace>
+    <AssemblyName>Savannah</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
