@@ -115,7 +115,21 @@
     <SDKReference Include="TestPlatform, Version=14.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertExtra.cs" />
+    <Compile Include="Mocks\HashProviderMock.cs" />
+    <Compile Include="Mocks\MockObject.cs" />
+    <Compile Include="ObjectFactoryTests.cs" />
+    <Compile Include="ObjectMetadataTests.cs" />
+    <Compile Include="ObjectStoreLimitationsTests.cs" />
+    <Compile Include="StorageObjectFactoryTests.cs" />
+    <Compile Include="ObjectStoreOperationTests.cs" />
+    <Compile Include="ObjectStoreTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageObjectPropertyTests.cs" />
+    <Compile Include="StorageObjectTests.cs" />
+    <Compile Include="XmlReaderExtensionsTests.cs" />
+    <Compile Include="XmlWriterExtensionsTests.cs" />
+    <Compile Include="Utilities\Md5HashProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -141,6 +155,9 @@
       <Project>{2b989da8-7db9-4fa7-bc93-dec188c4732d}</Project>
       <Name>Savannah</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

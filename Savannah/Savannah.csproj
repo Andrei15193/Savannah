@@ -41,7 +41,24 @@
     <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObjectFactory.cs" />
+    <Compile Include="ObjectMetadata.cs" />
+    <Compile Include="ObjectStore.cs" />
+    <Compile Include="ObjectStoreOperation.cs" />
+    <Compile Include="ObjectStoreOperationType.cs" />
+    <Compile Include="ObjectStoreQuery.cs" />
+    <Compile Include="ObjectStoreLimitations.cs" />
+    <Compile Include="ObjectStoreXmlNameTable.cs" />
+    <Compile Include="StorageObjectFactory.cs" />
+    <Compile Include="StorageObjectPropertyType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageObject.cs" />
+    <Compile Include="StorageObjectProperty.cs" />
+    <Compile Include="Utilities\IHashProvider.cs" />
+    <Compile Include="Utilities\Md5HashProvider.cs" />
+    <Compile Include="XmlReaderExtensions.cs" />
+    <Compile Include="XmlSettings.cs" />
+    <Compile Include="XmlWriterExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
