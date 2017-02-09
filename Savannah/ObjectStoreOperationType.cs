@@ -2,6 +2,7 @@
 {
     public enum ObjectStoreOperationType
     {
-        Insert = 1
+        Insert = 1,
+        Delete = 2
     }
 }

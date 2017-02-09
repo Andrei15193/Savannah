@@ -29,5 +29,29 @@ namespace Savannah.Tests
         {
             Assert.ThrowsException<ArgumentNullException>(() => ObjectStoreOperation.Insert(null));
         }
+
+        [TestMethod]
+        public void TestDeleteOperationIsInitializedWithDeleteOperationType()
+        {
+            var deleteOperation = ObjectStoreOperation.Delete(new object());
+
+            Assert.AreEqual(ObjectStoreOperationType.Delete, deleteOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestDeleteOperationIsInitializedWithSameObject()
+        {
+            var @object = new object();
+
+            var deleteOperation = ObjectStoreOperation.Insert(@object);
+
+            Assert.AreSame(@object, deleteOperation.Object);
+        }
+
+        [TestMethod]
+        public void TestDeleteOperationCannotBeInitializedWithNullObject()
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => ObjectStoreOperation.Delete(null));
+        }
     }
 }

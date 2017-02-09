@@ -244,5 +244,128 @@ namespace Savannah.Tests
                     .SequenceEqual(storedObjects
                         .Select(@object => @object.RowKey)));
         }
+
+        [TestMethod]
+        public async Task TestDeletingOnlyObjectFromObjectStoreLeavesItEmpty()
+        {
+            var @object = new
+            {
+                PartitionKey = Guid.NewGuid().ToString(),
+                RowKey = Guid.NewGuid().ToString()
+            };
+            var insertOperation = ObjectStoreOperation.Insert(@object);
+            await _ObjectStore.ExecuteAsync(insertOperation);
+
+            var deleteOperation = ObjectStoreOperation.Delete(@object);
+            await _ObjectStore.ExecuteAsync(deleteOperation);
+
+            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            Assert.IsFalse(storedObjects.Any());
+        }
+
+        [DataTestMethod]
+        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey1")]
+        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey2")]
+        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey3")]
+        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey4")]
+        public async Task TestDeletingObjectFromDifferentPartition(string[] paritionKeys, string partitionKeyToRemove)
+        {
+            var rowKey = Guid.NewGuid().ToString();
+            foreach (var partitionKey in paritionKeys)
+            {
+                var @object = new
+                {
+                    PartitionKey = partitionKey,
+                    RowKey = rowKey
+                };
+                var insertOperation = ObjectStoreOperation.Insert(@object);
+                await _ObjectStore.ExecuteAsync(insertOperation);
+            }
+
+            var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = partitionKeyToRemove, RowKey = rowKey });
+            await _ObjectStore.ExecuteAsync(deleteOperation);
+
+            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            Assert.IsTrue(storedObjects
+                .Select(storedObject => storedObject.PartitionKey)
+                .OrderBy(partitionKey => partitionKey)
+                .SequenceEqual(paritionKeys
+                    .Except(new[] { partitionKeyToRemove })
+                    .OrderBy(partitionKey => partitionKey)));
+        }
+
+        [DataTestMethod]
+        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey1")]
+        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey2")]
+        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey3")]
+        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey4")]
+        public async Task TestDeletingObjectFromSamePartition(string[] rowKeys, string rowKeyToRemove)
+        {
+            var partitionKey = Guid.NewGuid().ToString();
+            foreach (var rowKey in rowKeys)
+            {
+                var @object = new
+                {
+                    PartitionKey = partitionKey,
+                    RowKey = rowKey
+                };
+                var insertOperation = ObjectStoreOperation.Insert(@object);
+                await _ObjectStore.ExecuteAsync(insertOperation);
+            }
+
+            var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = partitionKey, RowKey = rowKeyToRemove });
+            await _ObjectStore.ExecuteAsync(deleteOperation);
+
+            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            Assert.IsTrue(storedObjects
+                .Select(storedObject => storedObject.RowKey)
+                .OrderBy(rowKey => rowKey)
+                .SequenceEqual(rowKeys
+                    .Except(new[] { rowKeyToRemove })
+                    .OrderBy(rowKey => rowKey)));
+        }
+
+        [TestMethod]
+        public async Task TestTryingToDeleteAnObjectThatDoesNotExistThrowsException()
+        {
+            var @object = new
+            {
+                PartitionKey = Guid.NewGuid().ToString(),
+                RowKey = Guid.NewGuid().ToString()
+            };
+            var deleteOperation = ObjectStoreOperation.Delete(@object);
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => _ObjectStore.ExecuteAsync(deleteOperation),
+                "The object does not exist, it cannot be removed.");
+        }
+
+        [TestMethod]
+        public async Task TestTryingToDeleteAnObjectThatDoesNotExposeAPartitionKeyThrowsException()
+        {
+            var @object = new
+            {
+                RowKey = Guid.NewGuid().ToString()
+            };
+            var deleteOperation = ObjectStoreOperation.Delete(@object);
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => _ObjectStore.ExecuteAsync(deleteOperation),
+                "The given object must expose a readable PartitionKey property of type string.");
+        }
+
+        [TestMethod]
+        public async Task TestTryingToDeleteAnObjectThatDoesNotExposeARowKeyThrowsException()
+        {
+            var @object = new
+            {
+                PartitionKey = Guid.NewGuid().ToString()
+            };
+            var deleteOperation = ObjectStoreOperation.Delete(@object);
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => _ObjectStore.ExecuteAsync(deleteOperation),
+                "The given object must expose a readable RowKey property of type string.");
+        }
     }
 }

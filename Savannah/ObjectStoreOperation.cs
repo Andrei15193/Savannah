@@ -8,6 +8,9 @@ namespace Savannah
         public static ObjectStoreOperation Insert(object @object)
             => new ObjectStoreOperation(@object, ObjectStoreOperationType.Insert);
 
+        public static ObjectStoreOperation Delete(object @object)
+            => new ObjectStoreOperation(@object, ObjectStoreOperationType.Delete);
+
         private ObjectStoreOperation(object @object, ObjectStoreOperationType operationType)
         {
             Debug.Assert(

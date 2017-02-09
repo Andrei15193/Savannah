@@ -96,7 +96,7 @@ namespace Savannah
                 throw new InvalidOperationException("Cannot store null value.");
 
             var metadata = ObjectMetadata.GetFor(@object.GetType());
-            _CheckMetadataForObjectStorage(metadata);
+            _CheckMetadataForStorageOperation(metadata);
 
             var partitionKey = (string)metadata.PartitionKeyProperty.GetValue(@object);
             _CheckPartitionKey(partitionKey);
@@ -147,7 +147,7 @@ namespace Savannah
             }
         }
 
-        private static void _CheckMetadataForObjectStorage(ObjectMetadata metadata)
+        private static void _CheckMetadataForStorageOperation(ObjectMetadata metadata)
         {
             if (metadata.PartitionKeyProperty == null)
                 throw new InvalidOperationException("The given object must expose a readable PartitionKey property of type string.");
