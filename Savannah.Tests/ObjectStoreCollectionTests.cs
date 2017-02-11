@@ -9,11 +9,14 @@ using Windows.Storage;
 namespace Savannah.Tests
 {
     [TestClass]
-    public class ObjectStoreTests
+    public class ObjectStoreCollectionTests
     {
-        private const string _objectStoreFolderName = nameof(ObjectStoreTests);
+        private const string _objectStoreFolderName = nameof(ObjectStoreCollectionTests);
+        private const string _objectStoreCollectionName = "TestCollection";
 
         private ObjectStore _ObjectStore { get; set; }
+
+        private ObjectStoreCollection _ObjectStoreCollection { get; set; }
 
         private IHashProvider _HashProvider { get; set; }
 
@@ -22,17 +25,118 @@ namespace Savannah.Tests
         {
             _HashProvider = new Md5HashProvider();
             _ObjectStore = new ObjectStore(_objectStoreFolderName, new HashProviderMock(value => _HashProvider.GetHashFor(value)));
+            _ObjectStoreCollection = _ObjectStore.GetCollection(_objectStoreCollectionName);
+            Task.Run(() => _ObjectStoreCollection.CreateIfNotExistsAsync()).Wait();
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
             _ObjectStore = null;
+            _ObjectStoreCollection = null;
             _HashProvider = null;
             var localTestFolder = ApplicationData.Current.LocalFolder;
             var objectStoreFolder = Task.Run(localTestFolder.CreateFolderAsync(_objectStoreFolderName, CreationCollisionOption.OpenIfExists).AsTask).Result;
 
-            Task.Run(objectStoreFolder.DeleteAsync().AsTask).Wait();
+            Task.Run(objectStoreFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask).Wait();
+        }
+
+        [DataTestMethod]
+        [DataRow("collectionName")]
+        [DataRow("test")]
+        public void TestGettingCollectionWithSameNameReturnsExactSameInstance(string collectionName)
+        {
+            var collection1 = _ObjectStore.GetCollection(collectionName.ToUpperInvariant());
+            var collection2 = _ObjectStore.GetCollection(collectionName.ToLowerInvariant());
+
+            Assert.AreSame(collection1, collection2);
+        }
+
+        [TestMethod]
+        public async Task TestTryingToCreteACollectionThatAlreadyExistsThrowsException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestTryingToCreteACollectionThatAlreadyExistsThrowsException));
+            await collection.CreateAsync();
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => collection.CreateAsync(),
+                "The Object Store Collection already exists. To ensure that a collection exists call one of the CreateIfNotExistsAsync overloads.");
+        }
+
+        [TestMethod]
+        public async Task TestEnsuringThatACollectionIsCreatedDoesNotThrowException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatACollectionIsCreatedDoesNotThrowException));
+            await collection.CreateAsync();
+
+            await collection.CreateIfNotExistsAsync();
+        }
+
+        [TestMethod]
+        public async Task TestTryingToExecuteAnOperationOnACollectionThatIsNotCreatedThrowsException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestTryingToQueryACollectionThatIsNotCreatedThrowsException));
+            var operation = ObjectStoreOperation.Insert(new { PartitionKey = "partitionKey", RowKey = "rowKey" });
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => collection.ExecuteAsync(operation),
+                "The Object Store Collection does not exist. Call one of the CreateAsync or CreateIfNotExistsAsync overloads first.");
+        }
+
+        [TestMethod]
+        public async Task TestTryingToQueryACollectionThatIsNotCreatedThrowsException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestTryingToQueryACollectionThatIsNotCreatedThrowsException));
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => collection.QueryAsync<MockObject>(ObjectStoreQuery.All),
+                "The Object Store Collection does not exist. Call one of the CreateAsync or CreateIfNotExistsAsync overloads first.");
+        }
+
+        [TestMethod]
+        public async Task TestTryingToDeleteCollectionThatDoesNotExistThrowsException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestTryingToDeleteCollectionThatDoesNotExistThrowsException));
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => collection.DeleteAsync(),
+                "The Object Store Collection does not exists. To ensure that a collection is removed call one of the DeleteIfExistsAsync overloads.");
+        }
+
+        [TestMethod]
+        public async Task TestEnsuringThatACollectionIsDeletedDoesNotThrowException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatACollectionIsDeletedDoesNotThrowException));
+
+            await collection.DeleteIfExists();
+        }
+
+        [TestMethod]
+        public async Task TestDeletingAnExistingCollectionDoesNotThrowException()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestDeletingAnExistingCollectionDoesNotThrowException));
+
+            await collection.CreateAsync();
+            await collection.DeleteAsync();
+        }
+
+        [TestMethod]
+        public async Task TestEnsuringThatAnExistingCollectionIsDeleted()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatAnExistingCollectionIsDeleted));
+
+            await collection.CreateAsync();
+            await collection.DeleteIfExists();
+        }
+
+        [TestMethod]
+        public async Task TestRecreatingACollection()
+        {
+            var collection = _ObjectStore.GetCollection(nameof(TestRecreatingACollection));
+
+            await collection.CreateAsync();
+            await collection.DeleteAsync();
+            await collection.CreateAsync();
         }
 
         [TestMethod]
@@ -40,9 +144,9 @@ namespace Savannah.Tests
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var operation = ObjectStoreOperation.Insert(objectToStore);
-            await _ObjectStore.ExecuteAsync(operation);
+            await _ObjectStoreCollection.ExecuteAsync(operation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             var storedObject = storedObjects.Single();
 
             Assert.AreEqual(objectToStore.PartitionKey, storedObject.PartitionKey);
@@ -53,9 +157,9 @@ namespace Savannah.Tests
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var operation = ObjectStoreOperation.Insert(objectToStore);
-            await _ObjectStore.ExecuteAsync(operation);
+            await _ObjectStoreCollection.ExecuteAsync(operation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             var storedObject = storedObjects.Single();
 
             Assert.AreEqual(objectToStore.RowKey, storedObject.RowKey);
@@ -66,9 +170,9 @@ namespace Savannah.Tests
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var operation = ObjectStoreOperation.Insert(objectToStore);
-            await _ObjectStore.ExecuteAsync(operation);
+            await _ObjectStoreCollection.ExecuteAsync(operation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             var storedObject = storedObjects.Single();
 
             Assert.AreNotSame(objectToStore, storedObject);
@@ -79,10 +183,10 @@ namespace Savannah.Tests
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var operation = ObjectStoreOperation.Insert(objectToStore);
-            await _ObjectStore.ExecuteAsync(operation);
+            await _ObjectStoreCollection.ExecuteAsync(operation);
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(operation),
+                () => _ObjectStoreCollection.ExecuteAsync(operation),
                 "Duplicate PartitionKey and RowKey pair. Any stored object must be uniquely identifiable by its partition and row keys.");
         }
 
@@ -91,13 +195,13 @@ namespace Savannah.Tests
         {
             var firstObjectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var firstOperation = ObjectStoreOperation.Insert(firstObjectToStore);
-            await _ObjectStore.ExecuteAsync(firstOperation);
+            await _ObjectStoreCollection.ExecuteAsync(firstOperation);
 
             var secondObjectToStore = new MockObject { PartitionKey = firstObjectToStore.PartitionKey, RowKey = Guid.NewGuid().ToString() };
             var secondOperation = ObjectStoreOperation.Insert(secondObjectToStore);
-            await _ObjectStore.ExecuteAsync(secondOperation);
+            await _ObjectStoreCollection.ExecuteAsync(secondOperation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             Assert.IsTrue(
                 new[]
                 {
@@ -117,7 +221,7 @@ namespace Savannah.Tests
             var operation = ObjectStoreOperation.Insert(new { RowKey = Guid.NewGuid().ToString() });
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(operation),
+                () => _ObjectStoreCollection.ExecuteAsync(operation),
                 "The given object must expose a readable PartitionKey property of type string.");
         }
 
@@ -127,7 +231,7 @@ namespace Savannah.Tests
             var operation = ObjectStoreOperation.Insert(new { PartitionKey = Guid.NewGuid().ToString() });
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(operation),
+                () => _ObjectStoreCollection.ExecuteAsync(operation),
                 "The given object must expose a readable RowKey property of type string.");
         }
 
@@ -157,7 +261,7 @@ namespace Savannah.Tests
                     Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize]
                 });
 
-            await _ObjectStore.ExecuteAsync(operation);
+            await _ObjectStoreCollection.ExecuteAsync(operation);
         }
 
         [TestMethod]
@@ -187,7 +291,7 @@ namespace Savannah.Tests
                 });
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(operation),
+                () => _ObjectStoreCollection.ExecuteAsync(operation),
                 "The maximum supported size of an object is 1,048,576 bytes.");
         }
 
@@ -198,13 +302,13 @@ namespace Savannah.Tests
 
             var firstObjectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var firstOperation = ObjectStoreOperation.Insert(firstObjectToStore);
-            await _ObjectStore.ExecuteAsync(firstOperation);
+            await _ObjectStoreCollection.ExecuteAsync(firstOperation);
 
             var secondObjectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var secondOperation = ObjectStoreOperation.Insert(secondObjectToStore);
-            await _ObjectStore.ExecuteAsync(secondOperation);
+            await _ObjectStoreCollection.ExecuteAsync(secondOperation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             Assert.IsTrue(
                 new[]
                 {
@@ -234,10 +338,10 @@ namespace Savannah.Tests
             {
                 var objectToStore = new MockObject { PartitionKey = partitionKey, RowKey = rowKey };
                 var operation = ObjectStoreOperation.Insert(objectToStore);
-                await _ObjectStore.ExecuteAsync(operation);
+                await _ObjectStoreCollection.ExecuteAsync(operation);
             }
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             Assert.IsTrue(
                 rowKeys
                     .OrderBy(rowKey => rowKey, StringComparer.Ordinal)
@@ -254,12 +358,12 @@ namespace Savannah.Tests
                 RowKey = Guid.NewGuid().ToString()
             };
             var insertOperation = ObjectStoreOperation.Insert(@object);
-            await _ObjectStore.ExecuteAsync(insertOperation);
+            await _ObjectStoreCollection.ExecuteAsync(insertOperation);
 
             var deleteOperation = ObjectStoreOperation.Delete(@object);
-            await _ObjectStore.ExecuteAsync(deleteOperation);
+            await _ObjectStoreCollection.ExecuteAsync(deleteOperation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             Assert.IsFalse(storedObjects.Any());
         }
 
@@ -279,13 +383,13 @@ namespace Savannah.Tests
                     RowKey = rowKey
                 };
                 var insertOperation = ObjectStoreOperation.Insert(@object);
-                await _ObjectStore.ExecuteAsync(insertOperation);
+                await _ObjectStoreCollection.ExecuteAsync(insertOperation);
             }
 
             var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = partitionKeyToRemove, RowKey = rowKey });
-            await _ObjectStore.ExecuteAsync(deleteOperation);
+            await _ObjectStoreCollection.ExecuteAsync(deleteOperation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             Assert.IsTrue(storedObjects
                 .Select(storedObject => storedObject.PartitionKey)
                 .OrderBy(partitionKey => partitionKey)
@@ -310,13 +414,13 @@ namespace Savannah.Tests
                     RowKey = rowKey
                 };
                 var insertOperation = ObjectStoreOperation.Insert(@object);
-                await _ObjectStore.ExecuteAsync(insertOperation);
+                await _ObjectStoreCollection.ExecuteAsync(insertOperation);
             }
 
             var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = partitionKey, RowKey = rowKeyToRemove });
-            await _ObjectStore.ExecuteAsync(deleteOperation);
+            await _ObjectStoreCollection.ExecuteAsync(deleteOperation);
 
-            var storedObjects = await _ObjectStore.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
             Assert.IsTrue(storedObjects
                 .Select(storedObject => storedObject.RowKey)
                 .OrderBy(rowKey => rowKey)
@@ -336,7 +440,7 @@ namespace Savannah.Tests
             var deleteOperation = ObjectStoreOperation.Delete(@object);
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(deleteOperation),
+                () => _ObjectStoreCollection.ExecuteAsync(deleteOperation),
                 "The object does not exist, it cannot be removed.");
         }
 
@@ -350,7 +454,7 @@ namespace Savannah.Tests
             var deleteOperation = ObjectStoreOperation.Delete(@object);
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(deleteOperation),
+                () => _ObjectStoreCollection.ExecuteAsync(deleteOperation),
                 "The given object must expose a readable PartitionKey property of type string.");
         }
 
@@ -364,7 +468,7 @@ namespace Savannah.Tests
             var deleteOperation = ObjectStoreOperation.Delete(@object);
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStore.ExecuteAsync(deleteOperation),
+                () => _ObjectStoreCollection.ExecuteAsync(deleteOperation),
                 "The given object must expose a readable RowKey property of type string.");
         }
     }

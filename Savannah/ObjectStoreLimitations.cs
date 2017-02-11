@@ -50,7 +50,7 @@ namespace Savannah
             typeof(string)
         };
 
-        internal static void CheckTableName(string value)
+        internal static void CheckCollectionName(string value)
         {
             if (string.IsNullOrWhiteSpace(value) || !AcceptedTableNamePattern.IsMatch(value))
                 throw new InvalidOperationException(

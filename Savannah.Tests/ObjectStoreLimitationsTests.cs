@@ -792,10 +792,10 @@ namespace Savannah.Tests
         [DataRow("1tt")]
         [DataRow("test table name")]
         [DataRow("ThisStringHas64CharactersTrustMeItReallyDoesIHaveCheckedTwoTimes")]
-        public void TestInvalidTableName(string tableName)
+        public void TestInvalidCollectionName(string tableName)
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.CheckTableName(tableName),
+                () => ObjectStoreLimitations.CheckCollectionName(tableName),
                "Table names can contain only alphanumeric characters. They may not start with a number, are at least 3 characters short and at most 63 charachers long.");
 
         }
@@ -804,9 +804,9 @@ namespace Savannah.Tests
         [DataRow("ttt")]
         [DataRow("TableName")]
         [DataRow("ThisStringHas63CharactersTrustMeItReallyDoesIHaveCheckedOneTime")]
-        public void TestValidTableName(string tableName)
+        public void TestValidCollectionName(string tableName)
         {
-            ObjectStoreLimitations.CheckTableName(tableName);
+            ObjectStoreLimitations.CheckCollectionName(tableName);
         }
 
         private static string _GetInUnicodeLiterals(string partitionKey)

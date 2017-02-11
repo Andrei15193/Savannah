@@ -44,11 +44,13 @@
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="ObjectMetadata.cs" />
     <Compile Include="ObjectStore.cs" />
+    <Compile Include="ObjectStoreCollection.cs" />
     <Compile Include="ObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperationType.cs" />
     <Compile Include="ObjectStoreQuery.cs" />
     <Compile Include="ObjectStoreLimitations.cs" />
     <Compile Include="ObjectStoreXmlNameTable.cs" />
+    <Compile Include="OperationContext.cs" />
     <Compile Include="StorageObjectFactory.cs" />
     <Compile Include="StorageObjectPropertyType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
