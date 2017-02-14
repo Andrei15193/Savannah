@@ -26,6 +26,8 @@ namespace Savannah
 
         public static int MaximumObjectSizeInBytes { get; } = (1024 * 1024 * sizeof(byte));
 
+        public static StringComparer StringComparer { get; } = StringComparer.Ordinal;
+
         public static Regex AcceptedPropertyNamePattern { get; } = new Regex(
             "^(?!xml)[_a-z][_a-z0-9]{0,254}$",
             (RegexOptions.IgnoreCase | RegexOptions.CultureInvariant));
@@ -96,7 +98,7 @@ namespace Savannah
                 throw new InvalidOperationException("Cannot store null value.");
 
             var metadata = ObjectMetadata.GetFor(@object.GetType());
-            _CheckMetadataForStorageOperation(metadata);
+            _CheckMetadataForObjectStoreOperation(metadata);
 
             var partitionKey = (string)metadata.PartitionKeyProperty.GetValue(@object);
             _CheckPartitionKey(partitionKey);
@@ -147,7 +149,7 @@ namespace Savannah
             }
         }
 
-        private static void _CheckMetadataForStorageOperation(ObjectMetadata metadata)
+        private static void _CheckMetadataForObjectStoreOperation(ObjectMetadata metadata)
         {
             if (metadata.PartitionKeyProperty == null)
                 throw new InvalidOperationException("The given object must expose a readable PartitionKey property of type string.");

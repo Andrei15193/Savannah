@@ -3,24 +3,24 @@ using System.Xml;
 
 namespace Savannah
 {
-    internal sealed class OperationContext
+    internal sealed class ObjectStoreOperationContext
     {
-        internal OperationContext(StorageObject storageObject, XmlReader xmlReader, XmlWriter xmlWriter)
+        internal ObjectStoreOperationContext(StorageObjectFactory storageObjectFactory, XmlReader xmlReader, XmlWriter xmlWriter)
         {
 #if DEBUG
-            if (storageObject == null)
-                throw new ArgumentNullException(nameof(storageObject));
+            if (storageObjectFactory == null)
+                throw new ArgumentNullException(nameof(storageObjectFactory));
             if (xmlReader == null)
                 throw new ArgumentNullException(nameof(xmlReader));
             if (xmlWriter == null)
                 throw new ArgumentNullException(nameof(xmlWriter));
 #endif
-            StorageObject = storageObject;
+            StorageObjectFactory = storageObjectFactory;
             XmlReader = xmlReader;
             XmlWriter = xmlWriter;
         }
 
-        internal StorageObject StorageObject { get; }
+        internal StorageObjectFactory StorageObjectFactory { get; }
 
         internal XmlReader XmlReader { get; }
 

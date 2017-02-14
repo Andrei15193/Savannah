@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.ObjectStoreOperations;
 using Savannah.Tests.Mocks;
 using Savannah.Utilities;
 using Windows.Storage;
@@ -39,17 +40,6 @@ namespace Savannah.Tests
             var objectStoreFolder = Task.Run(localTestFolder.CreateFolderAsync(_objectStoreFolderName, CreationCollisionOption.OpenIfExists).AsTask).Result;
 
             Task.Run(objectStoreFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask).Wait();
-        }
-
-        [DataTestMethod]
-        [DataRow("collectionName")]
-        [DataRow("test")]
-        public void TestGettingCollectionWithSameNameReturnsExactSameInstance(string collectionName)
-        {
-            var collection1 = _ObjectStore.GetCollection(collectionName.ToUpperInvariant());
-            var collection2 = _ObjectStore.GetCollection(collectionName.ToLowerInvariant());
-
-            Assert.AreSame(collection1, collection2);
         }
 
         [TestMethod]
@@ -216,27 +206,23 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
-        public async Task TestTryingToAddObjectWithoutPartitionKeyThrowsException()
+        public void TestTryingToAddObjectWithoutPartitionKeyThrowsException()
         {
-            var operation = ObjectStoreOperation.Insert(new { RowKey = Guid.NewGuid().ToString() });
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(operation),
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreOperation.Insert(new { RowKey = Guid.NewGuid().ToString() }),
                 "The given object must expose a readable PartitionKey property of type string.");
         }
 
         [TestMethod]
-        public async Task TestTryingToAddObjectWithoutRowKeyThrowsException()
+        public void TestTryingToAddObjectWithoutRowKeyThrowsException()
         {
-            var operation = ObjectStoreOperation.Insert(new { PartitionKey = Guid.NewGuid().ToString() });
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(operation),
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreOperation.Insert(new { PartitionKey = Guid.NewGuid().ToString() }),
                 "The given object must expose a readable RowKey property of type string.");
         }
 
         [TestMethod]
-        public async Task TestAddingObjectAtMaximumSizeDoesNotThrowException()
+        public void TestAddingObjectAtMaximumSizeDoesNotThrowException()
         {
             var operation = ObjectStoreOperation.Insert(
                 new
@@ -260,38 +246,34 @@ namespace Savannah.Tests
                     Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
                     Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize]
                 });
-
-            await _ObjectStoreCollection.ExecuteAsync(operation);
         }
 
         [TestMethod]
-        public async Task TestTryingToAddObjectLargerThanSupportedThrowsException()
+        public void TestTryingToAddObjectLargerThanSupportedThrowsException()
         {
-            var operation = ObjectStoreOperation.Insert(
-                new
-                {
-                    PartitionKey = string.Empty,
-                    RowKey = string.Empty,
-                    Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize + 1]
-                });
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(operation),
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreOperation.Insert(
+                    new
+                    {
+                        PartitionKey = string.Empty,
+                        RowKey = string.Empty,
+                        Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize + 1]
+                    }),
                 "The maximum supported size of an object is 1,048,576 bytes.");
         }
 
@@ -445,30 +427,18 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
-        public async Task TestTryingToDeleteAnObjectThatDoesNotExposeAPartitionKeyThrowsException()
+        public void TestTryingToDeleteAnObjectThatDoesNotExposeAPartitionKeyThrowsException()
         {
-            var @object = new
-            {
-                RowKey = Guid.NewGuid().ToString()
-            };
-            var deleteOperation = ObjectStoreOperation.Delete(@object);
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(deleteOperation),
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreOperation.Delete(new { RowKey = Guid.NewGuid().ToString() }),
                 "The given object must expose a readable PartitionKey property of type string.");
         }
 
         [TestMethod]
-        public async Task TestTryingToDeleteAnObjectThatDoesNotExposeARowKeyThrowsException()
+        public void TestTryingToDeleteAnObjectThatDoesNotExposeARowKeyThrowsException()
         {
-            var @object = new
-            {
-                PartitionKey = Guid.NewGuid().ToString()
-            };
-            var deleteOperation = ObjectStoreOperation.Delete(@object);
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(deleteOperation),
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreOperation.Delete(new { PartitionKey = Guid.NewGuid().ToString() }),
                 "The given object must expose a readable RowKey property of type string.");
         }
     }
