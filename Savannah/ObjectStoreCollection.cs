@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Savannah.ObjectStoreOperations;
 using Savannah.Utilities;
 using Windows.Storage;
 
@@ -132,18 +131,9 @@ namespace Savannah
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
-#if DEBUG
-            try
-            {
-                ObjectStoreLimitations.Check(operation.Object);
-            }
-            catch (Exception exception)
-            {
-                throw new InvalidOperationException(
-                    "Expected object to follow limitations.",
-                    exception);
-            }
-#endif
+
+            ObjectStoreLimitations.Check(operation.Object);
+
             await _ExecuteAsync(operation, cancellationToken).ConfigureAwait(false);
         }
 

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Savannah.ObjectStoreOperations;
 
-namespace Savannah.ObjectStoreOperations
+namespace Savannah
 {
     public abstract class ObjectStoreOperation
     {
@@ -16,13 +17,12 @@ namespace Savannah.ObjectStoreOperations
         {
             if (@object == null)
                 throw new ArgumentNullException(nameof(@object));
-            ObjectStoreLimitations.Check(@object);
 
             Object = @object;
 
             var metadata = ObjectMetadata.GetFor(@object.GetType());
-            PartitionKey = (string)metadata.PartitionKeyProperty.GetValue(@object);
-            RowKey = (string)metadata.RowKeyProperty.GetValue(@object);
+            PartitionKey = (string)metadata?.PartitionKeyProperty?.GetValue(@object);
+            RowKey = (string)metadata?.RowKeyProperty?.GetValue(@object);
         }
 
         public object Object { get; }

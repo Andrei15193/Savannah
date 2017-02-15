@@ -47,7 +47,7 @@
     <Compile Include="ObjectStoreCollection.cs" />
     <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\InsertObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\ObjectStoreOperation.cs" />
+    <Compile Include="ObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperationType.cs" />
     <Compile Include="ObjectStoreQuery.cs" />
     <Compile Include="ObjectStoreLimitations.cs" />

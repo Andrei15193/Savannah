@@ -1,5 +1,5 @@
-﻿using Savannah.Utilities;
-using System;
+﻿using System;
+using Savannah.Utilities;
 
 namespace Savannah.Tests.Mocks
 {

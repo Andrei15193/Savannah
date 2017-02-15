@@ -95,7 +95,7 @@ namespace Savannah
         internal static void Check(object @object)
         {
             if (@object == null)
-                throw new InvalidOperationException("Cannot store null value.");
+                throw new InvalidOperationException("Cannot operate with null value.");
 
             var metadata = ObjectMetadata.GetFor(@object.GetType());
             _CheckMetadataForObjectStoreOperation(metadata);
