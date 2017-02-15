@@ -44,6 +44,7 @@
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="ObjectMetadata.cs" />
     <Compile Include="ObjectStore.cs" />
+    <Compile Include="ObjectStoreBatchOperation.cs" />
     <Compile Include="ObjectStoreCollection.cs" />
     <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\InsertObjectStoreOperation.cs" />

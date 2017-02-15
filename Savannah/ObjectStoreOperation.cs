@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Savannah.ObjectStoreOperations;
 
 namespace Savannah
@@ -33,9 +31,6 @@ namespace Savannah
 
         internal string RowKey { get; }
 
-        internal Task ExecuteAsync(StorageObject existingObject, ObjectStoreOperationContext context)
-            => ExecuteAsync(existingObject, context, CancellationToken.None);
-
-        internal abstract Task ExecuteAsync(StorageObject existingObject, ObjectStoreOperationContext context, CancellationToken cancellationToken);
+        internal abstract StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory);
     }
 }

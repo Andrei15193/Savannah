@@ -16,6 +16,8 @@ namespace Savannah
 
         public static DateTime MaximumDateTimeValue { get; } = new DateTime(9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Utc);
 
+        public static int MaximumPropertyNameLength { get; } = 255;
+
         public static int MaximumPartitionKeyLength { get; } = ((1024 * sizeof(byte)) / sizeof(char));
 
         public static int MaximumRowKeyLength { get; } = ((1024 * sizeof(byte)) / sizeof(char));
@@ -25,6 +27,10 @@ namespace Savannah
         public static int MaximumByteArrayLength { get; } = (64 * 1024 * sizeof(byte));
 
         public static int MaximumObjectSizeInBytes { get; } = (1024 * 1024 * sizeof(byte));
+
+        public static int MaximumBatchSizeInBytes { get; } = (4 * 1024 * 1024 * sizeof(byte));
+
+        public static int MaximumOperationsInBatch { get; } = 100;
 
         public static StringComparer StringComparer { get; } = StringComparer.Ordinal;
 
@@ -89,10 +95,57 @@ namespace Savannah
 
             if (!metadata.ReadableProperties.Concat(metadata.WritableProperties).All(property => AcceptedPropertyNamePattern.IsMatch(property.Name)))
                 throw new InvalidOperationException(
-                    "Property names can contain only alphanumeric and underscore characters. They can be only 255 characters long and may not begin with XML (in any casing). Property names themselves are case sensitive.");
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Property names can contain only alphanumeric and underscore characters. They can be only {0:n0} characters long and may not begin with XML (in any casing). Property names themselves are case sensitive.",
+                        MaximumPropertyNameLength));
         }
 
         internal static void Check(object @object)
+        {
+            int size;
+            _Check(@object, out size);
+        }
+
+        internal static void Check(ObjectStoreBatchOperation batchOperation)
+        {
+            if (batchOperation == null)
+                throw new ArgumentNullException(nameof(batchOperation));
+
+            if (batchOperation.Count > MaximumOperationsInBatch)
+                throw new InvalidOperationException(
+                   string.Format(
+                       CultureInfo.InvariantCulture,
+                       "The maximum number of allowed operations in a batch is {0:n0}.",
+                       MaximumOperationsInBatch));
+
+            var totalSize = 0;
+            string partitionKey = null;
+            foreach (var operation in batchOperation)
+            {
+                int size;
+                _Check(operation.Object, out size);
+                totalSize += size;
+                if (totalSize > MaximumBatchSizeInBytes)
+                    throw new InvalidOperationException(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "The maximum supported total size of objects in a batch operation is {0:n0} bytes.",
+                            MaximumBatchSizeInBytes));
+
+                if (partitionKey == null)
+                    partitionKey = operation.PartitionKey;
+                else if (!StringComparer.Equals(partitionKey, operation.PartitionKey))
+                    throw new InvalidOperationException(
+                        "All operations in a batch must be carried out on objectes having the same PartitionKey.");
+
+                if (operation.OperationType == ObjectStoreOperationType.Retrieve && batchOperation.Count > 1)
+                    throw new InvalidOperationException(
+                        "A batch may contain a retrieve operation when it is the only one.");
+            }
+        }
+
+        private static void _Check(object @object, out int objectSize)
         {
             if (@object == null)
                 throw new InvalidOperationException("Cannot operate with null value.");
@@ -106,7 +159,7 @@ namespace Savannah
             var rowKey = (string)metadata.RowKeyProperty.GetValue(@object);
             _CheckRowKey(rowKey);
 
-            int size = ((partitionKey.Length * sizeof(char)) + (rowKey.Length * sizeof(char)) + DateTimeSize);
+            objectSize = ((partitionKey.Length * sizeof(char)) + (rowKey.Length * sizeof(char)) + DateTimeSize);
             foreach (var property in metadata.ReadableProperties)
             {
                 var value = property.GetValue(@object);
@@ -115,32 +168,32 @@ namespace Savannah
                 {
                     var binaryValue = (byte[])value;
                     _Check(binaryValue);
-                    size += ((binaryValue?.Length ?? 0) * sizeof(byte));
+                    objectSize += ((binaryValue?.Length ?? 0) * sizeof(byte));
                 }
                 else if (property.PropertyType == typeof(bool))
-                    size += sizeof(bool);
+                    objectSize += sizeof(bool);
                 else if (property.PropertyType == typeof(DateTime))
                 {
                     var dateTimeValue = (DateTime)value;
                     _Check(dateTimeValue);
-                    size += DateTimeSize;
+                    objectSize += DateTimeSize;
                 }
                 else if (property.PropertyType == typeof(double))
-                    size += sizeof(double);
+                    objectSize += sizeof(double);
                 else if (property.PropertyType == typeof(Guid))
-                    size += GuidSize;
+                    objectSize += GuidSize;
                 else if (property.PropertyType == typeof(int))
-                    size += sizeof(int);
+                    objectSize += sizeof(int);
                 else if (property.PropertyType == typeof(long))
-                    size += sizeof(long);
+                    objectSize += sizeof(long);
                 else
                 {
                     var stringValue = (string)value;
                     _Check(stringValue);
-                    size += ((stringValue?.Length ?? 0) * sizeof(char));
+                    objectSize += ((stringValue?.Length ?? 0) * sizeof(char));
                 }
 
-                if (size > MaximumObjectSizeInBytes)
+                if (objectSize > MaximumObjectSizeInBytes)
                     throw new InvalidOperationException(
                         string.Format(
                             CultureInfo.InvariantCulture,

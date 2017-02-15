@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Savannah.ObjectStoreOperations
 {
@@ -15,17 +13,16 @@ namespace Savannah.ObjectStoreOperations
         public override ObjectStoreOperationType OperationType
             => ObjectStoreOperationType.Delete;
 
-        internal override async Task ExecuteAsync(StorageObject existingObject, ObjectStoreOperationContext context, CancellationToken cancellationToken)
+        internal override StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory)
         {
 #if DEBUG
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
+            if (storageObjectFactory == null)
+                throw new ArgumentNullException(nameof(storageObjectFactory));
 #endif
             if (existingObject == null)
                 throw new InvalidOperationException("The object does not exist, it cannot be removed.");
 
-            await Task.Yield();
-            cancellationToken.ThrowIfCancellationRequested();
+            return null;
         }
     }
 }

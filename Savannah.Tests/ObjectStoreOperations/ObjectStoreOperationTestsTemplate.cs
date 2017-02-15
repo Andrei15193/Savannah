@@ -1,8 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
 namespace Savannah.Tests.ObjectStoreOperations
@@ -10,44 +6,21 @@ namespace Savannah.Tests.ObjectStoreOperations
     [TestClass]
     public abstract class ObjectStoreOperationTestsTemplate
     {
-        private StringBuilder _resultBuilder;
+        internal DateTime Timestamp { get; private set; }
 
-        private StringReader _stringReader;
-
-        internal DateTime Timestamp { get; set; }
-
-        internal ObjectStoreOperationContext Context { get; set; }
-
-        internal string Result
-        {
-            get
-            {
-                Task.Run(Context.XmlWriter.FlushAsync).Wait();
-                return _resultBuilder.ToString();
-            }
-        }
+        internal StorageObjectFactory StorageObjectFactory { get; private set; }
 
         [TestInitialize]
         public void TestInitialize()
         {
             Timestamp = DateTime.UtcNow;
-            _resultBuilder = new StringBuilder();
-
-            var storageObjectFactory = new StorageObjectFactory(Timestamp);
-
-            _stringReader = new StringReader(string.Empty);
-            var xmlReader = XmlReader.Create(_stringReader, XmlSettings.ReaderSettings);
-            var xmlWriter = XmlWriter.Create(_resultBuilder, XmlSettings.WriterSettings);
-
-            Context = new ObjectStoreOperationContext(storageObjectFactory, xmlReader, xmlWriter);
+            StorageObjectFactory = new StorageObjectFactory(Timestamp);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            Context.XmlWriter.Dispose();
-            Context.XmlReader.Dispose();
-            _stringReader.Dispose();
+            StorageObjectFactory = null;
         }
     }
 }

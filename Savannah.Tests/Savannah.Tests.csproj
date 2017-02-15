@@ -121,13 +121,14 @@
     <Compile Include="Mocks\MockObject.cs" />
     <Compile Include="ObjectFactoryTests.cs" />
     <Compile Include="ObjectMetadataTests.cs" />
+    <Compile Include="ObjectStoreBatchOperationTests.cs" />
     <Compile Include="ObjectStoreLimitationsTests.cs" />
     <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\InsertObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\ObjectStoreOperationTestsTemplate.cs" />
     <Compile Include="ObjectStoreTests.cs" />
     <Compile Include="StorageObjectFactoryTests.cs" />
-    <Compile Include="ObjectStoreOperations\ObjectStoreOperationTests.cs" />
+    <Compile Include="ObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreCollectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageObjectPropertyTests.cs" />

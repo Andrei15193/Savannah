@@ -205,84 +205,6 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
-        public async Task TestTryingToAddObjectWithoutPartitionKeyThrowsException()
-        {
-            var operation = ObjectStoreOperation.Insert(new { RowKey = Guid.NewGuid().ToString() });
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(operation),
-                "The given object must expose a readable PartitionKey property of type string.");
-        }
-
-        [TestMethod]
-        public async Task TestTryingToAddObjectWithoutRowKeyThrowsException()
-        {
-            var operation = ObjectStoreOperation.Insert(new { PartitionKey = Guid.NewGuid().ToString() });
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(operation),
-                "The given object must expose a readable RowKey property of type string.");
-        }
-
-        [TestMethod]
-        public void TestAddingObjectAtMaximumSizeDoesNotThrowException()
-        {
-            var operation = ObjectStoreOperation.Insert(
-                new
-                {
-                    PartitionKey = string.Empty,
-                    RowKey = string.Empty,
-                    Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize]
-                });
-        }
-
-        [TestMethod]
-        public async Task TestTryingToAddObjectLargerThanSupportedThrowsException()
-        {
-            var operation = ObjectStoreOperation.Insert(
-                new
-                {
-                    PartitionKey = string.Empty,
-                    RowKey = string.Empty,
-                    Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
-                    Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize + 1]
-                });
-
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => _ObjectStoreCollection.ExecuteAsync(operation),
-                "The maximum supported size of an object is 1,048,576 bytes.");
-        }
-
-        [TestMethod]
         public async Task TestObjectStoreInsertTwoObjectsInDifferentPartitionInSameFile()
         {
             _HashProvider = new HashProviderMock(value => "testPartitonFile");
@@ -449,6 +371,113 @@ namespace Savannah.Tests
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
                 () => _ObjectStoreCollection.ExecuteAsync(operation),
                 "The given object must expose a readable RowKey property of type string.");
+        }
+
+        [TestMethod]
+        public async Task TestInsertingTwoObjectsThroughBatchOperation()
+        {
+            var partitionKey = Guid.NewGuid().ToString();
+            var firstObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var secondObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                ObjectStoreOperation.Insert(firstObject),
+                ObjectStoreOperation.Insert(secondObject)
+            };
+
+            await _ObjectStoreCollection.ExecuteAsync(batchOperation);
+
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            Assert.IsTrue(
+                new[] { firstObject, secondObject }
+                .OrderBy(
+                    @object => @object.RowKey,
+                    ObjectStoreLimitations.StringComparer)
+                .SequenceEqual(
+                    existingObjects.Select(
+                        existingObject => new { existingObject.PartitionKey, existingObject.RowKey })));
+        }
+
+        [TestMethod]
+        public async Task TestInsertingAndDeletingSameObjectInABatchLeavesTheStoreEmpty()
+        {
+            var @object = new { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                ObjectStoreOperation.Insert(@object),
+                ObjectStoreOperation.Delete(@object)
+            };
+
+            await _ObjectStoreCollection.ExecuteAsync(batchOperation);
+
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            Assert.IsFalse(existingObjects.Any());
+        }
+
+        [TestMethod]
+        public async Task TestInsertingTwoObjectsAndDeletingOneOfThemInABatchLeavesTheStoreWithOneObject()
+        {
+            var partitionKey = Guid.NewGuid().ToString();
+            var firstObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var secondObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                ObjectStoreOperation.Insert(firstObject),
+                ObjectStoreOperation.Insert(secondObject),
+                ObjectStoreOperation.Delete(firstObject)
+            };
+
+            await _ObjectStoreCollection.ExecuteAsync(batchOperation);
+
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var existingObject = existingObjects.Single();
+            Assert.AreEqual(secondObject, new { existingObject.PartitionKey, existingObject.RowKey });
+        }
+
+        [TestMethod]
+        public async Task TestDeletingAnObjectThatDoesNotExistAfterTwoHaveBeenInsertedInABatchCrashesTheOperationInAnException()
+        {
+            var partitionKey = Guid.NewGuid().ToString();
+            var firstObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var secondObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var thirdObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                ObjectStoreOperation.Insert(firstObject),
+                ObjectStoreOperation.Insert(secondObject),
+                ObjectStoreOperation.Delete(thirdObject)
+            };
+
+            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
+                () => _ObjectStoreCollection.ExecuteAsync(batchOperation),
+                "The object does not exist, it cannot be removed.");
+        }
+
+        [TestMethod]
+        public async Task TestDeletingAnObjectThatDoesNotExistAfterTwoHaveBeenInsertedInABatchLeavesTheCollectionInInitialState()
+        {
+            var partitionKey = Guid.NewGuid().ToString();
+            var firstObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var secondObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var thirdObject = new { PartitionKey = partitionKey, RowKey = Guid.NewGuid().ToString() };
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                ObjectStoreOperation.Insert(firstObject),
+                ObjectStoreOperation.Insert(secondObject),
+                ObjectStoreOperation.Delete(thirdObject)
+            };
+
+            try
+            {
+                await _ObjectStoreCollection.ExecuteAsync(batchOperation);
+                Assert.Fail("Expected exception.");
+            }
+            catch
+            {
+            }
+
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            Assert.IsFalse(existingObjects.Any());
         }
     }
 }

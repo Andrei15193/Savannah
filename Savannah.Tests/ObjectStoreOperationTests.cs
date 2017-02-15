@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
 namespace Savannah.Tests
@@ -19,8 +17,8 @@ namespace Savannah.Tests
             public override ObjectStoreOperationType OperationType
                 => default(ObjectStoreOperationType);
 
-            internal override Task ExecuteAsync(StorageObject existingObject, ObjectStoreOperationContext context, CancellationToken cancellationToken)
-                => Task.FromResult<object>(null);
+            internal override StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory)
+                => null;
         }
 
         [DataTestMethod]

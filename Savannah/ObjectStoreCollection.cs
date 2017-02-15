@@ -132,9 +132,18 @@ namespace Savannah
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
-            ObjectStoreLimitations.Check(operation.Object);
+            await _ExecuteAsync(new ObjectStoreBatchOperation { operation }, cancellationToken).ConfigureAwait(false);
+        }
 
-            await _ExecuteAsync(operation, cancellationToken).ConfigureAwait(false);
+        public Task ExecuteAsync(ObjectStoreBatchOperation batchOperation)
+            => ExecuteAsync(batchOperation, CancellationToken.None);
+
+        public async Task ExecuteAsync(ObjectStoreBatchOperation batchOperation, CancellationToken cancellationToken)
+        {
+            if (batchOperation == null)
+                throw new ArgumentNullException(nameof(batchOperation));
+
+            await _ExecuteAsync(batchOperation, cancellationToken).ConfigureAwait(false);
         }
 
         public Task<IEnumerable<T>> QueryAsync<T>(ObjectStoreQuery query) where T : new()
@@ -172,38 +181,54 @@ namespace Savannah
             }
         }
 
-        private async Task _ExecuteAsync(ObjectStoreOperation operation, CancellationToken cancellationToken)
+        private async Task _ExecuteAsync(ObjectStoreBatchOperation batchOperation, CancellationToken cancellationToken)
         {
-            var storageObjectFactory = new StorageObjectFactory(DateTime.UtcNow);
-
-            var bucketFile = await _GetBucketFileForAsync(operation.PartitionKey, cancellationToken).ConfigureAwait(false);
-            var temporaryFile = await _GetTemporaryFolderAsync(cancellationToken).ConfigureAwait(false);
-            try
+            ObjectStoreLimitations.Check(batchOperation);
+            if (batchOperation.Count > 0)
             {
-                using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                using (var temporaryFileStream = await temporaryFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                var batchPartitionKey = batchOperation.First().PartitionKey;
+
+                var storageObjectFactory = new StorageObjectFactory(DateTime.UtcNow);
+
+                var bucketFile = await _GetBucketFileForAsync(batchPartitionKey, cancellationToken).ConfigureAwait(false);
+                var temporaryFile = await _GetTemporaryFolderAsync(cancellationToken).ConfigureAwait(false);
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
-                    using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
+                    using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                    using (var temporaryFileStream = await temporaryFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                     {
-                        var context = new ObjectStoreOperationContext(storageObjectFactory, xmlReader, xmlWriter);
-                        await _ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
-                    }
-                }
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                await temporaryFile.MoveAndReplaceAsync(bucketFile).AsTask().ConfigureAwait(false);
-            }
-            catch
-            {
-                await temporaryFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
-                throw;
+                        using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
+                        using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
+                        {
+                            var context = new ObjectStoreOperationContext(storageObjectFactory, xmlReader, xmlWriter);
+                            await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
+                        }
+                    }
+
+                    await temporaryFile.MoveAndReplaceAsync(bucketFile).AsTask().ConfigureAwait(false);
+                }
+                catch
+                {
+                    await temporaryFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
+                    throw;
+                }
+                finally
+                {
+                    var isBucketFileEmpty = true;
+                    using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                        isBucketFileEmpty = (bucketFileStream.Length == 0);
+                    if (isBucketFileEmpty)
+                        await bucketFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
+                }
             }
         }
 
-        private async Task _ExecuteAsync(ObjectStoreOperation operation, ObjectStoreOperationContext context, CancellationToken cancellationToken)
+        private static async Task _ExecuteAsync(ObjectStoreBatchOperation batchOperation, ObjectStoreOperationContext context, CancellationToken cancellationToken)
         {
+            var batchPartitionKey = batchOperation.First().PartitionKey;
+
             await context.XmlWriter.WriteStartDocumentAsync(true).ConfigureAwait(false);
             await context.XmlWriter.WriteBucketStartElementAsync(cancellationToken).ConfigureAwait(false);
 
@@ -213,13 +238,13 @@ namespace Savannah
                 {
                     var partitionKey = context.XmlReader.GetPartitionKeyAttribute();
 
-                    var partitionKeyComparisonResult = ObjectStoreLimitations.StringComparer.Compare(partitionKey, operation.PartitionKey);
+                    var partitionKeyComparisonResult = ObjectStoreLimitations.StringComparer.Compare(partitionKey, batchPartitionKey);
                     if (partitionKeyComparisonResult < 0)
                         await context.XmlWriter.WriteNodeAsync(context.XmlReader, cancellationToken).ConfigureAwait(false);
                     else
                     {
                         foundPartition = true;
-                        await _ExecuteInPartitionAsync(operation, context, cancellationToken).ConfigureAwait(false);
+                        await _ExecuteInPartitionAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
                     }
                 }
                 else
@@ -229,47 +254,71 @@ namespace Savannah
                 while (context.XmlReader.IsOnPartitionElement())
                     await context.XmlWriter.WriteNodeAsync(context.XmlReader, cancellationToken).ConfigureAwait(false);
             else
-                await _ExecuteInPartitionAsync(operation, context, cancellationToken).ConfigureAwait(false);
+                await _ExecuteInPartitionAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
 
             await context.XmlWriter.WriteEndElementAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private static async Task _ExecuteInPartitionAsync(ObjectStoreOperation operation, ObjectStoreOperationContext context, CancellationToken cancellationToken)
+        private static async Task _ExecuteInPartitionAsync(ObjectStoreBatchOperation batchOperation, ObjectStoreOperationContext context, CancellationToken cancellationToken)
         {
+            var batchPartitionKey = batchOperation.First().PartitionKey;
+
             await context.XmlWriter.WritePartitionStartElementAsync(cancellationToken).ConfigureAwait(false);
-            await context.XmlWriter.WritePartitionKeyAttriuteAsync(operation.PartitionKey).ConfigureAwait(false);
+            await context.XmlWriter.WritePartitionKeyAttriuteAsync(batchPartitionKey).ConfigureAwait(false);
 
-            var foundRow = false;
-            while (!foundRow && !context.XmlReader.IsOnPartitionEndElement() && context.XmlReader.ReadState != ReadState.EndOfFile)
-                if (context.XmlReader.IsOnObjectElement())
-                {
-                    var rowKey = context.XmlReader.GetRowKeyAttribute();
-
-                    var rowKeyComparisonResult = ObjectStoreLimitations.StringComparer.Compare(rowKey, operation.RowKey);
-                    if (rowKeyComparisonResult < 0)
-                        await context.XmlWriter.WriteNodeAsync(context.XmlReader, cancellationToken).ConfigureAwait(false);
-                    else
+            using (var operation = batchOperation.OrderBy(storeOperation => storeOperation.RowKey, ObjectStoreLimitations.StringComparer).GetEnumerator())
+            {
+                var operationHasValue = operation.MoveNext();
+                while (operationHasValue && !context.XmlReader.IsOnPartitionEndElement() && context.XmlReader.ReadState != ReadState.EndOfFile)
+                    if (context.XmlReader.IsOnObjectElement())
                     {
-                        foundRow = true;
-                        var existingObject = (
-                            rowKeyComparisonResult == 0
-                            ? await context.XmlReader.ReadStorageObjectAsync(cancellationToken).ConfigureAwait(false)
-                            : null
-                        );
+                        var rowKey = context.XmlReader.GetRowKeyAttribute();
 
-                        await operation.ExecuteAsync(existingObject, context, cancellationToken).ConfigureAwait(false);
+                        var rowKeyComparisonResult = ObjectStoreLimitations.StringComparer.Compare(rowKey, operation.Current.RowKey);
+                        if (rowKeyComparisonResult < 0)
+                            await context.XmlWriter.WriteNodeAsync(context.XmlReader, cancellationToken).ConfigureAwait(false);
+                        else
+                        {
+                            var existingObject = (
+                                rowKeyComparisonResult == 0
+                                ? await context.XmlReader.ReadStorageObjectAsync(cancellationToken).ConfigureAwait(false)
+                                : null
+                            );
+
+                            operationHasValue = await _ExecuteOnSameRowKey(operation, existingObject, context, cancellationToken).ConfigureAwait(false);
+                        }
                     }
-                }
-                else
-                    await context.XmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+                    else
+                        await context.XmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
-            if (foundRow)
-                while (context.XmlReader.IsOnObjectElement())
-                    await context.XmlWriter.WriteNodeAsync(context.XmlReader, cancellationToken).ConfigureAwait(false);
-            else
-                await operation.ExecuteAsync(null, context, cancellationToken).ConfigureAwait(false);
+                if (operationHasValue)
+                    do
+                        operationHasValue = await _ExecuteOnSameRowKey(operation, null, context, cancellationToken).ConfigureAwait(false);
+                    while (operationHasValue);
+                else
+                    while (context.XmlReader.IsOnObjectElement())
+                        await context.XmlWriter.WriteNodeAsync(context.XmlReader, cancellationToken).ConfigureAwait(false);
+            }
 
             await context.XmlWriter.WriteEndElementAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        private static async Task<bool> _ExecuteOnSameRowKey(IEnumerator<ObjectStoreOperation> operation, StorageObject existingObject, ObjectStoreOperationContext context, CancellationToken cancellationToken)
+        {
+            var hasValue = true;
+            string previousRowKey;
+
+            do
+            {
+                previousRowKey = operation.Current.RowKey;
+                existingObject = operation.Current.GetStorageObjectFrom(existingObject, context.StorageObjectFactory);
+                hasValue = operation.MoveNext();
+            } while (hasValue && ObjectStoreLimitations.StringComparer.Equals(previousRowKey, operation.Current.RowKey));
+
+            if (existingObject != null)
+                await context.XmlWriter.WriteAsync(existingObject).ConfigureAwait(false);
+
+            return hasValue;
         }
 
         private async Task<IEnumerable<T>> _GetAllObjectsFromAsync<T>(StorageFile bucketFile, CancellationToken cancellationToken) where T : new()

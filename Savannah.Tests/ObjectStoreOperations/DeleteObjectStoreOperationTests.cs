@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Savannah.ObjectStoreOperations;
 
@@ -10,22 +9,22 @@ namespace Savannah.Tests.ObjectStoreOperations
         : ObjectStoreOperationTestsTemplate
     {
         [TestMethod]
-        public async Task TestDeleteExistingObject()
+        public void TestDeleteExistingObject()
         {
             var deleteOperation = new DeleteObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });
             var existingStorageObject = new StorageObject(null, null, null);
 
-            await deleteOperation.ExecuteAsync(existingStorageObject, Context);
+            var storageObject = deleteOperation.GetStorageObjectFrom(existingStorageObject, StorageObjectFactory);
 
-            Assert.AreEqual(0, Result.Length);
+            Assert.IsNull(storageObject);
         }
 
         [TestMethod]
-        public async Task TestTryingToDeleteNonExistingObjectThrowsException()
+        public void TestTryingToDeleteNonExistingObjectThrowsException()
         {
             var deleteOperation = new DeleteObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });
-            await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => deleteOperation.ExecuteAsync(null, Context),
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => deleteOperation.GetStorageObjectFrom(null, StorageObjectFactory),
                 "The object does not exist, it cannot be removed.");
         }
     }

@@ -9,6 +9,20 @@ namespace Savannah.Tests
     [TestClass]
     public class ObjectStoreLimitationsTests
     {
+        private sealed class ObjectStoreOperationMock
+            : ObjectStoreOperation
+        {
+            public ObjectStoreOperationMock(ObjectStoreOperationType operationType, object @object) : base(@object)
+            {
+                OperationType = operationType;
+            }
+
+            public override ObjectStoreOperationType OperationType { get; }
+
+            internal override StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory)
+                => null;
+        }
+
         [DataTestMethod]
         [DataRow("/")]
         [DataRow("\\")]
@@ -807,6 +821,208 @@ namespace Savannah.Tests
         public void TestValidCollectionName(string tableName)
         {
             ObjectStoreLimitations.CheckCollectionName(tableName);
+        }
+
+        [TestMethod]
+        public void TestValidatingNullBatchOperationThrowsException()
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => ObjectStoreLimitations.Check(batchOperation: null));
+        }
+
+        [TestMethod]
+        public void TestHavingMoreThanSupportedOperationsInABatchThrowsException()
+        {
+            var batchOperation = new ObjectStoreBatchOperation();
+            for (var operationNumber = 0; operationNumber < (ObjectStoreLimitations.MaximumOperationsInBatch + 1); operationNumber++)
+                batchOperation.Add(ObjectStoreOperation.Insert(new object()));
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(batchOperation),
+                "The maximum number of allowed operations in a batch is 100.");
+        }
+
+        [TestMethod]
+        public void TestHavingOperationsWhoseObjectsTotalSizeIsAsLargeAsTheMaximumSupportedSizeDoesNotThrowException()
+        {
+            var batchOperation = new ObjectStoreBatchOperation();
+            for (var operationNumber = 0; operationNumber < 4; operationNumber++)
+                batchOperation.Add(ObjectStoreOperation.Insert(
+                    new
+                    {
+                        PartitionKey = string.Empty,
+                        RowKey = string.Empty,
+                        Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize]
+                    }));
+
+            ObjectStoreLimitations.Check(batchOperation);
+        }
+
+        [TestMethod]
+        public void TestHavingOperationsWhoseObjectsExceedTheMaximumAllowedTotalSizeThrowsException()
+        {
+            var batchOperation = new ObjectStoreBatchOperation();
+            for (var operationNumber = 0; operationNumber < 4; operationNumber++)
+                batchOperation.Add(ObjectStoreOperation.Insert(
+                    new
+                    {
+                        PartitionKey = string.Empty,
+                        RowKey = string.Empty,
+                        Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                        Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize]
+                    }));
+            batchOperation.Add(ObjectStoreOperation.Insert(new { PartitionKey = string.Empty, RowKey = string.Empty, Binary = new byte[1] }));
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(batchOperation),
+                "The maximum supported total size of objects in a batch operation is 4,194,304 bytes.");
+        }
+
+        [TestMethod]
+        public void TestHavingOperationsInABatchThatDoNotOperateInSamePartitionThrowsException()
+        {
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                ObjectStoreOperation.Insert(new { PartitionKey = "1", RowKey = string.Empty }),
+                ObjectStoreOperation.Insert(new { PartitionKey = "2", RowKey = string.Empty })
+            };
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(batchOperation),
+                "All operations in a batch must be carried out on objectes having the same PartitionKey.");
+        }
+
+        [TestMethod]
+        public void TestHavingMultipleRetrieveOperationsThrowsException()
+        {
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                new  ObjectStoreOperationMock(ObjectStoreOperationType.Retrieve, new { PartitionKey = string.Empty, RowKey = string.Empty }),
+                new  ObjectStoreOperationMock(ObjectStoreOperationType.Retrieve, new { PartitionKey = string.Empty, RowKey = string.Empty })
+            };
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(batchOperation),
+                "A batch may contain a retrieve operation when it is the only one.");
+        }
+
+        [TestMethod]
+        public void TestHavingJustOneRetrieveOperationDoesNotThrowException()
+        {
+            var batchOperation = new ObjectStoreBatchOperation
+            {
+                new  ObjectStoreOperationMock(ObjectStoreOperationType.Retrieve,new { PartitionKey = string.Empty, RowKey = string.Empty })
+            };
+
+            ObjectStoreLimitations.Check(batchOperation);
+        }
+
+
+        [TestMethod]
+        public void TestCheckingObjectWithoutPartitionKeyThrowsException()
+        {
+            var @object = new { RowKey = Guid.NewGuid().ToString() };
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(@object),
+                "The given object must expose a readable PartitionKey property of type string.");
+        }
+
+        [TestMethod]
+        public void TestCheckingObjectWithoutRowKeyThrowsException()
+        {
+            var @object = new { PartitionKey = Guid.NewGuid().ToString() };
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(@object),
+                "The given object must expose a readable RowKey property of type string.");
+        }
+
+        [TestMethod]
+        public void TestCheckingObjectAsLargeAsTheMaximumSupportedSizeDoesNotThrowException()
+        {
+            var @object =
+                new
+                {
+                    PartitionKey = string.Empty,
+                    RowKey = string.Empty,
+                    Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize]
+                };
+            ObjectStoreLimitations.Check(@object);
+        }
+
+        [TestMethod]
+        public void TestTryingToAddObjectLargerThanSupportedThrowsException()
+        {
+            var @object =
+                new
+                {
+                    PartitionKey = string.Empty,
+                    RowKey = string.Empty,
+                    Binary1 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary2 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary3 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary4 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary5 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary6 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary7 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary8 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary9 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary10 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary11 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary12 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary13 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary14 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary15 = new byte[ObjectStoreLimitations.MaximumByteArrayLength],
+                    Binary16 = new byte[ObjectStoreLimitations.MaximumByteArrayLength - ObjectStoreLimitations.DateTimeSize + 1]
+                };
+
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.Check(@object),
+                "The maximum supported size of an object is 1,048,576 bytes.");
         }
 
         private static string _GetInUnicodeLiterals(string partitionKey)
