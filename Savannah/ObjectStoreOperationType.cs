@@ -5,6 +5,7 @@
         Delete,
         Insert,
         InsertOrMerge,
+        InsertOrReplace,
         Retrieve
     }
 }

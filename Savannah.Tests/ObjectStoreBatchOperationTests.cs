@@ -246,6 +246,15 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        public void TestInsertOrReplaceAddsANewInsertOperation()
+        {
+            _ObjectStoreBatchOperation.InsertOrReplace(new object());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.InsertOrReplace, operation.OperationType);
+        }
+
+        [TestMethod]
         public void TestRetrieveDynamicObjectAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object());

@@ -84,9 +84,17 @@ namespace Savannah.Tests
         [TestMethod]
         public void TestInsertOrMergeOperationIsInitializedWithInsertOperationType()
         {
-            var insertOperation = ObjectStoreOperation.InsertOrMerge(new { PartitionKey = string.Empty, RowKey = string.Empty });
+            var insertOrMergeOperation = ObjectStoreOperation.InsertOrMerge(new { PartitionKey = string.Empty, RowKey = string.Empty });
 
-            Assert.AreEqual(ObjectStoreOperationType.InsertOrMerge, insertOperation.OperationType);
+            Assert.AreEqual(ObjectStoreOperationType.InsertOrMerge, insertOrMergeOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestInsertOrReplaceOperationIsInitializedWithInsertOperationType()
+        {
+            var insertOrReplaceOperation = ObjectStoreOperation.InsertOrReplace(new { PartitionKey = string.Empty, RowKey = string.Empty });
+
+            Assert.AreEqual(ObjectStoreOperationType.InsertOrReplace, insertOrReplaceOperation.OperationType);
         }
 
         [TestMethod]
