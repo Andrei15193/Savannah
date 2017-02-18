@@ -124,26 +124,26 @@ namespace Savannah
             }
         }
 
-        public Task ExecuteAsync(ObjectStoreOperation operation)
+        public Task<IEnumerable<object>> ExecuteAsync(ObjectStoreOperation operation)
             => ExecuteAsync(operation, CancellationToken.None);
 
-        public async Task ExecuteAsync(ObjectStoreOperation operation, CancellationToken cancellationToken)
+        public async Task<IEnumerable<object>> ExecuteAsync(ObjectStoreOperation operation, CancellationToken cancellationToken)
         {
             if (operation == null)
                 throw new ArgumentNullException(nameof(operation));
 
-            await _ExecuteAsync(new ObjectStoreBatchOperation { operation }, cancellationToken).ConfigureAwait(false);
+            return await _ExecuteAsync(new ObjectStoreBatchOperation { operation }, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task ExecuteAsync(ObjectStoreBatchOperation batchOperation)
+        public Task<IEnumerable<object>> ExecuteAsync(ObjectStoreBatchOperation batchOperation)
             => ExecuteAsync(batchOperation, CancellationToken.None);
 
-        public async Task ExecuteAsync(ObjectStoreBatchOperation batchOperation, CancellationToken cancellationToken)
+        public async Task<IEnumerable<object>> ExecuteAsync(ObjectStoreBatchOperation batchOperation, CancellationToken cancellationToken)
         {
             if (batchOperation == null)
                 throw new ArgumentNullException(nameof(batchOperation));
 
-            await _ExecuteAsync(batchOperation, cancellationToken).ConfigureAwait(false);
+            return await _ExecuteAsync(batchOperation, cancellationToken).ConfigureAwait(false);
         }
 
         public Task<IEnumerable<T>> QueryAsync<T>(ObjectStoreQuery query) where T : new()
@@ -181,48 +181,52 @@ namespace Savannah
             }
         }
 
-        private async Task _ExecuteAsync(ObjectStoreBatchOperation batchOperation, CancellationToken cancellationToken)
+        private async Task<IEnumerable<object>> _ExecuteAsync(ObjectStoreBatchOperation batchOperation, CancellationToken cancellationToken)
         {
             ObjectStoreLimitations.Check(batchOperation);
-            if (batchOperation.Count > 0)
+
+            if (batchOperation.Count == 0)
+                return Enumerable.Empty<object>();
+
+            var batchPartitionKey = batchOperation.First().PartitionKey;
+            var storageObjectFactory = new StorageObjectFactory(DateTime.UtcNow);
+
+            IEnumerable<object> result;
+            var bucketFile = await _GetBucketFileForAsync(batchPartitionKey, cancellationToken).ConfigureAwait(false);
+            var temporaryFile = await _GetTemporaryFolderAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
-                var batchPartitionKey = batchOperation.First().PartitionKey;
-
-                var storageObjectFactory = new StorageObjectFactory(DateTime.UtcNow);
-
-                var bucketFile = await _GetBucketFileForAsync(batchPartitionKey, cancellationToken).ConfigureAwait(false);
-                var temporaryFile = await _GetTemporaryFolderAsync(cancellationToken).ConfigureAwait(false);
-                try
+                using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                using (var temporaryFileStream = await temporaryFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                 {
-                    using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                    using (var temporaryFileStream = await temporaryFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
+                    using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
-                        using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
-                        {
-                            var context = new ObjectStoreOperationContext(storageObjectFactory, xmlReader, xmlWriter);
-                            await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
-                        }
+                        var context = new ObjectStoreOperationContext(storageObjectFactory, xmlReader, xmlWriter);
+                        await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
+                        result = context.Result;
                     }
+                }
 
-                    await temporaryFile.MoveAndReplaceAsync(bucketFile).AsTask().ConfigureAwait(false);
-                }
-                catch
-                {
-                    await temporaryFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
-                    throw;
-                }
-                finally
-                {
-                    var isBucketFileEmpty = true;
-                    using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                        isBucketFileEmpty = (bucketFileStream.Length == 0);
-                    if (isBucketFileEmpty)
-                        await bucketFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
-                }
+                await temporaryFile.MoveAndReplaceAsync(bucketFile).AsTask().ConfigureAwait(false);
             }
+            catch
+            {
+                await temporaryFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
+                throw;
+            }
+            finally
+            {
+                var isBucketFileEmpty = true;
+                using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                    isBucketFileEmpty = (bucketFileStream.Length == 0);
+                if (isBucketFileEmpty)
+                    await bucketFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
+            }
+
+            return result;
         }
 
         private static async Task _ExecuteAsync(ObjectStoreBatchOperation batchOperation, ObjectStoreOperationContext context, CancellationToken cancellationToken)
@@ -311,7 +315,11 @@ namespace Savannah
             do
             {
                 previousRowKey = operation.Current.RowKey;
-                existingObject = operation.Current.GetStorageObjectFrom(existingObject, context.StorageObjectFactory);
+                existingObject = operation.Current.GetStorageObjectFrom(
+                    new ObjectStoreOperationExectionContext(
+                        existingObject,
+                        context.StorageObjectFactory,
+                        context.Result));
                 hasValue = operation.MoveNext();
             } while (hasValue && ObjectStoreLimitations.StringComparer.Equals(previousRowKey, operation.Current.RowKey));
 

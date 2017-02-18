@@ -1,87 +1,13 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests
 {
     [TestClass]
-    public class ObjectFactoryTests
+    public class PropertyValueFactoryTests
     {
-        private static ObjectFactory<TestObject> _Factory { get; } = new ObjectFactory<TestObject>();
-
-        private class TestObject
-        {
-            public string PartitionKey { get; set; }
-
-            public string RowKey { get; set; }
-
-            public DateTime Timestamp { get; set; }
-
-            public byte[] BinaryProperty { get; set; }
-
-            public bool BooleanProperty { get; set; }
-
-            public DateTime DateTimeProperty { get; set; }
-
-            public double DoubleProperty { get; set; }
-
-            public Guid GuidProperty { get; set; }
-
-            public int IntProperty { get; set; }
-
-            public long LongProperty { get; set; }
-
-            public string StringProperty { get; set; }
-        }
-
-        [DataTestMethod]
-        [DataRow("partitionKey")]
-        [DataRow("")]
-        [DataRow(default(string))]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        public void TestPartitionKeyIsSetAccordingly(string partitionKey)
-        {
-            var storageObject = new StorageObject(partitionKey, null, null);
-
-            var @object = _Factory.CreateFrom(storageObject);
-
-            Assert.AreSame(partitionKey, @object.PartitionKey);
-        }
-
-        [DataTestMethod]
-        [DataRow("rowKey")]
-        [DataRow("")]
-        [DataRow(default(string))]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        public void TestRowKeyIsSetAccordingly(string rowKey)
-        {
-            var storageObject = new StorageObject(null, rowKey, null);
-
-            var @object = _Factory.CreateFrom(storageObject);
-
-            Assert.AreSame(rowKey, @object.RowKey);
-        }
-
-        [DataTestMethod]
-        [DataRow("2015/01/22 01:05:09:0130000Z", 2015, 1, 22, 1, 5, 9, 13, DateTimeKind.Utc)]
-        [DataRow("2016/02/23 02:06:10:0140000+02:00", 2016, 2, 23, 2, 6, 10, 14, DateTimeKind.Local)]
-        [DataRow("2017/03/24 04:07:11:0150000+03:00", 2017, 3, 24, 3, 7, 11, 15, DateTimeKind.Local)]
-        [DataRow("2018/04/25 04:08:12:0160000", 2018, 4, 25, 4, 8, 12, 16, DateTimeKind.Unspecified)]
-        public void TestTimestampIsSetAccordingly(string timestamp, int expectedYear, int expectedMonth, int expectedDay, int expectedHour, int expectedMinute, int expectedSecond, int expectedMillisecond, DateTimeKind expectedDateTimeKind)
-        {
-            var expectedTimestamp = new DateTime(expectedYear, expectedMonth, expectedDay, expectedHour, expectedMinute, expectedSecond, expectedMillisecond, expectedDateTimeKind);
-            var storageObject = new StorageObject(null, null, timestamp);
-
-            var @object = _Factory.CreateFrom(storageObject);
-
-            Assert.AreEqual(expectedTimestamp, @object.Timestamp);
-        }
+        private static PropertyValueFactory _Factory { get; } = new PropertyValueFactory();
 
         [DataTestMethod]
         [DataRow("1F4D", new byte[] { 0x1F, 0x4D })]
@@ -350,20 +276,19 @@ namespace Savannah.Tests
         [DataRow("FD", new byte[] { 0xFD })]
         [DataRow("FE", new byte[] { 0xFE })]
         [DataRow("FF", new byte[] { 0xFF })]
-        public void TestBinaryPropertyIsSetAccordingly(string byteArrayString, byte[] expectedByteArray)
+        public void TestBinaryPropertyIsConvertedAccordingly(string byteArrayString, byte[] expectedByteArray)
         {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.BinaryProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 byteArrayString,
                 StorageObjectPropertyType.Binary);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (byte[])_Factory.GetPropertyValueFrom(storageObjectProperty);
 
             if (expectedByteArray == null)
-                Assert.IsNull(@object.BinaryProperty);
+                Assert.IsNull(result);
             else
-                Assert.IsTrue(expectedByteArray.SequenceEqual(@object.BinaryProperty));
+                Assert.IsTrue(expectedByteArray.SequenceEqual(result));
         }
 
         [DataTestMethod]
@@ -371,15 +296,14 @@ namespace Savannah.Tests
         [DataRow("false", false)]
         public void TestBooleanPropertyIsSetAccordingly(string booleanString, bool expectedBooleanValue)
         {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.BooleanProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 booleanString,
                 StorageObjectPropertyType.Boolean);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (bool)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedBooleanValue, @object.BooleanProperty);
+            Assert.AreEqual(expectedBooleanValue, result);
         }
 
         [DataTestMethod]
@@ -390,30 +314,14 @@ namespace Savannah.Tests
         public void TestDateTimePropertyIsSetAccordingly(string dateTimeString, int expectedYear, int expectedMonth, int expectedDay, int expectedHour, int expectedMinute, int expectedSecond, int expectedMillisecond, DateTimeKind expectedDateTimeKind)
         {
             var expectedTimestamp = new DateTime(expectedYear, expectedMonth, expectedDay, expectedHour, expectedMinute, expectedSecond, expectedMillisecond, expectedDateTimeKind);
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.DateTimeProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 dateTimeString,
                 StorageObjectPropertyType.DateTime);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (DateTime)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedTimestamp, @object.DateTimeProperty);
-        }
-
-        [DataTestMethod]
-        [DataRow(2015, 1, 22, 1, 4, 7, 10, DateTimeKind.Utc)]
-        [DataRow(2016, 2, 23, 2, 5, 8, 11, DateTimeKind.Local)]
-        [DataRow(2017, 3, 24, 3, 6, 9, 12, DateTimeKind.Unspecified)]
-        public void TestDateTimeThatWasProvidedThroughStorageObjectFactoryIsRetrievedExactlyTheSameThroughObjectFactory(int year, int month, int day, int hour, int minute, int second, int millisecond, DateTimeKind dateTimeKind)
-        {
-            var dateTime = new DateTime(year, month, day, hour, minute, second, millisecond, dateTimeKind);
-            var storageObjectFactory = new StorageObjectFactory(DateTime.Now);
-            var storageObject = storageObjectFactory.CreateFrom(new { DateTimeProperty = dateTime });
-
-            var @object = _Factory.CreateFrom(storageObject);
-
-            Assert.AreEqual(dateTime, @object.DateTimeProperty);
+            Assert.AreEqual(expectedTimestamp, result);
         }
 
         [DataTestMethod]
@@ -424,15 +332,14 @@ namespace Savannah.Tests
         [DataRow("0", 0D)]
         public void TestDoublePropertyIsSetAccordingly(string doubleString, double expectedDoubleValue)
         {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.DoubleProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 doubleString,
                 StorageObjectPropertyType.Double);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (double)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedDoubleValue, @object.DoubleProperty);
+            Assert.AreEqual(expectedDoubleValue, result);
         }
 
         [DataTestMethod]
@@ -442,15 +349,14 @@ namespace Savannah.Tests
         public void TestGuidPropertyIsSetAccordingly(string guidString, byte[] expectedGuidBytes)
         {
             var expectedGuid = new Guid(expectedGuidBytes);
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.GuidProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 guidString,
                 StorageObjectPropertyType.Guid);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (Guid)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedGuid, @object.GuidProperty);
+            Assert.AreEqual(expectedGuid, result);
         }
 
         [DataTestMethod]
@@ -461,15 +367,14 @@ namespace Savannah.Tests
         [DataRow("0", 0)]
         public void TestIntPropertyIsSetAccordingly(string intString, int expectedIntValue)
         {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.IntProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 intString,
                 StorageObjectPropertyType.Int);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (int)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedIntValue, @object.IntProperty);
+            Assert.AreEqual(expectedIntValue, result);
         }
 
         [DataTestMethod]
@@ -482,15 +387,14 @@ namespace Savannah.Tests
         [DataRow("0", 0L)]
         public void TestLongPropertyIsSetAccordingly(string longString, long expectedLongValue)
         {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.LongProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 longString,
                 StorageObjectPropertyType.Long);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (long)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedLongValue, @object.LongProperty);
+            Assert.AreEqual(expectedLongValue, result);
         }
 
         [DataTestMethod]
@@ -502,135 +406,15 @@ namespace Savannah.Tests
         [DataRow(default(string), default(string))]
         public void TestStringPropertyIsSetAccordingly(string @string, string expectedString)
         {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.StringProperty),
+            var storageObjectProperty = new StorageObjectProperty(
+                null,
                 @string,
                 StorageObjectPropertyType.String);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
+            var storageObject = new StorageObject(null, null, null, storageObjectProperty);
 
-            var @object = _Factory.CreateFrom(storageObject);
+            var result = (string)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
-            Assert.AreEqual(expectedString, @object.StringProperty, ignoreCase: false);
-        }
-
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey", "stringValue")]
-        public void TestProjectingStorageObjectToDifferentObject(string partitionKey, string rowKey, string stringValue)
-        {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.StringProperty),
-                stringValue,
-                StorageObjectPropertyType.String);
-            var storageObject = new StorageObject(partitionKey, rowKey, null, storageProperty);
-
-            var factory = new ObjectFactory<MockObject>();
-            var @object = factory.CreateFrom(storageObject);
-
-            Assert.AreSame(partitionKey, @object.PartitionKey);
-            Assert.AreSame(rowKey, @object.RowKey);
-        }
-
-        [TestMethod]
-        public void TestTryingToSetPropertyOfDifferentTypeThrowsException()
-        {
-            var stringValue = "stringValue";
-
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.IntProperty),
-                stringValue,
-                StorageObjectPropertyType.String);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
-
-            AssertExtra.ThrowsException<InvalidOperationException>(
-                () => _Factory.CreateFrom(storageObject),
-                "Property type mismatch. Cannot set System.String to property of type System.Int32.");
-        }
-
-        [TestMethod]
-        public void TestTryingToSetNullToPropertyOfValueTypeThrowsException()
-        {
-            var storageProperty = new StorageObjectProperty(
-                nameof(TestObject.IntProperty),
-                null,
-                StorageObjectPropertyType.String);
-            var storageObject = new StorageObject(null, null, null, storageProperty);
-
-            AssertExtra.ThrowsException<InvalidOperationException>(
-                () => _Factory.CreateFrom(storageObject),
-                "Cannot set null to property of value type.");
-        }
-
-        [DataTestMethod]
-        [DataRow(new[] { nameof(TestObject.PartitionKey), nameof(TestObject.RowKey), nameof(TestObject.Timestamp) })]
-        [DataRow(new[] { nameof(TestObject.BinaryProperty) })]
-        [DataRow(new[] { nameof(TestObject.BooleanProperty) })]
-        [DataRow(new[] { nameof(TestObject.DateTimeProperty) })]
-        [DataRow(new[] { nameof(TestObject.DoubleProperty) })]
-        [DataRow(new[] { nameof(TestObject.GuidProperty) })]
-        [DataRow(new[] { nameof(TestObject.IntProperty) })]
-        [DataRow(new[] { nameof(TestObject.LongProperty) })]
-        [DataRow(new[] { nameof(TestObject.PartitionKey) })]
-        [DataRow(new[] { nameof(TestObject.RowKey) })]
-        [DataRow(new[] { nameof(TestObject.StringProperty) })]
-        [DataRow(new[] { nameof(TestObject.Timestamp) })]
-
-        [DataRow(new[] {
-            nameof(TestObject.PartitionKey),
-            nameof(TestObject.RowKey),
-            nameof(TestObject.Timestamp),
-            nameof(TestObject.BinaryProperty),
-            nameof(TestObject.BooleanProperty),
-            nameof(TestObject.DateTimeProperty),
-            nameof(TestObject.DoubleProperty),
-            nameof(TestObject.GuidProperty),
-            nameof(TestObject.IntProperty),
-            nameof(TestObject.LongProperty),
-            nameof(TestObject.StringProperty)
-        })]
-
-        [DataRow(new[] {
-            nameof(TestObject.BinaryProperty),
-            nameof(TestObject.BooleanProperty),
-            nameof(TestObject.DateTimeProperty),
-            nameof(TestObject.DoubleProperty),
-            nameof(TestObject.GuidProperty),
-            nameof(TestObject.IntProperty),
-            nameof(TestObject.LongProperty),
-            nameof(TestObject.StringProperty)
-        })]
-        public void TestFactoryOnlyRetrievesSpecifiedProperties(string[] propertiesToRetrieve)
-        {
-            var partitionKey = string.Empty;
-            var rowKey = string.Empty;
-            var timestamp = DateTime.UtcNow;
-            var testObject = new TestObject
-            {
-                PartitionKey = partitionKey,
-                RowKey = rowKey,
-                Timestamp = timestamp,
-                BinaryProperty = new byte[0],
-                BooleanProperty = true,
-                DateTimeProperty = timestamp,
-                DoubleProperty = 1,
-                GuidProperty = Guid.NewGuid(),
-                IntProperty = 1,
-                LongProperty = 1,
-                StringProperty = string.Empty
-            };
-            var storageObjectFactory = new StorageObjectFactory(timestamp);
-            var storageObject = storageObjectFactory.CreateFrom(testObject);
-
-            var actualTestObject = _Factory.CreateFrom(storageObject, propertiesToRetrieve);
-
-            foreach (var property in typeof(TestObject).GetRuntimeProperties())
-            {
-                var propertyValue = property.GetValue(actualTestObject);
-                var propertyDefaultValue = (property.PropertyType.GetTypeInfo().IsValueType ? Activator.CreateInstance(property.PropertyType) : null);
-                if (propertiesToRetrieve.Contains(property.Name, StringComparer.Ordinal))
-                    Assert.AreNotEqual(propertyDefaultValue, propertyValue);
-                else
-                    Assert.AreEqual(propertyDefaultValue, propertyValue);
-            }
+            Assert.AreEqual(expectedString, result, ignoreCase: false);
         }
     }
 }

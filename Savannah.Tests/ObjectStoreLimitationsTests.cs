@@ -19,7 +19,7 @@ namespace Savannah.Tests
 
             public override ObjectStoreOperationType OperationType { get; }
 
-            internal override StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory)
+            internal override StorageObject GetStorageObjectFrom(ObjectStoreOperationExectionContext executionContext)
                 => null;
         }
 

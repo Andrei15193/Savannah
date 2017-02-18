@@ -126,7 +126,11 @@
     <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\InsertObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\ObjectStoreOperationTestsTemplate.cs" />
+    <Compile Include="ObjectStoreOperations\RetrieveDynamicObjectStoreOperationTests.cs" />
+    <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperationTests.cs" />
+    <Compile Include="ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreTests.cs" />
+    <Compile Include="PropertyValueFactoryTests.cs" />
     <Compile Include="StorageObjectFactoryTests.cs" />
     <Compile Include="ObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreCollectionTests.cs" />

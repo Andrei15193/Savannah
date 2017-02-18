@@ -10,20 +10,20 @@ namespace Savannah.ObjectStoreOperations
         {
         }
 
-        public override ObjectStoreOperationType OperationType
+        public sealed override ObjectStoreOperationType OperationType
             => ObjectStoreOperationType.Insert;
 
-        internal override StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory)
+        internal override StorageObject GetStorageObjectFrom(ObjectStoreOperationExectionContext context)
         {
 #if DEBUG
-            if (storageObjectFactory == null)
-                throw new ArgumentNullException(nameof(storageObjectFactory));
+            if (default(ObjectStoreOperationExectionContext).Equals(context))
+                throw new InvalidOperationException("Expected " + nameof(context) + " to be initalized.");
 #endif
-            if (existingObject != null)
+            if (context.ExistingObject != null)
                 throw new InvalidOperationException(
                     "Duplicate PartitionKey and RowKey pair. Any stored object must be uniquely identifiable by its partition and row keys.");
 
-            return storageObjectFactory.CreateFrom(Object);
+            return context.StorageObjectFactory.CreateFrom(Object);
         }
     }
 }

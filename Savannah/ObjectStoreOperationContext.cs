@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace Savannah
@@ -18,6 +19,7 @@ namespace Savannah
             StorageObjectFactory = storageObjectFactory;
             XmlReader = xmlReader;
             XmlWriter = xmlWriter;
+            Result = new List<object>();
         }
 
         internal StorageObjectFactory StorageObjectFactory { get; }
@@ -25,5 +27,7 @@ namespace Savannah
         internal XmlReader XmlReader { get; }
 
         internal XmlWriter XmlWriter { get; }
+
+        internal ICollection<object> Result { get; }
     }
 }

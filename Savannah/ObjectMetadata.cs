@@ -55,16 +55,16 @@ namespace Savannah
                     }
 
                     if (propertyAdded)
-                        if (_partitionKeyPropertyName.Equals(property.Name, StringComparison.Ordinal))
+                        if (ObjectStoreLimitations.StringComparer.Equals(_partitionKeyPropertyName, property.Name))
                             PartitionKeyProperty = property;
-                        else if (_rowKeyPropertyName.Equals(property.Name, StringComparison.Ordinal))
+                        else if (ObjectStoreLimitations.StringComparer.Equals(_rowKeyPropertyName, property.Name))
                             RowKeyProperty = property;
-                        else if (_timestampPropertyName.Equals(property.Name, StringComparison.Ordinal))
+                        else if (ObjectStoreLimitations.StringComparer.Equals(_timestampPropertyName, property.Name))
                             TimestampProperty = property;
                 }
 
-            readableProperties.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
-            writableProperties.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
+            readableProperties.Sort((left, right) => ObjectStoreLimitations.StringComparer.Compare(left.Name, right.Name));
+            writableProperties.Sort((left, right) => ObjectStoreLimitations.StringComparer.Compare(left.Name, right.Name));
 
             ReadableProperties = readableProperties;
             WritableProperties = writableProperties;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests
 {
@@ -224,6 +225,87 @@ namespace Savannah.Tests
 
             var operation = _ObjectStoreBatchOperation.Single();
             Assert.AreEqual(ObjectStoreOperationType.Delete, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDynamicObjectAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve(new object());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDynamicObjectWithPropertyEnumerableFilterAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve(new object(), Enumerable.Empty<string>());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDynamicObjectWithPropertyArrayFilterAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve(new object(), new string[0]);
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrievePocoObjectAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve<MockObject>(new object());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrievePocoObjectWithPropertyEnumerableFilterAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve<MockObject>(new object(), Enumerable.Empty<string>());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrievePocoObjectWithPropertyArrayFilterAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve<MockObject>(new object(), new string[0]);
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveResolvedObjectAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve(new object(), delegate { return new object(); });
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveResolvedObjectWithPropertyEnumerableFilterAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve(new object(), delegate { return new object(); }, Enumerable.Empty<string>());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveResolvedObjectWithPropertyArrayFilterAddsANewRetrieveOperation()
+        {
+            _ObjectStoreBatchOperation.Retrieve(new object(), delegate { return new object(); }, new string[0]);
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, operation.OperationType);
         }
     }
 }

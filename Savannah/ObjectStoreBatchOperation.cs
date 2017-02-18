@@ -19,6 +19,33 @@ namespace Savannah
         public void Insert(object @object)
             => Add(ObjectStoreOperation.Insert(@object));
 
+        public void Retrieve(object @object)
+            => Add(ObjectStoreOperation.Retrieve(@object));
+
+        public void Retrieve(object @object, IEnumerable<string> propertiesToRetrieve)
+            => Add(ObjectStoreOperation.Retrieve(@object, propertiesToRetrieve));
+
+        public void Retrieve(object @object, params string[] propertiesToRetrieve)
+            => Add(ObjectStoreOperation.Retrieve(@object, propertiesToRetrieve));
+
+        public void Retrieve<T>(object @object) where T : new()
+            => Add(ObjectStoreOperation.Retrieve<T>(@object));
+
+        public void Retrieve<T>(object @object, IEnumerable<string> propertiesToRetrieve) where T : new()
+            => Add(ObjectStoreOperation.Retrieve<T>(@object, propertiesToRetrieve));
+
+        public void Retrieve<T>(object @object, params string[] propertiesToRetrieve) where T : new()
+            => Add(ObjectStoreOperation.Retrieve<T>(@object, propertiesToRetrieve));
+
+        public void Retrieve<T>(object @object, ObjectResolver<T> objectResolver)
+            => Add(ObjectStoreOperation.Retrieve<T>(@object, objectResolver));
+
+        public void Retrieve<T>(object @object, ObjectResolver<T> objectResolver, IEnumerable<string> propertiesToRetrieve)
+            => Add(ObjectStoreOperation.Retrieve<T>(@object, objectResolver, propertiesToRetrieve));
+
+        public void Retrieve<T>(object @object, ObjectResolver<T> objectResolver, params string[] propertiesToRetrieve)
+            => Add(ObjectStoreOperation.Retrieve<T>(@object, objectResolver, propertiesToRetrieve));
+
         public ObjectStoreOperation this[int index]
         {
             get

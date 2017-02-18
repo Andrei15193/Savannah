@@ -51,22 +51,16 @@ namespace Savannah
         internal static bool IsOnObjectEndElement(this XmlReader xmlReader)
             => IsOnEndElement(xmlReader, ObjectStoreXmlNameTable.Object);
 
-        internal static Task<StorageObject> ReadStorageObjectAsync(this XmlReader xmlReader)
-            => ReadStorageObjectAsync(xmlReader, null, CancellationToken.None);
-
-        internal static Task<StorageObject> ReadStorageObjectAsync(this XmlReader xmlReader, CancellationToken cancellationToken)
-            => ReadStorageObjectAsync(xmlReader, null, cancellationToken);
-
-        internal static Task<StorageObject> ReadStorageObjectAsync(this XmlReader xmlReader, IEnumerable<string> propertiesToRead)
-            => ReadStorageObjectAsync(xmlReader, propertiesToRead, CancellationToken.None);
-
         internal static string GetPartitionKeyAttribute(this XmlReader xmlReader)
             => xmlReader.GetAttribute(ObjectStoreXmlNameTable.PartitionKey);
 
         internal static string GetRowKeyAttribute(this XmlReader xmlReader)
             => xmlReader.GetAttribute(ObjectStoreXmlNameTable.RowKey);
 
-        internal static async Task<StorageObject> ReadStorageObjectAsync(XmlReader xmlReader, IEnumerable<string> propertiesToRead, CancellationToken cancellationToken)
+        internal static Task<StorageObject> ReadStorageObjectAsync(this XmlReader xmlReader)
+            => ReadStorageObjectAsync(xmlReader, CancellationToken.None);
+
+        internal static async Task<StorageObject> ReadStorageObjectAsync(this XmlReader xmlReader, CancellationToken cancellationToken)
         {
 #if DEBUG
             if (xmlReader == null)
@@ -79,14 +73,14 @@ namespace Savannah
             var rowKey = xmlReader.GetAttribute(ObjectStoreXmlNameTable.RowKey);
             var timestamp = xmlReader.GetAttribute(ObjectStoreXmlNameTable.Timestamp);
 
-            var properties = await xmlReader.ReadStorageObjectPropertiesAsync(propertiesToRead, cancellationToken).ConfigureAwait(false);
+            var properties = await xmlReader.ReadStorageObjectPropertiesAsync(cancellationToken).ConfigureAwait(false);
             await xmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
             var storageObject = new StorageObject(partitionKey, rowKey, timestamp, properties);
             return storageObject;
         }
 
-        internal static async Task<IEnumerable<StorageObjectProperty>> ReadStorageObjectPropertiesAsync(this XmlReader xmlReader, IEnumerable<string> propertiesToRead, CancellationToken cancellationToken)
+        internal static async Task<IEnumerable<StorageObjectProperty>> ReadStorageObjectPropertiesAsync(this XmlReader xmlReader, CancellationToken cancellationToken)
         {
             if (xmlReader.IsEmptyElement)
                 return Enumerable.Empty<StorageObjectProperty>();
@@ -98,7 +92,7 @@ namespace Savannah
                 await xmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
                 if (xmlReader.NodeType == XmlNodeType.Element)
                 {
-                    var storageProperty = xmlReader.ReadStorageObjectProperty(propertiesToRead);
+                    var storageProperty = xmlReader.ReadStorageObjectProperty();
                     if (storageProperty != null)
                         properties.Add(storageProperty);
                 }
@@ -107,7 +101,7 @@ namespace Savannah
             return properties;
         }
 
-        internal static StorageObjectProperty ReadStorageObjectProperty(this XmlReader xmlReader, IEnumerable<string> propertiesToRead)
+        internal static StorageObjectProperty ReadStorageObjectProperty(this XmlReader xmlReader)
         {
 #if DEBUG
             if (xmlReader == null)
@@ -116,17 +110,14 @@ namespace Savannah
             StorageObjectProperty property = null;
 
             var propertyName = xmlReader.LocalName;
-            if (propertiesToRead?.Contains(propertyName) ?? true)
-            {
-                var propertyValue = xmlReader.GetAttribute(ObjectStoreXmlNameTable.Value);
-                var propertyTypeName = xmlReader.GetAttribute(ObjectStoreXmlNameTable.Type);
-                var propertyType = (
-                    propertyTypeName == null
-                    ? StorageObjectPropertyType.String
-                    : (StorageObjectPropertyType)Enum.Parse(typeof(StorageObjectPropertyType), propertyTypeName, ignoreCase: true));
+            var propertyValue = xmlReader.GetAttribute(ObjectStoreXmlNameTable.Value);
+            var propertyTypeName = xmlReader.GetAttribute(ObjectStoreXmlNameTable.Type);
+            var propertyType = (
+                propertyTypeName == null
+                ? StorageObjectPropertyType.String
+                : (StorageObjectPropertyType)Enum.Parse(typeof(StorageObjectPropertyType), propertyTypeName, ignoreCase: true));
 
-                property = new StorageObjectProperty(propertyName, propertyValue, propertyType);
-            }
+            property = new StorageObjectProperty(propertyName, propertyValue, propertyType);
 
             return property;
         }

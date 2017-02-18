@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Savannah.ObjectStoreOperations;
 
 namespace Savannah
 {
+    public delegate T ObjectResolver<T>(string partitionKey, string rowKey, DateTime timestamp, IReadOnlyDictionary<string, object> properyValues);
+
     public abstract class ObjectStoreOperation
     {
         public static ObjectStoreOperation Insert(object @object)
@@ -10,6 +13,33 @@ namespace Savannah
 
         public static ObjectStoreOperation Delete(object @object)
             => new DeleteObjectStoreOperation(@object);
+
+        public static ObjectStoreOperation Retrieve(object @object)
+            => new RetrieveDynamicObjectStoreOperation(@object);
+
+        public static ObjectStoreOperation Retrieve(object @object, IEnumerable<string> propertiesToRetrieve)
+            => new RetrieveDynamicObjectStoreOperation(@object, propertiesToRetrieve);
+
+        public static ObjectStoreOperation Retrieve(object @object, params string[] propertiesToRetrieve)
+            => new RetrieveDynamicObjectStoreOperation(@object, propertiesToRetrieve);
+
+        public static ObjectStoreOperation Retrieve<T>(object @object) where T : new()
+            => new RetrievePocoObjectStoreOperation<T>(@object);
+
+        public static ObjectStoreOperation Retrieve<T>(object @object, IEnumerable<string> propertiesToRetrieve) where T : new()
+            => new RetrievePocoObjectStoreOperation<T>(@object, propertiesToRetrieve);
+
+        public static ObjectStoreOperation Retrieve<T>(object @object, params string[] propertiesToRetrieve) where T : new()
+            => new RetrievePocoObjectStoreOperation<T>(@object, propertiesToRetrieve);
+
+        public static ObjectStoreOperation Retrieve<T>(object @object, ObjectResolver<T> objectResolver)
+            => new RetrieveDelegateObjectStoreOperation<T>(@object, objectResolver);
+
+        public static ObjectStoreOperation Retrieve<T>(object @object, ObjectResolver<T> objectResolver, IEnumerable<string> propertiesToRetrieve)
+            => new RetrieveDelegateObjectStoreOperation<T>(@object, objectResolver, propertiesToRetrieve);
+
+        public static ObjectStoreOperation Retrieve<T>(object @object, ObjectResolver<T> objectResolver, params string[] propertiesToRetrieve)
+            => new RetrieveDelegateObjectStoreOperation<T>(@object, objectResolver, propertiesToRetrieve);
 
         internal ObjectStoreOperation(object @object)
         {
@@ -31,6 +61,6 @@ namespace Savannah
 
         internal string RowKey { get; }
 
-        internal abstract StorageObject GetStorageObjectFrom(StorageObject existingObject, StorageObjectFactory storageObjectFactory);
+        internal abstract StorageObject GetStorageObjectFrom(ObjectStoreOperationExectionContext context);
     }
 }

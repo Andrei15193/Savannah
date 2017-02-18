@@ -42,7 +42,7 @@ namespace Savannah
 #endif
             _hashProvider = hashProvider;
             _dataFolderTask = _GetDataFolderAsync(storageFolderName);
-            _collections = new ConcurrentDictionary<string, ObjectStoreCollection>(StringComparer.OrdinalIgnoreCase);
+            _collections = new ConcurrentDictionary<string, ObjectStoreCollection>(ObjectStoreLimitations.CollectionNameComparer);
 
             Debug.WriteLine($"Object Store Folder: {Path.Combine(ApplicationData.Current.LocalFolder.Path, storageFolderName)}");
         }

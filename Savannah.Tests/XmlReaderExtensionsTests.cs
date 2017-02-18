@@ -248,7 +248,8 @@ namespace Savannah.Tests
             <Partition>
                 <Object />
                 <Object />
-            </Partition>", 2)]
+            </Partition>",
+            2)]
         public async Task TestXmlReaderReadsConsecutiveObjects(string xml, int numberOfObjects)
         {
             var storageObjects = new List<StorageObject>();
@@ -264,50 +265,6 @@ namespace Savannah.Tests
             }
 
             Assert.AreEqual(numberOfObjects, storageObjects.Distinct().Count());
-        }
-
-        [DataTestMethod]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName2 />
-                    <PropertyName1 />
-                </Object>",
-            new string[2]
-            {
-                "PropertyName1",
-                "PropertyName2"
-            },
-            new string[2] {
-                "PropertyName2",
-                "PropertyName1"
-            })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName2 />
-                    <PropertyName1 />
-                </Object>",
-            new string[1]
-            {
-                "PropertyName1"
-            },
-            new string[1] {
-                "PropertyName1"
-            })]
-        public async Task TestXmlReaderReadsOnlyStorageObjectPropertyWhoseNamesHaveBeenSpecified(string xml, string[] propertiesToRead, string[] expectedPropertyNames)
-        {
-            StorageObject storageObject;
-
-            using (var stringReader = new StringReader(xml))
-            using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
-            {
-                await xmlReader.ReadAsync();
-                storageObject = await xmlReader.ReadStorageObjectAsync(propertiesToRead);
-            }
-
-            Assert.IsTrue(storageObject
-                .Properties
-                .Select(property => property.Name)
-                .SequenceEqual(expectedPropertyNames));
         }
     }
 }

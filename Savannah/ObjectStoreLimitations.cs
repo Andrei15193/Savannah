@@ -34,6 +34,8 @@ namespace Savannah
 
         public static StringComparer StringComparer { get; } = StringComparer.Ordinal;
 
+        public static StringComparer CollectionNameComparer { get; } = StringComparer.OrdinalIgnoreCase;
+
         public static Regex AcceptedPropertyNamePattern { get; } = new Regex(
             "^(?!xml)[_a-z][_a-z0-9]{0,254}$",
             (RegexOptions.IgnoreCase | RegexOptions.CultureInvariant));

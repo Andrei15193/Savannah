@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Xml;
 
 namespace Savannah
 {
-    internal class ObjectFactory<T> where T : new()
+    internal class ObjectFactory<T>
+        where T : new()
     {
+        private static readonly PropertyValueFactory _PropertyValueFactory = new PropertyValueFactory();
+
         private readonly ObjectMetadata _metadata;
 
         internal ObjectFactory()
@@ -15,21 +17,13 @@ namespace Savannah
             _metadata = ObjectMetadata.GetFor(typeof(T));
         }
 
-        internal T CreateFrom(StorageObject storageObject)
+        internal T CreateFrom(StorageObject storageObject, IEnumerable<string> propertiesToRetrieve = null)
         {
             if (storageObject == null)
                 throw new ArgumentNullException(nameof(storageObject));
 
             var @object = new T();
-
-            var storageProperties = storageObject
-                .Properties
-                .Concat(new[] {
-                    new StorageObjectProperty(nameof(StorageObject.PartitionKey), storageObject.PartitionKey, StorageObjectPropertyType.String),
-                    new StorageObjectProperty(nameof(StorageObject.RowKey), storageObject.RowKey, StorageObjectPropertyType.String),
-                    new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, StorageObjectPropertyType.DateTime)
-                }.Where(property => property.Value != null))
-                .OrderBy(storageProperty => storageProperty.Name, StringComparer.Ordinal);
+            var storageProperties = _GetStoragePropertiesFrom(storageObject, propertiesToRetrieve);
 
             using (var objectProperty = _metadata.WritableProperties.GetEnumerator())
             using (var storageProperty = storageProperties.GetEnumerator())
@@ -39,7 +33,7 @@ namespace Savannah
 
                 while (hasObjectProperty && hasStorageProperty)
                 {
-                    var propertyNameComparison = string.Compare(objectProperty.Current.Name, storageProperty.Current.Name, StringComparison.Ordinal);
+                    var propertyNameComparison = ObjectStoreLimitations.StringComparer.Compare(objectProperty.Current.Name, storageProperty.Current.Name);
 
                     if (propertyNameComparison < 0)
                         hasObjectProperty = objectProperty.MoveNext();
@@ -47,7 +41,7 @@ namespace Savannah
                         hasStorageProperty = storageProperty.MoveNext();
                     else
                     {
-                        var value = _GetPropertyValueFrom(storageProperty.Current);
+                        var value = _PropertyValueFactory.GetPropertyValueFrom(storageProperty.Current);
 
                         if (value == null)
                         {
@@ -70,95 +64,25 @@ namespace Savannah
             return @object;
         }
 
-        private object _GetPropertyValueFrom(StorageObjectProperty storageObjectProperty)
+        private static IEnumerable<StorageObjectProperty> _GetStoragePropertiesFrom(StorageObject storageObject, IEnumerable<string> propertiesToRetrieve)
         {
-            var value = storageObjectProperty.Value;
+            var storageProperties = storageObject
+                .Properties
+                .Concat(new[] {
+                    new StorageObjectProperty(nameof(StorageObject.PartitionKey), storageObject.PartitionKey, StorageObjectPropertyType.String),
+                    new StorageObjectProperty(nameof(StorageObject.RowKey), storageObject.RowKey, StorageObjectPropertyType.String),
+                    new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, StorageObjectPropertyType.DateTime)
+                }.Where(property => property.Value != null));
 
-            switch (storageObjectProperty.Type)
+            if (propertiesToRetrieve != null)
             {
-                case StorageObjectPropertyType.String:
-                    return value;
-
-                case StorageObjectPropertyType.Binary:
-                    return _ConvertTypeByteArray(value);
-
-                case StorageObjectPropertyType.Boolean:
-                    return XmlConvert.ToBoolean(value);
-
-                case StorageObjectPropertyType.DateTime:
-                    var dateTime = DateTime.ParseExact(value, XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture);
-                    if (char.ToLowerInvariant(value[value.Length - 1]) == 'z')
-                        dateTime = dateTime.ToUniversalTime();
-                    return dateTime;
-
-                case StorageObjectPropertyType.Double:
-                    return XmlConvert.ToDouble(value);
-
-                case StorageObjectPropertyType.Guid:
-                    return XmlConvert.ToGuid(value);
-
-                case StorageObjectPropertyType.Int:
-                    return XmlConvert.ToInt32(value);
-
-                case StorageObjectPropertyType.Long:
-                    return XmlConvert.ToInt64(value);
+                var propertiesToRetrieveSet = new HashSet<string>(propertiesToRetrieve, ObjectStoreLimitations.StringComparer);
+                if (propertiesToRetrieveSet.Count > 0)
+                    storageProperties = storageProperties.Where(property => propertiesToRetrieveSet.Contains(property.Name));
             }
 
-            throw new InvalidOperationException("Not supported property type.");
-        }
-
-        private byte[] _ConvertTypeByteArray(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                if (value == null)
-                    return null;
-                else
-                    return new byte[0];
-
-            byte[] byteArray;
-            var charIndex = 0;
-            var byteIndex = 0;
-
-            if (value.Length % 2 == 1)
-            {
-                byteArray = new byte[value.Length / 2 + 1];
-                byteArray[0] = _GetByteFor(value[0]);
-                charIndex = 1;
-                byteIndex = 1;
-            }
-            else
-                byteArray = new byte[value.Length / 2];
-
-            for (; charIndex < value.Length; charIndex += 2, byteIndex++)
-            {
-                var @byte = _GetByteFor(value[charIndex]);
-                @byte <<= 4;
-                @byte |= _GetByteFor(value[charIndex + 1]);
-
-                byteArray[byteIndex] = @byte;
-            }
-
-            return byteArray;
-        }
-
-        private char _GetCharFor(byte @byte)
-        {
-            if (@byte <= 9)
-                return (char)('0' + @byte);
-            else
-                return (char)('A' + @byte - 10);
-        }
-
-        private byte _GetByteFor(char @char)
-        {
-            if ('0' <= @char && @char <= '9')
-                return (byte)(@char - '0');
-            if ('A' <= @char && @char <= 'F')
-                return (byte)(@char - 'A' + 10);
-            if ('a' <= @char && @char <= 'f')
-                return (byte)(@char - 'a' + 10);
-
-            throw new ArgumentException("The character does not represent a hexazecimal digit.", nameof(@char));
+            storageProperties = storageProperties.OrderBy(storageProperty => storageProperty.Name, ObjectStoreLimitations.StringComparer);
+            return storageProperties;
         }
     }
 }
