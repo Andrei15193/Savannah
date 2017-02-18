@@ -2,16 +2,16 @@
 
 namespace Savannah.ObjectStoreOperations
 {
-    internal abstract class RetrieveObjectStoreOperation<T>
+    internal class ReplaceObjectStoreOperation
         : ObjectStoreOperation
     {
-        internal RetrieveObjectStoreOperation(object @object)
+        internal ReplaceObjectStoreOperation(object @object)
             : base(@object)
         {
         }
 
         public sealed override ObjectStoreOperationType OperationType
-            => ObjectStoreOperationType.Retrieve;
+            => ObjectStoreOperationType.Replace;
 
         internal override StorageObject GetStorageObjectFrom(ObjectStoreOperationExectionContext context)
         {
@@ -20,14 +20,9 @@ namespace Savannah.ObjectStoreOperations
                 throw new InvalidOperationException("Expected " + nameof(context) + " to be initalized.");
 #endif
             if (context.ExistingObject == null)
-                throw new InvalidOperationException("The object does not exist, it cannot be retrieved.");
+                throw new InvalidOperationException("The object does not exist, it cannot be replaced.");
 
-            var @object = GetObjectFrom(context.ExistingObject);
-            context.Result.Add(@object);
-
-            return context.ExistingObject;
+            return context.StorageObjectFactory.CreateFrom(Object);
         }
-
-        protected abstract T GetObjectFrom(StorageObject storageObject);
     }
 }

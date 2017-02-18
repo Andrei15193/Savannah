@@ -7,7 +7,7 @@ namespace Savannah.ObjectStoreOperations
     internal class RetrieveDynamicObjectStoreOperation
         : RetrieveDelegateObjectStoreOperation<dynamic>
     {
-        public RetrieveDynamicObjectStoreOperation(object @object, IEnumerable<string> propertiesToRetrieve = null)
+        internal RetrieveDynamicObjectStoreOperation(object @object, IEnumerable<string> propertiesToRetrieve = null)
             : base(@object, _ExpandoObjectResolver, propertiesToRetrieve)
         {
         }

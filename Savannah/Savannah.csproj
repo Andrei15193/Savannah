@@ -53,6 +53,7 @@
     <Compile Include="ObjectStoreOperations\InsertOrMergeObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\InsertOrReplaceObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\MergeObjectStoreOperation.cs" />
+    <Compile Include="ObjectStoreOperations\ReplaceObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveDynamicObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveObjectStoreOperation.cs" />

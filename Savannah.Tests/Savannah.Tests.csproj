@@ -129,6 +129,7 @@
     <Compile Include="ObjectStoreOperations\InsertOrReplaceObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\MergeObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\ObjectStoreOperationTestsTemplate.cs" />
+    <Compile Include="ObjectStoreOperations\ReplaceObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveDynamicObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
