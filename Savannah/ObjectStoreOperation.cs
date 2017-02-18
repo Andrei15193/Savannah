@@ -11,6 +11,9 @@ namespace Savannah
         public static ObjectStoreOperation Insert(object @object)
             => new InsertObjectStoreOperation(@object);
 
+        public static ObjectStoreOperation Insert(object @object, bool echoContent)
+            => new InsertObjectStoreOperation(@object, echoContent);
+
         public static ObjectStoreOperation Delete(object @object)
             => new DeleteObjectStoreOperation(@object);
 
@@ -48,14 +51,16 @@ namespace Savannah
 
             Object = @object;
 
-            var metadata = ObjectMetadata.GetFor(@object.GetType());
-            PartitionKey = (string)metadata?.PartitionKeyProperty?.GetValue(@object);
-            RowKey = (string)metadata?.RowKeyProperty?.GetValue(@object);
+            Metadata = ObjectMetadata.GetFor(@object.GetType());
+            PartitionKey = (string)Metadata?.PartitionKeyProperty?.GetValue(@object);
+            RowKey = (string)Metadata?.RowKeyProperty?.GetValue(@object);
         }
 
         public object Object { get; }
 
         public abstract ObjectStoreOperationType OperationType { get; }
+
+        internal ObjectMetadata Metadata { get; }
 
         internal string PartitionKey { get; }
 

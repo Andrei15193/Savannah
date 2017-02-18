@@ -5,9 +5,12 @@ namespace Savannah.ObjectStoreOperations
     internal class InsertObjectStoreOperation
         : ObjectStoreOperation
     {
-        internal InsertObjectStoreOperation(object @object)
+        private readonly bool _echoContent;
+
+        internal InsertObjectStoreOperation(object @object, bool echoContent = false)
             : base(@object)
         {
+            _echoContent = echoContent;
         }
 
         public sealed override ObjectStoreOperationType OperationType
@@ -22,6 +25,14 @@ namespace Savannah.ObjectStoreOperations
             if (context.ExistingObject != null)
                 throw new InvalidOperationException(
                     "Duplicate PartitionKey and RowKey pair. Any stored object must be uniquely identifiable by its partition and row keys.");
+
+            if (_echoContent)
+            {
+                if (Metadata.TimestampProperty?.SetMethod.IsPublic ?? false)
+                    Metadata.TimestampProperty.SetValue(Object, context.Timestamp);
+
+                context.Result.Add(Object);
+            }
 
             return context.StorageObjectFactory.CreateFrom(Object);
         }

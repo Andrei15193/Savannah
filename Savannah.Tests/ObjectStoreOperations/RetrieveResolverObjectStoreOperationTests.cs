@@ -20,6 +20,7 @@ namespace Savannah.Tests.ObjectStoreOperations
             var executionContext = new ObjectStoreOperationExectionContext(
                 storageObject,
                 StorageObjectFactory,
+                DateTime.UtcNow,
                 new List<object>());
 
             var actualStorageObject = retrieveOperation.GetStorageObjectFrom(executionContext);
@@ -39,6 +40,7 @@ namespace Savannah.Tests.ObjectStoreOperations
             var executionContext = new ObjectStoreOperationExectionContext(
                 new StorageObject(partitionKey, rowKey, DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)),
                 StorageObjectFactory,
+                DateTime.UtcNow,
                 result);
 
             retrieveOperation.GetStorageObjectFrom(executionContext);
@@ -64,6 +66,7 @@ namespace Savannah.Tests.ObjectStoreOperations
             var executionContext = new ObjectStoreOperationExectionContext(
                 new StorageObject(partitionKey, rowKey, DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)),
                 StorageObjectFactory,
+                DateTime.UtcNow,
                 new List<object>());
 
             retrieveOperation.GetStorageObjectFrom(executionContext);
@@ -73,7 +76,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         public void TestTryingToRetrieveNonExistingObjectThrowsException()
         {
             var retrieveOperation = new RetrieveDelegateObjectStoreOperation<MockObject>(new { PartitionKey = string.Empty, RowKey = string.Empty }, delegate { return new MockObject(); });
-            var executionContext = new ObjectStoreOperationExectionContext(null, StorageObjectFactory, new List<object>());
+            var executionContext = new ObjectStoreOperationExectionContext(null, StorageObjectFactory, DateTime.UtcNow, new List<object>());
 
             AssertExtra.ThrowsException<InvalidOperationException>(
                 () => retrieveOperation.GetStorageObjectFrom(executionContext),
@@ -102,6 +105,7 @@ namespace Savannah.Tests.ObjectStoreOperations
                         .Select(propertyName => new StorageObjectProperty(propertyName, string.Empty, StorageObjectPropertyType.String))
                         .ToList()),
                 StorageObjectFactory,
+                DateTime.UtcNow,
                 new List<object>());
 
             retrieveOperation.GetStorageObjectFrom(executionContext);

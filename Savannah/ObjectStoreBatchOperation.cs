@@ -19,6 +19,9 @@ namespace Savannah
         public void Insert(object @object)
             => Add(ObjectStoreOperation.Insert(@object));
 
+        public void Insert(object @object, bool echoContent)
+            => Add(ObjectStoreOperation.Insert(@object, echoContent));
+
         public void Retrieve(object @object)
             => Add(ObjectStoreOperation.Retrieve(@object));
 

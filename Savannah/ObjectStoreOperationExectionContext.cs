@@ -5,7 +5,7 @@ namespace Savannah
 {
     internal struct ObjectStoreOperationExectionContext
     {
-        internal ObjectStoreOperationExectionContext(StorageObject existingObject, StorageObjectFactory storageObjectFactory, ICollection<object> result)
+        internal ObjectStoreOperationExectionContext(StorageObject existingObject, StorageObjectFactory storageObjectFactory, DateTime timestamp, ICollection<object> result)
         {
 #if DEBUG
             if (storageObjectFactory == null)
@@ -15,12 +15,15 @@ namespace Savannah
 #endif
             ExistingObject = existingObject;
             StorageObjectFactory = storageObjectFactory;
+            Timestamp = timestamp;
             Result = result;
         }
 
         internal StorageObject ExistingObject { get; }
 
         internal StorageObjectFactory StorageObjectFactory { get; }
+
+        internal DateTime Timestamp { get; }
 
         internal ICollection<object> Result { get; }
     }

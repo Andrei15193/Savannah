@@ -6,7 +6,7 @@ namespace Savannah
 {
     internal sealed class ObjectStoreOperationContext
     {
-        internal ObjectStoreOperationContext(StorageObjectFactory storageObjectFactory, XmlReader xmlReader, XmlWriter xmlWriter)
+        internal ObjectStoreOperationContext(StorageObjectFactory storageObjectFactory, DateTime timestamp, XmlReader xmlReader, XmlWriter xmlWriter)
         {
 #if DEBUG
             if (storageObjectFactory == null)
@@ -17,6 +17,7 @@ namespace Savannah
                 throw new ArgumentNullException(nameof(xmlWriter));
 #endif
             StorageObjectFactory = storageObjectFactory;
+            Timestamp = timestamp;
             XmlReader = xmlReader;
             XmlWriter = xmlWriter;
             Result = new List<object>();
@@ -27,6 +28,8 @@ namespace Savannah
         internal XmlReader XmlReader { get; }
 
         internal XmlWriter XmlWriter { get; }
+
+        internal DateTime Timestamp { get; }
 
         internal ICollection<object> Result { get; }
     }

@@ -188,8 +188,9 @@ namespace Savannah
             if (batchOperation.Count == 0)
                 return Enumerable.Empty<object>();
 
+            var timestamp = DateTime.UtcNow;
             var batchPartitionKey = batchOperation.First().PartitionKey;
-            var storageObjectFactory = new StorageObjectFactory(DateTime.UtcNow);
+            var storageObjectFactory = new StorageObjectFactory(timestamp);
 
             IEnumerable<object> result;
             var bucketFile = await _GetBucketFileForAsync(batchPartitionKey, cancellationToken).ConfigureAwait(false);
@@ -204,7 +205,7 @@ namespace Savannah
                     using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
                     using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
                     {
-                        var context = new ObjectStoreOperationContext(storageObjectFactory, xmlReader, xmlWriter);
+                        var context = new ObjectStoreOperationContext(storageObjectFactory, timestamp, xmlReader, xmlWriter);
                         await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
                         result = context.Result;
                     }
@@ -319,6 +320,7 @@ namespace Savannah
                     new ObjectStoreOperationExectionContext(
                         existingObject,
                         context.StorageObjectFactory,
+                        context.Timestamp,
                         context.Result));
                 hasValue = operation.MoveNext();
             } while (hasValue && ObjectStoreLimitations.StringComparer.Equals(previousRowKey, operation.Current.RowKey));
