@@ -5,7 +5,8 @@ namespace Savannah.ObjectStoreOperations
     internal class InsertOrReplaceObjectStoreOperation
          : ObjectStoreOperation
     {
-        internal InsertOrReplaceObjectStoreOperation(object @object) : base(@object)
+        internal InsertOrReplaceObjectStoreOperation(object @object)
+            : base(@object)
         {
         }
 

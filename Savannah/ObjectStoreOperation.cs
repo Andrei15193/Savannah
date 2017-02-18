@@ -23,6 +23,9 @@ namespace Savannah
         public static ObjectStoreOperation InsertOrReplace(object @object)
             => new InsertOrReplaceObjectStoreOperation(@object);
 
+        public static ObjectStoreOperation Merge(object @object)
+            => new MergeObjectStoreOperation(@object);
+
         public static ObjectStoreOperation Retrieve(object @object)
             => new RetrieveDynamicObjectStoreOperation(@object);
 

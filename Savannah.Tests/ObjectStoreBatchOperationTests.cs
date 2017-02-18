@@ -255,6 +255,15 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        public void TestMergeAddsANewInsertOperation()
+        {
+            _ObjectStoreBatchOperation.Merge(new object());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Merge, operation.OperationType);
+        }
+
+        [TestMethod]
         public void TestRetrieveDynamicObjectAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object());

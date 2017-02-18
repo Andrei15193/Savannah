@@ -6,6 +6,7 @@
         Insert,
         InsertOrMerge,
         InsertOrReplace,
+        Merge,
         Retrieve
     }
 }

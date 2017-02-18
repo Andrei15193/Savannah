@@ -28,6 +28,9 @@ namespace Savannah
         public void InsertOrReplace(object @object)
             => Add(ObjectStoreOperation.InsertOrReplace(@object));
 
+        public void Merge(object @object)
+            => Add(ObjectStoreOperation.Merge(@object));
+
         public void Retrieve(object @object)
             => Add(ObjectStoreOperation.Retrieve(@object));
 
