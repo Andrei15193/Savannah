@@ -8,14 +8,17 @@ namespace Savannah
 
     public abstract class ObjectStoreOperation
     {
+        public static ObjectStoreOperation Delete(object @object)
+            => new DeleteObjectStoreOperation(@object);
+
         public static ObjectStoreOperation Insert(object @object)
             => new InsertObjectStoreOperation(@object);
 
         public static ObjectStoreOperation Insert(object @object, bool echoContent)
             => new InsertObjectStoreOperation(@object, echoContent);
 
-        public static ObjectStoreOperation Delete(object @object)
-            => new DeleteObjectStoreOperation(@object);
+        public static ObjectStoreOperation InsertOrMerge(object @object)
+            => new InsertOrMergeObjectStoreOperation(@object);
 
         public static ObjectStoreOperation Retrieve(object @object)
             => new RetrieveDynamicObjectStoreOperation(@object);

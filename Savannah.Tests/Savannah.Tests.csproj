@@ -125,10 +125,12 @@
     <Compile Include="ObjectStoreLimitationsTests.cs" />
     <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\InsertObjectStoreOperationTests.cs" />
+    <Compile Include="ObjectStoreOperations\InsertOrMergeObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\ObjectStoreOperationTestsTemplate.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveDynamicObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
+    <Compile Include="ObjectStoreOperations\StorageObjectMergerTests.cs" />
     <Compile Include="ObjectStoreTests.cs" />
     <Compile Include="PropertyValueFactoryTests.cs" />
     <Compile Include="StorageObjectFactoryTests.cs" />

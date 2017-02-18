@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests
 {
@@ -56,6 +58,14 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        public void TestDeleteOperationIsInitializedWithDeleteOperationType()
+        {
+            var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = string.Empty, RowKey = string.Empty });
+
+            Assert.AreEqual(ObjectStoreOperationType.Delete, deleteOperation.OperationType);
+        }
+
+        [TestMethod]
         public void TestInsertOperationIsInitializedWithInsertOperationType()
         {
             var insertOperation = ObjectStoreOperation.Insert(new { PartitionKey = string.Empty, RowKey = string.Empty });
@@ -64,11 +74,91 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
-        public void TestDeleteOperationIsInitializedWithDeleteOperationType()
+        public void TestInsertOperationWithEchoIsInitializedWithInsertOperationType()
         {
-            var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = string.Empty, RowKey = string.Empty });
+            var insertOperation = ObjectStoreOperation.Insert(new { PartitionKey = string.Empty, RowKey = string.Empty }, echoContent: true);
 
-            Assert.AreEqual(ObjectStoreOperationType.Delete, deleteOperation.OperationType);
+            Assert.AreEqual(ObjectStoreOperationType.Insert, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestInsertOrMergeOperationIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.InsertOrMerge(new { PartitionKey = string.Empty, RowKey = string.Empty });
+
+            Assert.AreEqual(ObjectStoreOperationType.InsertOrMerge, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDynamicOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve(new { PartitionKey = string.Empty, RowKey = string.Empty });
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDynamicWithEnumerableSelectPropertiesOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve(new { PartitionKey = string.Empty, RowKey = string.Empty }, Enumerable.Empty<string>());
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDynamicWithArraybleSelectPropertiesOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve(new { PartitionKey = string.Empty, RowKey = string.Empty }, new string[0]);
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrievePocoOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve<MockObject>(new { PartitionKey = string.Empty, RowKey = string.Empty });
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrievePocoWithEnumerableSelectPropertiesOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve<MockObject>(new { PartitionKey = string.Empty, RowKey = string.Empty }, Enumerable.Empty<string>());
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrievePocoWithArraybleSelectPropertiesOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve<MockObject>(new { PartitionKey = string.Empty, RowKey = string.Empty }, new string[0]);
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveResolverOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve(new { PartitionKey = string.Empty, RowKey = string.Empty }, delegate { return new { }; });
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveResolverWithEnumerableSelectPropertiesOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve(new { PartitionKey = string.Empty, RowKey = string.Empty }, delegate { return new { }; }, Enumerable.Empty<string>());
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestRetrieveResolverWithArraybleSelectPropertiesOperationWithEchoIsInitializedWithInsertOperationType()
+        {
+            var insertOperation = ObjectStoreOperation.Retrieve(new { PartitionKey = string.Empty, RowKey = string.Empty }, delegate { return new { }; }, new string[0]);
+
+            Assert.AreEqual(ObjectStoreOperationType.Retrieve, insertOperation.OperationType);
         }
     }
 }

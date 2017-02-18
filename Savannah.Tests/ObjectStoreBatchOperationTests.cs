@@ -210,6 +210,15 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        public void TestDeleteAddsANewDeleteOperation()
+        {
+            _ObjectStoreBatchOperation.Delete(new object());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.Delete, operation.OperationType);
+        }
+
+        [TestMethod]
         public void TestInsertAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.Insert(new object());
@@ -219,12 +228,21 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
-        public void TestDeleteAddsANewDeleteOperation()
+        public void TestInsertWithEchoContentAddsANewInsertOperation()
         {
-            _ObjectStoreBatchOperation.Delete(new object());
+            _ObjectStoreBatchOperation.Insert(new object(), echoContent: true);
 
             var operation = _ObjectStoreBatchOperation.Single();
-            Assert.AreEqual(ObjectStoreOperationType.Delete, operation.OperationType);
+            Assert.AreEqual(ObjectStoreOperationType.Insert, operation.OperationType);
+        }
+
+        [TestMethod]
+        public void TestInsertOrMergeAddsANewInsertOperation()
+        {
+            _ObjectStoreBatchOperation.InsertOrMerge(new object());
+
+            var operation = _ObjectStoreBatchOperation.Single();
+            Assert.AreEqual(ObjectStoreOperationType.InsertOrMerge, operation.OperationType);
         }
 
         [TestMethod]

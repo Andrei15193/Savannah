@@ -2,8 +2,9 @@
 {
     public enum ObjectStoreOperationType
     {
-        Insert = 1,
-        Delete = 2,
-        Retrieve = 3
+        Delete,
+        Insert,
+        InsertOrMerge,
+        Retrieve
     }
 }

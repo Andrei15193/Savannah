@@ -50,10 +50,12 @@
     <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\InsertObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperation.cs" />
+    <Compile Include="ObjectStoreOperations\InsertOrMergeObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveDynamicObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrieveObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
+    <Compile Include="ObjectStoreOperations\StorageObjectMerger.cs" />
     <Compile Include="ObjectStoreOperationType.cs" />
     <Compile Include="ObjectStoreQuery.cs" />
     <Compile Include="ObjectStoreLimitations.cs" />
