@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Xml;
+using Savannah.Xml;
 
 namespace Savannah
 {
@@ -12,31 +13,31 @@ namespace Savannah
 
             switch (storageObjectProperty.Type)
             {
-                case StorageObjectPropertyType.String:
+                case ValueType.String:
                     return value;
 
-                case StorageObjectPropertyType.Binary:
+                case ValueType.Binary:
                     return _ConvertTypeByteArray(value);
 
-                case StorageObjectPropertyType.Boolean:
+                case ValueType.Boolean:
                     return XmlConvert.ToBoolean(value);
 
-                case StorageObjectPropertyType.DateTime:
+                case ValueType.DateTime:
                     var dateTime = DateTime.ParseExact(value, XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture);
                     if ('z'.Equals(char.ToLowerInvariant(value[value.Length - 1])))
                         dateTime = dateTime.ToUniversalTime();
                     return dateTime;
 
-                case StorageObjectPropertyType.Double:
+                case ValueType.Double:
                     return XmlConvert.ToDouble(value);
 
-                case StorageObjectPropertyType.Guid:
+                case ValueType.Guid:
                     return XmlConvert.ToGuid(value);
 
-                case StorageObjectPropertyType.Int:
+                case ValueType.Int:
                     return XmlConvert.ToInt32(value);
 
-                case StorageObjectPropertyType.Long:
+                case ValueType.Long:
                     return XmlConvert.ToInt64(value);
             }
 

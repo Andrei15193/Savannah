@@ -41,14 +41,14 @@ namespace Savannah.ObjectStoreOperations
                     rowKey = storageObject.RowKey;
                 if (propertiesToRetrieveSet.Contains(nameof(StorageObject.Timestamp)))
                     timestamp = (DateTime)_PropertyValueFactory.GetPropertyValueFrom(
-                        new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, StorageObjectPropertyType.DateTime));
+                        new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, ValueType.DateTime));
             }
             else
             {
                 partitionKey = storageObject.PartitionKey;
                 rowKey = storageObject.RowKey;
                 timestamp = (DateTime)_PropertyValueFactory.GetPropertyValueFrom(
-                    new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, StorageObjectPropertyType.DateTime));
+                    new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, ValueType.DateTime));
             }
             var propertyValues = properties.ToDictionary(
                 property => property.Name,

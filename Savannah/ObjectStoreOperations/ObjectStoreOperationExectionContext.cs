@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Savannah
+namespace Savannah.ObjectStoreOperations
 {
     internal struct ObjectStoreOperationExectionContext
     {

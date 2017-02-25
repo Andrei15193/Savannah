@@ -134,16 +134,19 @@
     <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
     <Compile Include="ObjectStoreOperations\StorageObjectMergerTests.cs" />
+    <Compile Include="ObjectStoreQueryFilterTests.cs" />
     <Compile Include="ObjectStoreTests.cs" />
     <Compile Include="PropertyValueFactoryTests.cs" />
+    <Compile Include="Query\ObjectStoreQueryPredicateTests.cs" />
+    <Compile Include="Query\ResultBuilderTests.cs" />
     <Compile Include="StorageObjectFactoryTests.cs" />
     <Compile Include="ObjectStoreOperationTests.cs" />
     <Compile Include="ObjectStoreCollectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageObjectPropertyTests.cs" />
     <Compile Include="StorageObjectTests.cs" />
-    <Compile Include="XmlReaderExtensionsTests.cs" />
-    <Compile Include="XmlWriterExtensionsTests.cs" />
+    <Compile Include="Xml\XmlReaderExtensionsTests.cs" />
+    <Compile Include="Xml\XmlWriterExtensionsTests.cs" />
     <Compile Include="Utilities\Md5HashProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Savannah.ObjectStoreOperations;
+using Savannah.Xml;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {
@@ -29,11 +30,11 @@ namespace Savannah.Tests.ObjectStoreOperations
                 new StorageObjectProperty(
                     "Property2",
                     string.Empty,
-                    StorageObjectPropertyType.String),
+                    ValueType.String),
                 new StorageObjectProperty(
                     "Property3",
                     "oldValue",
-                    StorageObjectPropertyType.String));
+                    ValueType.String));
             var executionContext = new ObjectStoreOperationExectionContext(existingStorageObject, StorageObjectFactory, DateTime.UtcNow, new List<object>());
 
             var result = inserOrMergeOperation.GetStorageObjectFrom(executionContext);

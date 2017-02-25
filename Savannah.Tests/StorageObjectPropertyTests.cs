@@ -10,20 +10,20 @@ namespace Savannah.Tests
 
         private string _PropertyValue { get; set; }
 
-        private StorageObjectPropertyType _PropertyType { get; set; }
+        private ValueType _PropertyType { get; set; }
 
         [TestInitialize]
         public void TestInitialize()
         {
             _PropertyName = Guid.NewGuid().ToString();
             _PropertyValue = Guid.NewGuid().ToString();
-            _PropertyType = default(StorageObjectPropertyType);
+            _PropertyType = default(ValueType);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            _PropertyType = default(StorageObjectPropertyType);
+            _PropertyType = default(ValueType);
             _PropertyValue = Guid.NewGuid().ToString();
             _PropertyName = Guid.NewGuid().ToString();
         }
@@ -59,18 +59,18 @@ namespace Savannah.Tests
         }
 
         [DataTestMethod]
-        [DataRow((StorageObjectPropertyType)(-1))]
-        [DataRow(StorageObjectPropertyType.String)]
-        [DataRow(StorageObjectPropertyType.Binary)]
-        [DataRow(StorageObjectPropertyType.Boolean)]
-        [DataRow(StorageObjectPropertyType.DateTime)]
-        [DataRow(StorageObjectPropertyType.Double)]
-        [DataRow(StorageObjectPropertyType.Guid)]
-        [DataRow(StorageObjectPropertyType.Int)]
-        [DataRow(StorageObjectPropertyType.Long)]
+        [DataRow((ValueType)(-1))]
+        [DataRow(ValueType.String)]
+        [DataRow(ValueType.Binary)]
+        [DataRow(ValueType.Boolean)]
+        [DataRow(ValueType.DateTime)]
+        [DataRow(ValueType.Double)]
+        [DataRow(ValueType.Guid)]
+        [DataRow(ValueType.Int)]
+        [DataRow(ValueType.Long)]
         public void TestStorageObjectPropertySetsSamePropertyType(object propertyType)
         {
-            var storageObjectProperty = new StorageObjectProperty(_PropertyName, _PropertyValue, (StorageObjectPropertyType)propertyType);
+            var storageObjectProperty = new StorageObjectProperty(_PropertyName, _PropertyValue, (ValueType)propertyType);
 
             Assert.AreEqual(propertyType, storageObjectProperty.Type);
         }

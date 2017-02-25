@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Savannah
+namespace Savannah.Xml
 {
     internal static class XmlReaderExtensions
     {
@@ -114,8 +114,8 @@ namespace Savannah
             var propertyTypeName = xmlReader.GetAttribute(ObjectStoreXmlNameTable.Type);
             var propertyType = (
                 propertyTypeName == null
-                ? StorageObjectPropertyType.String
-                : (StorageObjectPropertyType)Enum.Parse(typeof(StorageObjectPropertyType), propertyTypeName, ignoreCase: true));
+                ? ValueType.String
+                : (ValueType)Enum.Parse(typeof(ValueType), propertyTypeName, ignoreCase: true));
 
             property = new StorageObjectProperty(propertyName, propertyValue, propertyType);
 

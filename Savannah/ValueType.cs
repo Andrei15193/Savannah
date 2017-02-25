@@ -1,6 +1,6 @@
 ﻿namespace Savannah
 {
-    internal enum StorageObjectPropertyType
+    internal enum ValueType
     {
         String,
         Binary,

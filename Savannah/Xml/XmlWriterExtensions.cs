@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Savannah
+namespace Savannah.Xml
 {
     internal static class XmlWriterExtensions
     {
@@ -69,10 +69,10 @@ namespace Savannah
         internal static Task WriteTimestampKeyAttriuteAsync(this XmlWriter xmlWriter, string timestamp, CancellationToken cancellationToken)
             => WriteAttributeStringAsync(xmlWriter, ObjectStoreXmlNameTable.Timestamp, timestamp, cancellationToken);
 
-        internal static Task WriteStorageObjectPropertyTypeAttriuteAsync(this XmlWriter xmlWriter, StorageObjectPropertyType type)
+        internal static Task WriteStorageObjectPropertyTypeAttriuteAsync(this XmlWriter xmlWriter, ValueType type)
             => WriteStorageObjectPropertyTypeAttriuteAsync(xmlWriter, type, CancellationToken.None);
 
-        internal static Task WriteStorageObjectPropertyTypeAttriuteAsync(this XmlWriter xmlWriter, StorageObjectPropertyType type, CancellationToken cancellationToken)
+        internal static Task WriteStorageObjectPropertyTypeAttriuteAsync(this XmlWriter xmlWriter, ValueType type, CancellationToken cancellationToken)
             => WriteAttributeStringAsync(xmlWriter, ObjectStoreXmlNameTable.Type, type.ToString(), cancellationToken);
 
         internal static Task WriteStorageObjectPropertyValueAttriuteAsync(this XmlWriter xmlWriter, string value)

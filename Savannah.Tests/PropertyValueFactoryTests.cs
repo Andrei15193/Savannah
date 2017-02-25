@@ -281,7 +281,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 byteArrayString,
-                StorageObjectPropertyType.Binary);
+                ValueType.Binary);
 
             var result = (byte[])_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -299,7 +299,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 booleanString,
-                StorageObjectPropertyType.Boolean);
+                ValueType.Boolean);
 
             var result = (bool)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -317,7 +317,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 dateTimeString,
-                StorageObjectPropertyType.DateTime);
+                ValueType.DateTime);
 
             var result = (DateTime)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -335,7 +335,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 doubleString,
-                StorageObjectPropertyType.Double);
+                ValueType.Double);
 
             var result = (double)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -352,7 +352,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 guidString,
-                StorageObjectPropertyType.Guid);
+                ValueType.Guid);
 
             var result = (Guid)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -370,7 +370,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 intString,
-                StorageObjectPropertyType.Int);
+                ValueType.Int);
 
             var result = (int)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -390,7 +390,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 longString,
-                StorageObjectPropertyType.Long);
+                ValueType.Long);
 
             var result = (long)_Factory.GetPropertyValueFrom(storageObjectProperty);
 
@@ -409,7 +409,7 @@ namespace Savannah.Tests
             var storageObjectProperty = new StorageObjectProperty(
                 null,
                 @string,
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var storageObject = new StorageObject(null, null, null, storageObjectProperty);
 
             var result = (string)_Factory.GetPropertyValueFrom(storageObjectProperty);

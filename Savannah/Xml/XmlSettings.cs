@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Xml;
 
-namespace Savannah
+namespace Savannah.Xml
 {
     internal static class XmlSettings
     {

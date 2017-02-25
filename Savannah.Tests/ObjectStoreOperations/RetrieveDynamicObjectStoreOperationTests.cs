@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Savannah.ObjectStoreOperations;
+using Savannah.Xml;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {
@@ -68,7 +69,7 @@ namespace Savannah.Tests.ObjectStoreOperations
 
             Assert.AreEqual(
                 new { @object.PartitionKey, RowKey = default(string) },
-                new { PartitionKey = (string)actualObject.PartitionKey, RowKey = (string)actualObject.RowKey });
+                new { PartitionKey = (string)actualObject.PartitionKey, RowKey = default(string) });
         }
 
         [TestMethod]

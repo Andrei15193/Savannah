@@ -355,7 +355,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.BinaryProperty),
                 byteArrayString,
-                StorageObjectPropertyType.Binary);
+                ValueType.Binary);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -374,7 +374,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.BooleanProperty),
                 booleanString,
-                StorageObjectPropertyType.Boolean);
+                ValueType.Boolean);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -393,7 +393,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.DateTimeProperty),
                 dateTimeString,
-                StorageObjectPropertyType.DateTime);
+                ValueType.DateTime);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -427,7 +427,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.DoubleProperty),
                 doubleString,
-                StorageObjectPropertyType.Double);
+                ValueType.Double);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -445,7 +445,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.GuidProperty),
                 guidString,
-                StorageObjectPropertyType.Guid);
+                ValueType.Guid);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -464,7 +464,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.IntProperty),
                 intString,
-                StorageObjectPropertyType.Int);
+                ValueType.Int);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -485,7 +485,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.LongProperty),
                 longString,
-                StorageObjectPropertyType.Long);
+                ValueType.Long);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -505,7 +505,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.StringProperty),
                 @string,
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             var @object = _Factory.CreateFrom(storageObject);
@@ -520,7 +520,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.StringProperty),
                 stringValue,
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var storageObject = new StorageObject(partitionKey, rowKey, null, storageProperty);
 
             var factory = new ObjectFactory<MockObject>();
@@ -538,7 +538,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.IntProperty),
                 stringValue,
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -552,7 +552,7 @@ namespace Savannah.Tests
             var storageProperty = new StorageObjectProperty(
                 nameof(TestObject.IntProperty),
                 null,
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var storageObject = new StorageObject(null, null, null, storageProperty);
 
             AssertExtra.ThrowsException<InvalidOperationException>(

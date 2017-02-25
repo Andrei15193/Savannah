@@ -95,12 +95,85 @@ namespace Savannah
                         "The maximum number of allowed properties on a single object is {0:n0}. This includes PartitionKey, RowKey and Timestamp properties.",
                         MaximumNumberOfProperties));
 
-            if (!metadata.ReadableProperties.Concat(metadata.WritableProperties).All(property => AcceptedPropertyNamePattern.IsMatch(property.Name)))
+            foreach (var property in metadata.ReadableProperties.Concat(metadata.WritableProperties))
+                CheckPropertyName(property.Name);
+        }
+
+        internal static void CheckPropertyName(string propertyName)
+        {
+            if (propertyName == null || !AcceptedPropertyNamePattern.IsMatch(propertyName))
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "Property names can contain only alphanumeric and underscore characters. They can be only {0:n0} characters long and may not begin with XML (in any casing). Property names themselves are case sensitive.",
                         MaximumPropertyNameLength));
+        }
+
+        internal static void CheckPartitionKey(string value)
+        {
+            if (value == null)
+                throw new InvalidOperationException(
+                    "Null values are not supported for partition keys.");
+
+            if (value.Length > MaximumPartitionKeyLength)
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "The maximum supported length of a partition key is {0:n0} characters.",
+                        MaximumPartitionKeyLength));
+
+            if (!value.All(_IsValidKeyCharacter))
+                throw new InvalidOperationException(
+                    @"A partition key may not contain control characters, including tab (\t), linefeed (\n) and carriage return (\r), nor slash (/), back slash (\), number sign (#) or question mark (?).");
+        }
+
+        internal static void CheckRowKey(string value)
+        {
+            if (value == null)
+                throw new InvalidOperationException(
+                    "Null values are not supported for row keys.");
+
+            if (value.Length > MaximumRowKeyLength)
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "The maximum supported length of a row key is {0:n0} characters.",
+                        MaximumRowKeyLength));
+
+            if (!value.All(_IsValidKeyCharacter))
+                throw new InvalidOperationException(
+                    @"A row key may not contain control characters, including tab (\t), linefeed (\n) and carriage return (\r), nor slash (/), back slash (\), number sign (#) or question mark (?).");
+        }
+
+        internal static void CheckValue(DateTime dateTime)
+        {
+            if (dateTime < MinimumDateTimeValue || MaximumDateTimeValue < dateTime)
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "The supported date time range is between {0:g} and {1:g}.",
+                        MinimumDateTimeValue,
+                        MaximumDateTimeValue));
+        }
+
+        internal static void CheckValue(byte[] byteArray)
+        {
+            if (byteArray != null && byteArray.Length > MaximumByteArrayLength)
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "The maximum supported length of a byte array is {0:n0} bytes.",
+                        MaximumByteArrayLength));
+        }
+
+        internal static void CheckValue(string @string)
+        {
+            if (@string != null && @string.Length > MaximumStringLength)
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "The maximum supported length of a string is {0:n0} characters.",
+                        MaximumStringLength));
         }
 
         internal static void Check(object @object)
@@ -147,6 +220,14 @@ namespace Savannah
             }
         }
 
+        private static void _CheckMetadataForObjectStoreOperation(ObjectMetadata metadata)
+        {
+            if (metadata.PartitionKeyProperty == null)
+                throw new InvalidOperationException("The given object must expose a readable PartitionKey property of type string.");
+            if (metadata.RowKeyProperty == null)
+                throw new InvalidOperationException("The given object must expose a readable RowKey property of type string.");
+        }
+
         private static void _Check(object @object, out int objectSize)
         {
             if (@object == null)
@@ -156,10 +237,10 @@ namespace Savannah
             _CheckMetadataForObjectStoreOperation(metadata);
 
             var partitionKey = (string)metadata.PartitionKeyProperty.GetValue(@object);
-            _CheckPartitionKey(partitionKey);
+            CheckPartitionKey(partitionKey);
 
             var rowKey = (string)metadata.RowKeyProperty.GetValue(@object);
-            _CheckRowKey(rowKey);
+            CheckRowKey(rowKey);
 
             objectSize = ((partitionKey.Length * sizeof(char)) + (rowKey.Length * sizeof(char)) + DateTimeSize);
             foreach (var property in metadata.ReadableProperties)
@@ -169,7 +250,7 @@ namespace Savannah
                 if (property.PropertyType == typeof(byte[]))
                 {
                     var binaryValue = (byte[])value;
-                    _Check(binaryValue);
+                    CheckValue(binaryValue);
                     objectSize += ((binaryValue?.Length ?? 0) * sizeof(byte));
                 }
                 else if (property.PropertyType == typeof(bool))
@@ -177,7 +258,7 @@ namespace Savannah
                 else if (property.PropertyType == typeof(DateTime))
                 {
                     var dateTimeValue = (DateTime)value;
-                    _Check(dateTimeValue);
+                    CheckValue(dateTimeValue);
                     objectSize += DateTimeSize;
                 }
                 else if (property.PropertyType == typeof(double))
@@ -191,7 +272,7 @@ namespace Savannah
                 else
                 {
                     var stringValue = (string)value;
-                    _Check(stringValue);
+                    CheckValue(stringValue);
                     objectSize += ((stringValue?.Length ?? 0) * sizeof(char));
                 }
 
@@ -204,80 +285,6 @@ namespace Savannah
             }
         }
 
-        private static void _CheckMetadataForObjectStoreOperation(ObjectMetadata metadata)
-        {
-            if (metadata.PartitionKeyProperty == null)
-                throw new InvalidOperationException("The given object must expose a readable PartitionKey property of type string.");
-            if (metadata.RowKeyProperty == null)
-                throw new InvalidOperationException("The given object must expose a readable RowKey property of type string.");
-        }
-
-        private static void _Check(DateTime dateTime)
-        {
-            if (dateTime < MinimumDateTimeValue || MaximumDateTimeValue < dateTime)
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "The supported date time range is between {0:g} and {1:g}.",
-                        MinimumDateTimeValue,
-                        MaximumDateTimeValue));
-        }
-
-        private static void _Check(byte[] byteArray)
-        {
-            if (byteArray != null && byteArray.Length > MaximumByteArrayLength)
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "The maximum supported length of a byte array is {0:n0} bytes.",
-                        MaximumByteArrayLength));
-        }
-
-        private static void _Check(string @string)
-        {
-            if (@string != null && @string.Length > MaximumStringLength)
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "The maximum supported length of a string is {0:n0} characters.",
-                        MaximumStringLength));
-        }
-
-        private static void _CheckPartitionKey(string value)
-        {
-            if (value == null)
-                throw new InvalidOperationException(
-                    "Null values are not supported for partition keys.");
-
-            if (value.Length > MaximumPartitionKeyLength)
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "The maximum supported length of a partition key is {0:n0} characters.",
-                        MaximumPartitionKeyLength));
-
-            if (!value.All(_IsValidKeyCharacter))
-                throw new InvalidOperationException(
-                    @"A partition key may not contain control characters, including tab (\t), linefeed (\n) and carriage return (\r), nor slash (/), back slash (\), number sign (#) or question mark (?).");
-        }
-
-        private static void _CheckRowKey(string value)
-        {
-            if (value == null)
-                throw new InvalidOperationException(
-                    "Null values are not supported for row keys.");
-
-            if (value.Length > MaximumRowKeyLength)
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "The maximum supported length of a row key is {0:n0} characters.",
-                        MaximumRowKeyLength));
-
-            if (!value.All(_IsValidKeyCharacter))
-                throw new InvalidOperationException(
-                    @"A row key may not contain control characters, including tab (\t), linefeed (\n) and carriage return (\r), nor slash (/), back slash (\), number sign (#) or question mark (?).");
-        }
         private static bool _IsValidKeyCharacter(char character)
             => !char.IsControl(character) && !_forbiddenNonControlCharacters.Contains(character);
     }

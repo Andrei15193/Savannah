@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
@@ -78,7 +79,7 @@ namespace Savannah.Tests
             var collection = _ObjectStore.GetCollection(nameof(TestTryingToQueryACollectionThatIsNotCreatedThrowsException));
 
             await AssertExtra.ThrowsExceptionAsync<InvalidOperationException>(
-                () => collection.QueryAsync<MockObject>(ObjectStoreQuery.All),
+                () => collection.QueryAsync<MockObject>(new ObjectStoreQuery()),
                 "The Object Store Collection does not exist. Call one of the CreateAsync or CreateIfNotExistsAsync overloads first.");
         }
 
@@ -135,7 +136,7 @@ namespace Savannah.Tests
             var operation = ObjectStoreOperation.Insert(objectToStore);
             await _ObjectStoreCollection.ExecuteAsync(operation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             var storedObject = storedObjects.Single();
 
             Assert.AreEqual(objectToStore.PartitionKey, storedObject.PartitionKey);
@@ -148,7 +149,7 @@ namespace Savannah.Tests
             var operation = ObjectStoreOperation.Insert(objectToStore);
             await _ObjectStoreCollection.ExecuteAsync(operation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             var storedObject = storedObjects.Single();
 
             Assert.AreEqual(objectToStore.RowKey, storedObject.RowKey);
@@ -161,7 +162,7 @@ namespace Savannah.Tests
             var operation = ObjectStoreOperation.Insert(objectToStore);
             await _ObjectStoreCollection.ExecuteAsync(operation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             var storedObject = storedObjects.Single();
 
             Assert.AreNotSame(objectToStore, storedObject);
@@ -190,7 +191,7 @@ namespace Savannah.Tests
             var secondOperation = ObjectStoreOperation.Insert(secondObjectToStore);
             await _ObjectStoreCollection.ExecuteAsync(secondOperation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsTrue(
                 new[]
                 {
@@ -217,7 +218,7 @@ namespace Savannah.Tests
             var secondOperation = ObjectStoreOperation.Insert(secondObjectToStore);
             await _ObjectStoreCollection.ExecuteAsync(secondOperation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsTrue(
                 new[]
                 {
@@ -250,7 +251,7 @@ namespace Savannah.Tests
                 await _ObjectStoreCollection.ExecuteAsync(operation);
             }
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsTrue(
                 rowKeys
                     .OrderBy(rowKey => rowKey, StringComparer.Ordinal)
@@ -272,7 +273,7 @@ namespace Savannah.Tests
             var deleteOperation = ObjectStoreOperation.Delete(@object);
             await _ObjectStoreCollection.ExecuteAsync(deleteOperation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsFalse(storedObjects.Any());
         }
 
@@ -298,7 +299,7 @@ namespace Savannah.Tests
             var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = partitionKeyToRemove, RowKey = rowKey });
             await _ObjectStoreCollection.ExecuteAsync(deleteOperation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsTrue(storedObjects
                 .Select(storedObject => storedObject.PartitionKey)
                 .OrderBy(partitionKey => partitionKey)
@@ -329,7 +330,7 @@ namespace Savannah.Tests
             var deleteOperation = ObjectStoreOperation.Delete(new { PartitionKey = partitionKey, RowKey = rowKeyToRemove });
             await _ObjectStoreCollection.ExecuteAsync(deleteOperation);
 
-            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var storedObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsTrue(storedObjects
                 .Select(storedObject => storedObject.RowKey)
                 .OrderBy(rowKey => rowKey)
@@ -387,7 +388,7 @@ namespace Savannah.Tests
 
             await _ObjectStoreCollection.ExecuteAsync(batchOperation);
 
-            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsTrue(
                 new[] { firstObject, secondObject }
                 .OrderBy(
@@ -410,7 +411,7 @@ namespace Savannah.Tests
 
             await _ObjectStoreCollection.ExecuteAsync(batchOperation);
 
-            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsFalse(existingObjects.Any());
         }
 
@@ -429,7 +430,7 @@ namespace Savannah.Tests
 
             await _ObjectStoreCollection.ExecuteAsync(batchOperation);
 
-            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             var existingObject = existingObjects.Single();
             Assert.AreEqual(secondObject, new { existingObject.PartitionKey, existingObject.RowKey });
         }
@@ -476,8 +477,118 @@ namespace Savannah.Tests
             {
             }
 
-            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(ObjectStoreQuery.All);
+            var existingObjects = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery());
             Assert.IsFalse(existingObjects.Any());
+        }
+
+        [TestMethod]
+        public async Task TestQueryingForDynamicObjectsReturnsObjectsOfAllTypes()
+        {
+            var object1 = new { PartitionKey = "partitionKey", RowKey = "rowKey1", Property1 = "value1" };
+            var object2 = new { PartitionKey = "partitionKey", RowKey = "rowKey2", Property2 = "value2" };
+
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object1));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object2));
+
+            var result = await _ObjectStoreCollection.QueryAsync(new ObjectStoreQuery());
+
+            var actualObject1 = result.First();
+            var actualObject2 = result.Last();
+
+            Assert.IsTrue(
+                new object[]
+                {
+                    object1,
+                    object2
+                }.SequenceEqual(
+                    new object[]
+                    {
+                        new { PartitionKey = (string)actualObject1.PartitionKey, RowKey = (string)actualObject1.RowKey, Property1 = (string)actualObject1.Property1 },
+                        new { PartitionKey = (string)actualObject2.PartitionKey, RowKey = (string)actualObject2.RowKey, Property2 = (string)actualObject2.Property2 }
+                    }));
+        }
+
+        [TestMethod]
+        public async Task TestQueryingForDynamicObjectsReturnsOnlySelectedProperties()
+        {
+            var object1 = new { PartitionKey = "partitionKey", RowKey = "rowKey1", Property1 = "value1" };
+            var object2 = new { PartitionKey = "partitionKey", RowKey = "rowKey2", Property2 = "value2" };
+
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object1));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object2));
+
+            var result = await _ObjectStoreCollection.QueryAsync(new ObjectStoreQuery { Properties = new[] { nameof(object1.Property1) } });
+            var actualObjects = result.Cast<IDictionary<string, object>>();
+            var actualObject = actualObjects.Single();
+
+            Assert.AreEqual(nameof(object1.Property1), actualObject.Keys.Single(), ignoreCase: false);
+        }
+
+        [TestMethod]
+        public async Task TestQueryingForDynamicObjectsWhereNoneHaveSelectedPropertyReturnsEmptyResult()
+        {
+            var object1 = new { PartitionKey = "partitionKey", RowKey = "rowKey1", Property1 = "value1" };
+            var object2 = new { PartitionKey = "partitionKey", RowKey = "rowKey2", Property2 = "value2" };
+
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object1));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object2));
+
+            var result = await _ObjectStoreCollection.QueryAsync(new ObjectStoreQuery { Properties = new[] { "Property3" } });
+
+            Assert.IsFalse(result.Any());
+        }
+
+        [TestMethod]
+        public async Task TestQueryingForPartitionKeyOnlyGetsObjectsFromThatPartition()
+        {
+            var object1 = new { PartitionKey = "partitionKey1", RowKey = "rowKey1" };
+            var object2 = new { PartitionKey = "partitionKey1", RowKey = "rowKey2" };
+            var object3 = new { PartitionKey = "partitionKey2", RowKey = "rowKey2" };
+
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object1));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object2));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object3));
+
+            var result = await _ObjectStoreCollection.QueryAsync<MockObject>(
+                new ObjectStoreQuery
+                {
+                    Filter = ObjectStoreQueryFilter.Equal(nameof(StorageObject.PartitionKey), object1.PartitionKey)
+                });
+
+            Assert.IsTrue(new[] { object1, object2 }.SequenceEqual(result.Select(@object => new { @object.PartitionKey, @object.RowKey })));
+        }
+
+        [TestMethod]
+        public async Task TestQueryingForPartitionKeyOnlyGetsAsManyObjectsAsSpecified()
+        {
+            var object1 = new { PartitionKey = "partitionKey1", RowKey = "rowKey1" };
+            var object2 = new { PartitionKey = "partitionKey1", RowKey = "rowKey2" };
+            var object3 = new { PartitionKey = "partitionKey2", RowKey = "rowKey2" };
+
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object1));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object2));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object3));
+
+            var result = await _ObjectStoreCollection.QueryAsync<MockObject>(new ObjectStoreQuery { Take = 2 });
+
+            Assert.AreEqual(2, result.Count());
+        }
+
+        [TestMethod]
+        public async Task TestQueryingWithEntityResolverCallsIntoCallback()
+        {
+            var callbackCallCount = 0;
+            var object1 = new { PartitionKey = "partitionKey1", RowKey = "rowKey1" };
+            var object2 = new { PartitionKey = "partitionKey1", RowKey = "rowKey2" };
+            var object3 = new { PartitionKey = "partitionKey2", RowKey = "rowKey2" };
+
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object1));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object2));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(object3));
+
+            var result = await _ObjectStoreCollection.QueryAsync(new ObjectStoreQuery(), delegate { callbackCallCount++; return new object(); });
+
+            Assert.AreEqual(3, callbackCallCount);
         }
     }
 }

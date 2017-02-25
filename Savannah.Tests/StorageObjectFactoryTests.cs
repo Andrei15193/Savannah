@@ -98,7 +98,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.String, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.String, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -138,7 +138,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.Binary, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.Binary, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -178,7 +178,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.Boolean, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.Boolean, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -216,7 +216,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.DateTime, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.DateTime, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -262,7 +262,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.Double, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.Double, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -303,7 +303,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.Guid, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.Guid, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -343,7 +343,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.Int, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.Int, storageObjectProperty.Type);
         }
 
         [DataTestMethod]
@@ -384,7 +384,7 @@ namespace Savannah.Tests
             var storageObject = storageObjectFactory.CreateFrom(@object);
 
             var storageObjectProperty = storageObject.Properties.Single();
-            Assert.AreEqual(StorageObjectPropertyType.Long, storageObjectProperty.Type);
+            Assert.AreEqual(ValueType.Long, storageObjectProperty.Type);
         }
 
         [DataTestMethod]

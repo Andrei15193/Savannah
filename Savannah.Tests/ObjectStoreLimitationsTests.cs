@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.ObjectStoreOperations;
 
 namespace Savannah.Tests
 {
@@ -101,7 +102,7 @@ namespace Savannah.Tests
         public void TestPartitionKeyCannotContainInvalidCharacter(string partitionKey)
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = partitionKey, RowKey = string.Empty }),
+                () => ObjectStoreLimitations.CheckPartitionKey(partitionKey),
                 @"A partition key may not contain control characters, including tab (\t), linefeed (\n) and carriage return (\r), nor slash (/), back slash (\), number sign (#) or question mark (?).");
         }
 
@@ -305,7 +306,7 @@ namespace Savannah.Tests
 
             try
             {
-                ObjectStoreLimitations.Check(new { PartitionKey = partitionKey, RowKey = string.Empty });
+                ObjectStoreLimitations.CheckPartitionKey(partitionKey);
             }
             catch (InvalidOperationException)
             {
@@ -321,7 +322,7 @@ namespace Savannah.Tests
             var partitionKey = new string('t', partitionKeyLength);
 
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = partitionKey, RowKey = string.Empty }),
+                () => ObjectStoreLimitations.CheckPartitionKey(partitionKey),
                 "The maximum supported length of a partition key is 512 characters.");
         }
 
@@ -403,7 +404,7 @@ namespace Savannah.Tests
         public void TestRowKeyCannotContainInvalidCharacter(string rowKey)
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = rowKey }),
+                () => ObjectStoreLimitations.CheckRowKey(rowKey),
                 @"A row key may not contain control characters, including tab (\t), linefeed (\n) and carriage return (\r), nor slash (/), back slash (\), number sign (#) or question mark (?).");
         }
 
@@ -607,7 +608,7 @@ namespace Savannah.Tests
 
             try
             {
-                ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = rowKey });
+                ObjectStoreLimitations.CheckRowKey(rowKey);
             }
             catch (InvalidOperationException)
             {
@@ -623,7 +624,7 @@ namespace Savannah.Tests
             var rowKey = new string('t', rowKeyLength);
 
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = rowKey }),
+                () => ObjectStoreLimitations.CheckRowKey(rowKey),
                 "The maximum supported length of a row key is 512 characters.");
         }
 
@@ -637,7 +638,7 @@ namespace Savannah.Tests
             var dateTime = new DateTime(year, month, day, hour, minute, second, millisecond, dateTimeKind);
 
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = string.Empty, DateTimeProperty = dateTime }),
+                () => ObjectStoreLimitations.CheckValue(dateTime),
                 "The supported date time range is between 01/01/1601 00:00 and 12/31/9999 23:59.");
         }
 
@@ -650,7 +651,7 @@ namespace Savannah.Tests
         public void TestCheckingDateTimeThatFallsIntoSupportedIntervalDoesNotThrowException(int year, int month, int day, int hour, int minute, int second, int millisecond, DateTimeKind dateTimeKind)
         {
             var dateTime = new DateTime(year, month, day, hour, minute, second, millisecond, dateTimeKind);
-            ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = string.Empty, DateTimeProperty = dateTime });
+            ObjectStoreLimitations.CheckValue(dateTime);
         }
 
         [DataTestMethod]
@@ -661,7 +662,7 @@ namespace Savannah.Tests
             var value = new string('t', stringLength);
 
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = string.Empty, StringProperty = value }),
+                () => ObjectStoreLimitations.CheckValue(value),
                 "The maximum supported length of a string is 32,768 characters.");
         }
 
@@ -672,7 +673,7 @@ namespace Savannah.Tests
         public void TestCheckingForStringNotLargerThanSupportedLengthDoesNotThrowException(int stringLength)
         {
             var value = new string('t', stringLength);
-            ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = string.Empty, StringProperty = value });
+            ObjectStoreLimitations.CheckValue(value);
         }
 
         [DataTestMethod]
@@ -684,7 +685,7 @@ namespace Savannah.Tests
             Array.Clear(byteArray, 0, byteArray.Length);
 
             AssertExtra.ThrowsException<InvalidOperationException>(
-                () => ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = string.Empty, BinaryProperty = byteArray }),
+                () => ObjectStoreLimitations.CheckValue(byteArray),
                 "The maximum supported length of a byte array is 65,536 bytes.");
         }
 
@@ -696,7 +697,7 @@ namespace Savannah.Tests
         {
             var byteArray = new byte[byteArrayLength];
             Array.Clear(byteArray, 0, byteArray.Length);
-            ObjectStoreLimitations.Check(new { PartitionKey = string.Empty, RowKey = string.Empty, BinaryProperty = byteArray });
+            ObjectStoreLimitations.CheckValue(byteArray);
         }
 
         [DataTestMethod]
@@ -825,9 +826,7 @@ namespace Savannah.Tests
 
         [TestMethod]
         public void TestValidatingNullBatchOperationThrowsException()
-        {
-            Assert.ThrowsException<ArgumentNullException>(() => ObjectStoreLimitations.Check(batchOperation: null));
-        }
+            => Assert.ThrowsException<ArgumentNullException>(() => ObjectStoreLimitations.Check(batchOperation: null));
 
         [TestMethod]
         public void TestHavingMoreThanSupportedOperationsInABatchThrowsException()
@@ -1024,6 +1023,34 @@ namespace Savannah.Tests
                 () => ObjectStoreLimitations.Check(@object),
                 "The maximum supported size of an object is 1,048,576 bytes.");
         }
+
+        [DataTestMethod]
+        [DataRow(default(string))]
+        [DataRow("")]
+        [DataRow(" ")]
+        [DataRow("\t")]
+        [DataRow("\r")]
+        [DataRow("\n")]
+        [DataRow("1test")]
+        [DataRow("xmlTest")]
+        [DataRow("ThisPropertyHas256CharactersForRealBecauseItHasBeenTestedAddingSomeMoreNonSenseLikeTheQuickBrownFoxJumpsOverTheLazyDogBecauseThisPropertyNameHasToBe256CharactersLongAndYetItStillSeemsThereIsMoreToWriteInOrderToGetToThatLimitThisMostDefinitelyIsATinyBitHard")]
+        public void TestInvalidPropertyName(string propertyName)
+        {
+            AssertExtra.ThrowsException<InvalidOperationException>(
+                () => ObjectStoreLimitations.CheckPropertyName(propertyName),
+                "Property names can contain only alphanumeric and underscore characters. They can be only 255 characters long and may not begin with XML (in any casing). Property names themselves are case sensitive.");
+        }
+
+        [DataTestMethod]
+        [DataRow("test")]
+        [DataRow("_test")]
+        [DataRow("_1test")]
+        [DataRow("_xml")]
+        [DataRow("_1")]
+        [DataRow("_")]
+        [DataRow("ThisPropertyHas255CharactersForRealBecauseItHasBeenTestedAddingSomeMoreNonSenseLikeTheQuickBrownFoxJumpsOverTheLazyDogBecauseThisPropertyNameHasToBe255CharactersLongAndYetItStillSeemsThereIsMoreToWriteInOrderToGetToThatLimitThisMostDefinitelyIsALittleHard")]
+        public void TestValidPropertyName(string propertyName)
+            => ObjectStoreLimitations.CheckPropertyName(propertyName);
 
         private static string _GetInUnicodeLiterals(string partitionKey)
         {

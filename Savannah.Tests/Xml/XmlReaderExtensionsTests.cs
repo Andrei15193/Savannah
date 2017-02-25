@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.Xml;
 
-namespace Savannah.Tests
+namespace Savannah.Tests.Xml
 {
     [TestClass]
     public class XmlReaderExtensionsTests
@@ -178,14 +179,14 @@ namespace Savannah.Tests
                     <PropertyName />
                 </Object>",
             new object[] { new object[1] {
-                StorageObjectPropertyType.String
+                ValueType.String
             } })]
         [DataRow(
             @"  <Object>
                     <PropertyName Type=""String"" />
                 </Object>",
             new object[] { new object[1] {
-                StorageObjectPropertyType.String
+                ValueType.String
             } })]
         [DataRow(
             @"  <Object>
@@ -193,8 +194,8 @@ namespace Savannah.Tests
                     <PropertyName2 Type=""Int"" />
                 </Object>",
             new object[] { new object[2] {
-                StorageObjectPropertyType.String,
-                StorageObjectPropertyType.Int
+                ValueType.String,
+                ValueType.Int
             } })]
         [DataRow(
             @"  <Object>
@@ -202,8 +203,8 @@ namespace Savannah.Tests
                     <PropertyName1 Type=""String"" />
                 </Object>",
             new object[] { new object[2] {
-                StorageObjectPropertyType.Int,
-                StorageObjectPropertyType.String
+                ValueType.Int,
+                ValueType.String
             } })]
         [DataRow(
             @"  <Object>
@@ -217,14 +218,14 @@ namespace Savannah.Tests
                     <PropertyName8 Type=""Long"" />
                 </Object>",
             new object[] { new object[8] {
-                StorageObjectPropertyType.String,
-                StorageObjectPropertyType.Binary,
-                StorageObjectPropertyType.Boolean,
-                StorageObjectPropertyType.DateTime,
-                StorageObjectPropertyType.Double,
-                StorageObjectPropertyType.Guid,
-                StorageObjectPropertyType.Int,
-                StorageObjectPropertyType.Long
+                ValueType.String,
+                ValueType.Binary,
+                ValueType.Boolean,
+                ValueType.DateTime,
+                ValueType.Double,
+                ValueType.Guid,
+                ValueType.Int,
+                ValueType.Long
             } })]
         public async Task TestXmlReaderReadsStorageObjectPropertyTypesAccordingly(string xml, object[] expectedPropertyTypes)
         {
@@ -240,7 +241,7 @@ namespace Savannah.Tests
             Assert.IsTrue(storageObject
                 .Properties
                 .Select(property => property.Type)
-                .SequenceEqual(expectedPropertyTypes.Cast<StorageObjectPropertyType>()));
+                .SequenceEqual(expectedPropertyTypes.Cast<ValueType>()));
         }
 
         [DataTestMethod]

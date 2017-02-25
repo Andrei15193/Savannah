@@ -93,7 +93,7 @@ namespace Savannah.Tests
                 properties = Enumerable.Empty<StorageObjectProperty>();
             else
                 properties = propertyValues
-                    .Select(propertyValue => (propertyValue == null ? null : new StorageObjectProperty("test property name", propertyValue, StorageObjectPropertyType.String)))
+                    .Select(propertyValue => (propertyValue == null ? null : new StorageObjectProperty("test property name", propertyValue, ValueType.String)))
                     .ToList();
 
             var storageObject = new StorageObject(_PartitionKey, _RowKey, _Timestamp, properties);

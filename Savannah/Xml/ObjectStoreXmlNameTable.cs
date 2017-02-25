@@ -1,6 +1,6 @@
 ﻿using System.Xml;
 
-namespace Savannah
+namespace Savannah.Xml
 {
     internal sealed class ObjectStoreXmlNameTable : NameTable
     {

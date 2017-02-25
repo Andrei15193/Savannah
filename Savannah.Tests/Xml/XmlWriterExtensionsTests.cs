@@ -3,8 +3,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.Xml;
 
-namespace Savannah.Tests
+namespace Savannah.Tests.Xml
 {
     [TestClass]
     public class XmlWriterExtensionsTests
@@ -113,7 +114,7 @@ namespace Savannah.Tests
             + "</Object>")]
         public async Task TestXmlWriterSeializesStorageObjectPropertyNames(string[] propertyNames, string expectedXml)
         {
-            var properties = propertyNames.Select(propertyName => new StorageObjectProperty(propertyName, null, StorageObjectPropertyType.String));
+            var properties = propertyNames.Select(propertyName => new StorageObjectProperty(propertyName, null, ValueType.String));
 
             var xmlBuilder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(xmlBuilder, XmlSettings.WriterSettings))
@@ -162,7 +163,7 @@ namespace Savannah.Tests
                 (propertyValue, propertyIndex) => new StorageObjectProperty(
                     "PropertyName" + (propertyIndex + 1).ToString(),
                     propertyValue,
-                    StorageObjectPropertyType.String));
+                    ValueType.String));
 
             var xmlBuilder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(xmlBuilder, XmlSettings.WriterSettings))
@@ -179,7 +180,7 @@ namespace Savannah.Tests
             + "<Object />")]
         [DataRow(
             new object[1] {
-                StorageObjectPropertyType.String
+                ValueType.String
             },
             "<?xml version=\"1.0\" encoding=\"utf-16\"?>"
             + "<Object>"
@@ -187,8 +188,8 @@ namespace Savannah.Tests
             + "</Object>")]
         [DataRow(
             new object[2] {
-                StorageObjectPropertyType.String,
-                StorageObjectPropertyType.Int
+                ValueType.String,
+                ValueType.Int
             },
             "<?xml version=\"1.0\" encoding=\"utf-16\"?>"
             + "<Object>"
@@ -197,8 +198,8 @@ namespace Savannah.Tests
             + "</Object>")]
         [DataRow(
             new object[2] {
-                StorageObjectPropertyType.Int,
-                StorageObjectPropertyType.String
+                ValueType.Int,
+                ValueType.String
             },
             "<?xml version=\"1.0\" encoding=\"utf-16\"?>"
             + "<Object>"
@@ -207,14 +208,14 @@ namespace Savannah.Tests
             + "</Object>")]
         [DataRow(
             new object[8] {
-                StorageObjectPropertyType.String,
-                StorageObjectPropertyType.Binary,
-                StorageObjectPropertyType.Boolean,
-                StorageObjectPropertyType.DateTime,
-                StorageObjectPropertyType.Double,
-                StorageObjectPropertyType.Guid,
-                StorageObjectPropertyType.Int,
-                StorageObjectPropertyType.Long
+                ValueType.String,
+                ValueType.Binary,
+                ValueType.Boolean,
+                ValueType.DateTime,
+                ValueType.Double,
+                ValueType.Guid,
+                ValueType.Int,
+                ValueType.Long
             },
             "<?xml version=\"1.0\" encoding=\"utf-16\"?>"
             + "<Object>"
@@ -229,7 +230,7 @@ namespace Savannah.Tests
             + "</Object>")]
         public async Task TestXmlWriterSeializesStorageObjectPropertyValues(object[] propertyTypes, string expectedXml)
         {
-            var properties = propertyTypes.Cast<StorageObjectPropertyType>().Select(
+            var properties = propertyTypes.Cast<ValueType>().Select(
                 (propertyType, propertyIndex) => new StorageObjectProperty(
                     "PropertyName" + (propertyIndex + 1).ToString(),
                     null,

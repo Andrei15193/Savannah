@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Savannah.ObjectStoreOperations;
+using Savannah.Xml;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {

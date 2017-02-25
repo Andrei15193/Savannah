@@ -16,9 +16,13 @@ namespace Savannah.ObjectStoreOperations
         {
             IDictionary<string, object> expandoObject = new ExpandoObject();
 
-            expandoObject[nameof(StorageObject.PartitionKey)] = partitionKey;
-            expandoObject[nameof(StorageObject.RowKey)] = rowKey;
-            expandoObject[nameof(StorageObject.Timestamp)] = timestamp;
+            if (partitionKey != null)
+                expandoObject[nameof(StorageObject.PartitionKey)] = partitionKey;
+            if (rowKey != null)
+                expandoObject[nameof(StorageObject.RowKey)] = rowKey;
+            if (timestamp != default(DateTime))
+                expandoObject[nameof(StorageObject.Timestamp)] = timestamp;
+
             foreach (var property in properyValues)
                 expandoObject.Add(property);
 

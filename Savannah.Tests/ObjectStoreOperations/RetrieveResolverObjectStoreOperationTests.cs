@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Savannah.ObjectStoreOperations;
 using Savannah.Tests.Mocks;
+using Savannah.Xml;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {
@@ -102,7 +103,7 @@ namespace Savannah.Tests.ObjectStoreOperations
                     null,
                     DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture),
                     propertyNames
-                        .Select(propertyName => new StorageObjectProperty(propertyName, string.Empty, StorageObjectPropertyType.String))
+                        .Select(propertyName => new StorageObjectProperty(propertyName, string.Empty, ValueType.String))
                         .ToList()),
                 StorageObjectFactory,
                 DateTime.UtcNow,

@@ -69,9 +69,9 @@ namespace Savannah
             var storageProperties = storageObject
                 .Properties
                 .Concat(new[] {
-                    new StorageObjectProperty(nameof(StorageObject.PartitionKey), storageObject.PartitionKey, StorageObjectPropertyType.String),
-                    new StorageObjectProperty(nameof(StorageObject.RowKey), storageObject.RowKey, StorageObjectPropertyType.String),
-                    new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, StorageObjectPropertyType.DateTime)
+                    new StorageObjectProperty(nameof(StorageObject.PartitionKey), storageObject.PartitionKey, ValueType.String),
+                    new StorageObjectProperty(nameof(StorageObject.RowKey), storageObject.RowKey, ValueType.String),
+                    new StorageObjectProperty(nameof(StorageObject.Timestamp), storageObject.Timestamp, ValueType.DateTime)
                 }.Where(property => property.Value != null));
 
             if (propertiesToRetrieve != null)

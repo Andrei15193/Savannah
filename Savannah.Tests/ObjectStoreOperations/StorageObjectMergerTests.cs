@@ -20,11 +20,11 @@ namespace Savannah.Tests.ObjectStoreOperations
             var oldProperty1 = new StorageObjectProperty(
                 "property1",
                 "testValue1",
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var newProperty2 = new StorageObjectProperty(
                 "property2",
                 "testValue2",
-                StorageObjectPropertyType.String);
+                ValueType.String);
 
             var oldStorageObject = new StorageObject(partitionKey, rowKey, timestamp, oldProperty1);
             var newStorageObject = new StorageObject(partitionKey, rowKey, timestamp, newProperty2);
@@ -54,11 +54,11 @@ namespace Savannah.Tests.ObjectStoreOperations
             var oldProperty1 = new StorageObjectProperty(
                 "property1",
                 "testValue1",
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var newProperty1 = new StorageObjectProperty(
                 oldProperty1.Name,
                 "testValue1",
-                StorageObjectPropertyType.String);
+                ValueType.String);
 
             var oldStorageObject = new StorageObject(partitionKey, rowKey, timestamp, oldProperty1);
             var newStorageObject = new StorageObject(partitionKey, rowKey, timestamp, newProperty1);
@@ -79,11 +79,11 @@ namespace Savannah.Tests.ObjectStoreOperations
             var oldProperty1 = new StorageObjectProperty(
                 "property1",
                 "testValue1",
-                StorageObjectPropertyType.String);
+                ValueType.String);
             var newProperty1 = new StorageObjectProperty(
                 oldProperty1.Name,
                 "testValue1",
-                StorageObjectPropertyType.String);
+                ValueType.String);
 
             var oldStorageObject = new StorageObject(partitionKey, rowKey, oldTimestamp, oldProperty1);
             var newStorageObject = new StorageObject(partitionKey, rowKey, newTimestamp, newProperty1);

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace Savannah
+namespace Savannah.ObjectStoreOperations
 {
     internal sealed class ObjectStoreOperationContext
     {

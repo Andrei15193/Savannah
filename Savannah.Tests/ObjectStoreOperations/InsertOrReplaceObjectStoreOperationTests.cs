@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Savannah.ObjectStoreOperations;
+using Savannah.Xml;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {

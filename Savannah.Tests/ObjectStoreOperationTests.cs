@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Savannah.ObjectStoreOperations;
 using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests

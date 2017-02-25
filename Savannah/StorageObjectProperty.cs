@@ -2,7 +2,7 @@
 {
     internal class StorageObjectProperty
     {
-        internal StorageObjectProperty(string name, string value, StorageObjectPropertyType propertyType)
+        internal StorageObjectProperty(string name, string value, ValueType propertyType)
         {
             Name = name;
             Value = value;
@@ -13,6 +13,6 @@
 
         internal string Value { get; }
 
-        internal StorageObjectPropertyType Type { get; }
+        internal ValueType Type { get; }
     }
 }

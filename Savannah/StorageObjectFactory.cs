@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using Savannah.Xml;
 
 namespace Savannah
 {
@@ -50,49 +51,49 @@ namespace Savannah
                 return new StorageObjectProperty(
                     property.Name,
                     (string)value,
-                    StorageObjectPropertyType.String);
+                    ValueType.String);
 
             if (property.PropertyType == typeof(byte[]))
                 return new StorageObjectProperty(
                     property.Name,
                     _ConvertToByteString((byte[])value),
-                    StorageObjectPropertyType.Binary);
+                    ValueType.Binary);
 
             if (property.PropertyType == typeof(bool))
                 return new StorageObjectProperty(
                     property.Name,
                     XmlConvert.ToString((bool)value),
-                    StorageObjectPropertyType.Boolean);
+                    ValueType.Boolean);
 
             if (property.PropertyType == typeof(DateTime))
                 return new StorageObjectProperty(
                     property.Name,
                     ((DateTime)value).ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture),
-                    StorageObjectPropertyType.DateTime);
+                    ValueType.DateTime);
 
             if (property.PropertyType == typeof(double))
                 return new StorageObjectProperty(
                     property.Name,
                     XmlConvert.ToString((double)value),
-                    StorageObjectPropertyType.Double);
+                    ValueType.Double);
 
             if (property.PropertyType == typeof(Guid))
                 return new StorageObjectProperty(
                     property.Name,
                     XmlConvert.ToString((Guid)value),
-                    StorageObjectPropertyType.Guid);
+                    ValueType.Guid);
 
             if (property.PropertyType == typeof(int))
                 return new StorageObjectProperty(
                     property.Name,
                     XmlConvert.ToString((int)value),
-                    StorageObjectPropertyType.Int);
+                    ValueType.Int);
 
             if (property.PropertyType == typeof(long))
                 return new StorageObjectProperty(
                     property.Name,
                     XmlConvert.ToString((long)value),
-                    StorageObjectPropertyType.Long);
+                    ValueType.Long);
 
             throw new InvalidOperationException("Not supported property type.");
         }
