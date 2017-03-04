@@ -1,108 +1,84 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.Xml;
 
 namespace Savannah.Tests.Xml
 {
     [TestClass]
     public class XmlReaderExtensionsTests
+        : UnitTest
     {
-        [DataTestMethod]
-        [DataRow("<Object PartitionKey=\"PartitionKey\" />", "PartitionKey")]
-        [DataRow("<Object PartitionKey=\"\" />", "")]
-        [DataRow("<Object />", default(string))]
-        [DataRow("<Object RowKey=\"RowKey\" />", default(string))]
-        [DataRow("<Object PartitionKey=\"PartitionKey\" RowKey=\"RowKey\" />", "PartitionKey")]
-        [DataRow("<Object RowKey=\"RowKey\" PartitionKey=\"PartitionKey\" />", "PartitionKey")]
-        public async Task TestXmlReaderReadsStorageObjectPartitionKey(string xml, string expectedPartitionKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectPartitionKeyTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsStorageObjectPartitionKey()
         {
-            using (var stringReader = new StringReader(xml))
+            var row = GetRow<XmlObjectPartitionKeyRow>();
+
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
                 var storageObject = await xmlReader.ReadStorageObjectAsync();
 
-                Assert.AreEqual(expectedPartitionKey, storageObject.PartitionKey);
+                Assert.AreEqual(row.PartitionKey, storageObject.PartitionKey);
             }
         }
 
-        [DataTestMethod]
-        [DataRow("<Object RowKey=\"RowKey\" />", "RowKey")]
-        [DataRow("<Object RowKey=\"\" />", "")]
-        [DataRow("<Object />", default(string))]
-        [DataRow("<Object Timestamp=\"Timestamp\" />", default(string))]
-        [DataRow("<Object RowKey=\"RowKey\" Timestamp=\"Timestamp\" />", "RowKey")]
-        [DataRow("<Object Timestamp=\"Timestamp\" RowKey=\"RowKey\" />", "RowKey")]
-        public async Task TestXmlReaderReadsStorageObjectRowKey(string xml, string expectedRowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectRowKeyTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsStorageObjectRowKey()
         {
-            using (var stringReader = new StringReader(xml))
+            var row = GetRow<XmlObjectRowKeyRow>();
+
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
                 var storageObject = await xmlReader.ReadStorageObjectAsync();
 
-                Assert.AreEqual(expectedRowKey, storageObject.RowKey);
+                Assert.AreEqual(row.RowKey, storageObject.RowKey);
             }
         }
 
-        [DataTestMethod]
-        [DataRow("<Object Timestamp=\"Timestamp\" />", "Timestamp")]
-        [DataRow("<Object Timestamp=\"\" />", "")]
-        [DataRow("<Object />", default(string))]
-        [DataRow("<Object RowKey=\"RowKey\" />", default(string))]
-        [DataRow("<Object Timestamp=\"Timestamp\" RowKey=\"RowKey\" />", "Timestamp")]
-        [DataRow("<Object RowKey=\"RowKey\" Timestamp=\"Timestamp\" />", "Timestamp")]
-        public async Task TestXmlReaderReadsStorageObjectTimestamp(string xml, string expectedTimestamp)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectTimestampTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsStorageObjectTimestamp()
         {
-            using (var stringReader = new StringReader(xml))
+            var row = GetRow<XmlObjectTimestampRow>();
+
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
                 var storageObject = await xmlReader.ReadStorageObjectAsync();
 
-                Assert.AreEqual(expectedTimestamp, storageObject.Timestamp);
+                Assert.AreEqual(row.Timestamp, storageObject.Timestamp);
             }
         }
 
-        [DataTestMethod]
-        [DataRow(
-            "<Object />",
-            new object[] { new string[0] {
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName />
-                </Object>",
-            new object[] { new string[1] {
-                "PropertyName"
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName1 />
-                    <PropertyName2 />
-                </Object>",
-            new object[] { new string[2] {
-                "PropertyName1",
-                "PropertyName2"
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName2 />
-                    <PropertyName1 />
-                </Object>",
-            new object[] { new string[2] {
-                "PropertyName2",
-                "PropertyName1"
-            } })]
-        public async Task TestXmlReaderReadsStorageObjectPropertyNamesAccrodingly(string xml, string[] expectedPropertyNames)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectPropertyNamesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsStorageObjectPropertyNamesAccrodingly()
         {
+            var row = GetRow<XmlObjectPropertyNamesRow>();
+
+            var expectedPropertyNames = row.PropertyNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
             StorageObject storageObject;
-
-            using (var stringReader = new StringReader(xml))
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
@@ -115,48 +91,20 @@ namespace Savannah.Tests.Xml
                 .SequenceEqual(expectedPropertyNames));
         }
 
-        [DataTestMethod]
-        [DataRow(
-            "<Object />",
-            new object[] { new string[0] {
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName />
-                </Object>",
-            new object[] { new string[1] {
-                null
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName Value=""PropertyValue"" />
-                </Object>",
-            new object[] { new string[1] {
-                "PropertyValue"
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName1 Value=""PropertyValue1"" />
-                    <PropertyName2 Value=""PropertyValue2"" />
-                </Object>",
-            new object[] { new string[2] {
-                "PropertyValue1",
-                "PropertyValue2"
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName2 Value=""PropertyValue2"" />
-                    <PropertyName1 Value=""PropertyValue1"" />
-                </Object>",
-            new object[] { new string[2] {
-                "PropertyValue2",
-                "PropertyValue1"
-            } })]
-        public async Task TestXmlReaderReadsStorageObjectPropertyValuesAccordingly(string xml, string[] expectedPropertyValues)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectPropertyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsStorageObjectPropertyValuesAccordingly()
         {
-            StorageObject storageObject;
+            var row = GetRow<XmlObjectPropertyValuesRow>();
 
-            using (var stringReader = new StringReader(xml))
+            var expectedPropertyValues = row.PropertyValues?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (expectedPropertyValues == null)
+                expectedPropertyValues = new string[] { null };
+
+            StorageObject storageObject;
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
@@ -169,69 +117,21 @@ namespace Savannah.Tests.Xml
                 .SequenceEqual(expectedPropertyValues));
         }
 
-        [DataTestMethod]
-        [DataRow(
-            "<Object />",
-            new object[] { new object[0] {
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName />
-                </Object>",
-            new object[] { new object[1] {
-                ValueType.String
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName Type=""String"" />
-                </Object>",
-            new object[] { new object[1] {
-                ValueType.String
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName1 Type=""String"" />
-                    <PropertyName2 Type=""Int"" />
-                </Object>",
-            new object[] { new object[2] {
-                ValueType.String,
-                ValueType.Int
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName2 Type=""Int"" />
-                    <PropertyName1 Type=""String"" />
-                </Object>",
-            new object[] { new object[2] {
-                ValueType.Int,
-                ValueType.String
-            } })]
-        [DataRow(
-            @"  <Object>
-                    <PropertyName1 Type=""String"" />
-                    <PropertyName2 Type=""Binary"" />
-                    <PropertyName3 Type=""Boolean"" />
-                    <PropertyName4 Type=""DateTime"" />
-                    <PropertyName5 Type=""Double"" />
-                    <PropertyName6 Type=""Guid"" />
-                    <PropertyName7 Type=""Int"" />
-                    <PropertyName8 Type=""Long"" />
-                </Object>",
-            new object[] { new object[8] {
-                ValueType.String,
-                ValueType.Binary,
-                ValueType.Boolean,
-                ValueType.DateTime,
-                ValueType.Double,
-                ValueType.Guid,
-                ValueType.Int,
-                ValueType.Long
-            } })]
-        public async Task TestXmlReaderReadsStorageObjectPropertyTypesAccordingly(string xml, object[] expectedPropertyTypes)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectPropertyTypesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsStorageObjectPropertyTypesAccordingly()
         {
-            StorageObject storageObject;
+            var row = GetRow<XmlObjectPropertyTypesRow>();
 
-            using (var stringReader = new StringReader(xml))
+            var expectedPropertyTypes = row
+                .PropertyTypes
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(name => (ValueType)Enum.Parse(typeof(ValueType), name));
+
+            StorageObject storageObject;
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
@@ -241,21 +141,19 @@ namespace Savannah.Tests.Xml
             Assert.IsTrue(storageObject
                 .Properties
                 .Select(property => property.Type)
-                .SequenceEqual(expectedPropertyTypes.Cast<ValueType>()));
+                .SequenceEqual(expectedPropertyTypes));
         }
 
-        [DataTestMethod]
-        [DataRow(@"
-            <Partition>
-                <Object />
-                <Object />
-            </Partition>",
-            2)]
-        public async Task TestXmlReaderReadsConsecutiveObjects(string xml, int numberOfObjects)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, XmlObjectsInPartitionTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestXmlReaderReadsConsecutiveObjects()
         {
-            var storageObjects = new List<StorageObject>();
+            var row = GetRow<XmlObjectsInPartitionRow>();
 
-            using (var stringReader = new StringReader(xml))
+            var storageObjects = new List<StorageObject>();
+            using (var stringReader = new StringReader(row.Xml))
             using (var xmlReader = XmlReader.Create(stringReader, XmlSettings.ReaderSettings))
             {
                 await xmlReader.ReadAsync();
@@ -265,7 +163,7 @@ namespace Savannah.Tests.Xml
                     storageObjects.Add(await xmlReader.ReadStorageObjectAsync());
             }
 
-            Assert.AreEqual(numberOfObjects, storageObjects.Distinct().Count());
+            Assert.AreEqual(row.NumberOfObjects, storageObjects.Distinct().Count());
         }
     }
 }

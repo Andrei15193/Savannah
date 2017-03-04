@@ -147,7 +147,8 @@ namespace Savannah
 
         internal static void CheckValue(DateTime dateTime)
         {
-            if (dateTime < MinimumDateTimeValue || MaximumDateTimeValue < dateTime)
+            var universalDateTime = dateTime.ToUniversalTime();
+            if (universalDateTime.ToUniversalTime() < MinimumDateTimeValue || MaximumDateTimeValue < universalDateTime)
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.InvariantCulture,

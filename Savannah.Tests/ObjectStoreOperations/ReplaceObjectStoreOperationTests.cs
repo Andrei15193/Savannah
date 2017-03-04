@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 using Savannah.Xml;
 
@@ -11,13 +11,15 @@ namespace Savannah.Tests.ObjectStoreOperations
     public class ReplaceObjectStoreOperationTests
         : ObjectStoreOperationTestsTemplate
     {
-
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey")]
-        [DataRow("", "")]
-        public void TestReplacingAnExistingObject(string partitionKey, string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectKeysTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestReplacingAnExistingObject()
         {
-            var @object = new { PartitionKey = partitionKey, RowKey = rowKey };
+            var row = GetRow<ObjectKeysRow>();
+
+            var @object = new { row.PartitionKey, row.RowKey };
             var existingStorageObject = new StorageObject(null, null, null);
             var executionContext = new ObjectStoreOperationExectionContext(existingStorageObject, StorageObjectFactory, DateTime.UtcNow, new List<object>());
             var inserOrReplaceOperation = new InsertOrReplaceObjectStoreOperation(@object);
@@ -30,6 +32,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToReplaceNonExistingObjectThrowsException()
         {
             var deleteOperation = new ReplaceObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });

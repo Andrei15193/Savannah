@@ -1,10 +1,11 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {
     [TestClass]
     public abstract class ObjectStoreOperationTestsTemplate
+        : UnitTest
     {
         internal DateTime Timestamp { get; private set; }
 

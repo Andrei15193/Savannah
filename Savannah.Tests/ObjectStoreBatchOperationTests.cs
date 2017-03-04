@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests
 {
     [TestClass]
     public class ObjectStoreBatchOperationTests
+        : UnitTest
     {
         private ObjectStoreBatchOperation _ObjectStoreBatchOperation { get; set; }
 
@@ -23,6 +24,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestAddingATableOperation()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -33,25 +35,27 @@ namespace Savannah.Tests
             Assert.AreSame(operation, actualOperation);
         }
 
-        [TestMethod]
+        [TestMethod, ExpectedException(typeof(ArgumentNullException))]
+        [Owner("Andrei Fangli")]
         public void TestTryingToAddNullThrowsException()
-        {
-            Assert.ThrowsException<ArgumentNullException>(() => _ObjectStoreBatchOperation.Add(null));
-        }
+            => _ObjectStoreBatchOperation.Add(null);
 
-        [DataTestMethod]
-        [DataRow(1)]
-        [DataRow(4)]
-        [DataRow(10)]
-        public void TestCountReturnsNumberOfOperations(int numberOfOperations)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, PositiveIntegerValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestCountReturnsNumberOfOperations()
         {
-            for (var operationIndex = 0; operationIndex < numberOfOperations; operationIndex++)
+            var row = GetRow<PositiveIntegerValuesRow>();
+
+            for (var operationIndex = 0; operationIndex < row.Value; operationIndex++)
                 _ObjectStoreBatchOperation.Add(ObjectStoreOperation.Insert(new object()));
 
-            Assert.AreEqual(numberOfOperations, _ObjectStoreBatchOperation.Count);
+            Assert.AreEqual(row.Value, _ObjectStoreBatchOperation.Count);
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestClearingTableBatchOperations()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -63,6 +67,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCheckingIfTheBatchOperationContainsAPreviouslyAddedOperation()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -72,6 +77,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCheckingIfTheBatchOperationDoesNotContainAnOperationThatWasNotAdded()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -82,72 +88,73 @@ namespace Savannah.Tests
             Assert.IsFalse(_ObjectStoreBatchOperation.Contains(newOperation));
         }
 
-        [DataTestMethod]
-        [DataRow(10, 0)]
-        [DataRow(10, 1)]
-        [DataRow(10, 3)]
-        [DataRow(10, 6)]
-        [DataRow(10, 9)]
-        public void TestGetOperationFromIndex(int numberOfOperations, int index)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, OperationTestSetTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestGetOperationFromIndex()
         {
+            var row = GetRow<OperationTestSetRow>();
+
             ObjectStoreOperation operationToCheck = null;
-            for (var operationIndex = 0; operationIndex < numberOfOperations; operationIndex++)
+            for (var operationIndex = 0; operationIndex < row.NumberOfOperations; operationIndex++)
             {
                 var operation = ObjectStoreOperation.Insert(new object());
                 _ObjectStoreBatchOperation.Add(operation);
-                if (operationIndex == index)
+                if (operationIndex == row.Index)
                     operationToCheck = operation;
             }
 
-            Assert.AreSame(operationToCheck, _ObjectStoreBatchOperation[index]);
-        }
-
-        [DataTestMethod]
-        [DataRow(10, 0)]
-        [DataRow(10, 1)]
-        [DataRow(10, 3)]
-        [DataRow(10, 6)]
-        [DataRow(10, 9)]
-        public void TestSettingANewOperationOnAnExistingIndex(int numberOfOperations, int index)
-        {
-            for (var operationIndex = 0; operationIndex < numberOfOperations; operationIndex++)
-                _ObjectStoreBatchOperation.Add(ObjectStoreOperation.Insert(new object()));
-
-            var operation = ObjectStoreOperation.Insert(new object());
-            _ObjectStoreBatchOperation[index] = operation;
-
-            Assert.AreSame(operation, _ObjectStoreBatchOperation[index]);
-        }
-
-        [DataTestMethod]
-        [DataRow(0)]
-        [DataRow(1)]
-        [DataRow(3)]
-        [DataRow(6)]
-        [DataRow(9)]
-        public void TestTryingToSetNullOnAnIndexThrowsException(int index)
-        {
-            Assert.ThrowsException<ArgumentNullException>(() => _ObjectStoreBatchOperation[index] = null);
-        }
-
-        [DataTestMethod]
-        [DataRow(10, 0)]
-        [DataRow(10, 1)]
-        [DataRow(10, 3)]
-        [DataRow(10, 6)]
-        [DataRow(10, 9)]
-        public void TestInsertingANewOperation(int numberOfOperations, int index)
-        {
-            for (var operationIndex = 0; operationIndex < numberOfOperations; operationIndex++)
-                _ObjectStoreBatchOperation.Add(ObjectStoreOperation.Insert(new object()));
-
-            var operation = ObjectStoreOperation.Insert(new object());
-            _ObjectStoreBatchOperation.Insert(index, operation);
-
-            Assert.AreSame(operation, _ObjectStoreBatchOperation[index]);
+            Assert.AreSame(operationToCheck, _ObjectStoreBatchOperation[row.Index]);
         }
 
         [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, OperationTestSetTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestSettingANewOperationOnAnExistingIndex()
+        {
+            var row = GetRow<OperationTestSetRow>();
+
+            for (var operationIndex = 0; operationIndex < row.NumberOfOperations; operationIndex++)
+                _ObjectStoreBatchOperation.Add(ObjectStoreOperation.Insert(new object()));
+
+            var operation = ObjectStoreOperation.Insert(new object());
+            _ObjectStoreBatchOperation[row.Index] = operation;
+
+            Assert.AreSame(operation, _ObjectStoreBatchOperation[row.Index]);
+        }
+
+        [TestMethod, ExpectedException(typeof(ArgumentNullException))]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, PositiveIntegerValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestTryingToSetNullOnAnIndexThrowsException()
+        {
+            var row = GetRow<PositiveIntegerValuesRow>();
+
+            _ObjectStoreBatchOperation[row.Value] = null;
+        }
+
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, OperationTestSetTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestInsertingANewOperation()
+        {
+            var row = GetRow<OperationTestSetRow>();
+
+            for (var operationIndex = 0; operationIndex < row.NumberOfOperations; operationIndex++)
+                _ObjectStoreBatchOperation.Add(ObjectStoreOperation.Insert(new object()));
+
+            var operation = ObjectStoreOperation.Insert(new object());
+            _ObjectStoreBatchOperation.Insert(row.Index, operation);
+
+            Assert.AreSame(operation, _ObjectStoreBatchOperation[row.Index]);
+        }
+
+        [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRemovingAnExistingOperation()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -159,6 +166,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRemovingAnExistingOperationReturnsTrue()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -168,6 +176,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToRemoveAnObjectThatDoesNotExistDoesNotChangeTheCollection()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -179,6 +188,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToRemoveAnObjectThatDoesNotExistReturnsFalse()
         {
             var operation = ObjectStoreOperation.Insert(new object());
@@ -187,29 +197,30 @@ namespace Savannah.Tests
             Assert.IsFalse(_ObjectStoreBatchOperation.Remove(ObjectStoreOperation.Insert(new object())));
         }
 
-        [DataTestMethod]
-        [DataRow(10, 0)]
-        [DataRow(10, 1)]
-        [DataRow(10, 3)]
-        [DataRow(10, 6)]
-        [DataRow(10, 9)]
-        public void TestRemovingAnObjectFromAnIndexEliminatesItFromTheBatch(int numberOfOperations, int index)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, OperationTestSetTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestRemovingAnObjectFromAnIndexEliminatesItFromTheBatch()
         {
+            var row = GetRow<OperationTestSetRow>();
+
             ObjectStoreOperation removedOperation = null;
-            for (var operationIndex = 0; operationIndex < numberOfOperations; operationIndex++)
+            for (var operationIndex = 0; operationIndex < row.NumberOfOperations; operationIndex++)
             {
                 var operation = ObjectStoreOperation.Insert(new object());
                 _ObjectStoreBatchOperation.Add(operation);
-                if (operationIndex == index)
+                if (operationIndex == row.Index)
                     removedOperation = operation;
             }
 
-            _ObjectStoreBatchOperation.RemoveAt(index);
+            _ObjectStoreBatchOperation.RemoveAt(row.Index);
 
             Assert.IsFalse(_ObjectStoreBatchOperation.Contains(removedOperation));
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestDeleteAddsANewDeleteOperation()
         {
             _ObjectStoreBatchOperation.Delete(new object());
@@ -219,6 +230,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestInsertAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.Insert(new object());
@@ -228,6 +240,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestInsertWithEchoContentAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.Insert(new object(), echoContent: true);
@@ -237,6 +250,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestInsertOrMergeAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.InsertOrMerge(new object());
@@ -246,6 +260,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestInsertOrReplaceAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.InsertOrReplace(new object());
@@ -255,6 +270,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestMergeAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.Merge(new object());
@@ -264,6 +280,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestReplaceAddsANewInsertOperation()
         {
             _ObjectStoreBatchOperation.Replace(new object());
@@ -273,6 +290,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveDynamicObjectAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object());
@@ -282,6 +300,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveDynamicObjectWithPropertyEnumerableFilterAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object(), Enumerable.Empty<string>());
@@ -291,6 +310,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveDynamicObjectWithPropertyArrayFilterAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object(), new string[0]);
@@ -300,6 +320,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrievePocoObjectAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve<MockObject>(new object());
@@ -309,6 +330,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrievePocoObjectWithPropertyEnumerableFilterAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve<MockObject>(new object(), Enumerable.Empty<string>());
@@ -318,6 +340,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrievePocoObjectWithPropertyArrayFilterAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve<MockObject>(new object(), new string[0]);
@@ -327,6 +350,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveResolvedObjectAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object(), delegate { return new object(); });
@@ -336,6 +360,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveResolvedObjectWithPropertyEnumerableFilterAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object(), delegate { return new object(); }, Enumerable.Empty<string>());
@@ -345,6 +370,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveResolvedObjectWithPropertyArrayFilterAddsANewRetrieveOperation()
         {
             _ObjectStoreBatchOperation.Retrieve(new object(), delegate { return new object(); }, new string[0]);

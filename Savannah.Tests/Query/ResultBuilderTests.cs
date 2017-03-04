@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.Query;
 
 namespace Savannah.Tests.Query
@@ -8,6 +8,7 @@ namespace Savannah.Tests.Query
     public class ResultBuilderTests
     {
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestAddingTwoStorageObjectsAddsThemSortedByPartitionKeyThenByRowKey()
         {
             var partitionKey = "value";
@@ -22,6 +23,7 @@ namespace Savannah.Tests.Query
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToAddStorageObjectWithMaxCount1AfterExistingObjectReturnsFalse()
         {
             var partitionKey = "value";
@@ -34,6 +36,7 @@ namespace Savannah.Tests.Query
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToAddStorageObjectWithMaxCount1AfterExistingObjectReturnsFirstObjectAsResult()
         {
             var partitionKey = "value";
@@ -48,6 +51,7 @@ namespace Savannah.Tests.Query
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToAddStorageObjectWithMaxCount1BeforeExistingObjectReturnsTrue()
         {
             var partitionKey = "value";
@@ -60,6 +64,7 @@ namespace Savannah.Tests.Query
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToAddStorageObjectWithMaxCount1BeforeExistingObjectReturnsLastObjectAsResult()
         {
             var partitionKey = "value";

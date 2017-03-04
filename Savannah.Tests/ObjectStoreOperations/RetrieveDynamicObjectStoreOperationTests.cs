@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 using Savannah.Xml;
 
@@ -13,6 +13,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         : ObjectStoreOperationTestsTemplate
     {
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveReturnsSameStorageObject()
         {
             var retrieveOperation = new RetrieveDynamicObjectStoreOperation(new object());
@@ -28,16 +29,19 @@ namespace Savannah.Tests.ObjectStoreOperations
             Assert.AreSame(storageObject, actualStorageObject);
         }
 
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey")]
-        [DataRow("", "")]
-        public void TestRetrieveExistingObject(string partitionKey, string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectKeysTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestRetrieveExistingObject()
         {
-            var @object = new { PartitionKey = partitionKey, RowKey = rowKey };
+            var row = GetRow<ObjectKeysRow>();
+
+            var @object = new { row.PartitionKey, row.RowKey };
             var retrieveOperation = new RetrieveDynamicObjectStoreOperation(@object);
             var result = new List<object>();
             var executionContext = new ObjectStoreOperationExectionContext(
-                new StorageObject(partitionKey, rowKey, DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)),
+                new StorageObject(row.PartitionKey, row.RowKey, DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)),
                 StorageObjectFactory,
                 DateTime.UtcNow,
                 result);
@@ -50,16 +54,19 @@ namespace Savannah.Tests.ObjectStoreOperations
                 new { PartitionKey = (string)actualObject.PartitionKey, RowKey = (string)actualObject.RowKey });
         }
 
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey")]
-        [DataRow("", "")]
-        public void TestRetrieveExistingObjectWithSpecifiedProperties(string partitionKey, string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectKeysTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestRetrieveExistingObjectWithSpecifiedProperties()
         {
-            var @object = new { PartitionKey = partitionKey, RowKey = rowKey };
+            var row = GetRow<ObjectKeysRow>();
+
+            var @object = new { row.PartitionKey, row.RowKey };
             var retrieveOperation = new RetrieveDynamicObjectStoreOperation(@object, new[] { nameof(StorageObject.PartitionKey) });
             var result = new List<object>();
             var executionContext = new ObjectStoreOperationExectionContext(
-                new StorageObject(partitionKey, rowKey, DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)),
+                new StorageObject(row.PartitionKey, row.RowKey, DateTime.UtcNow.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)),
                 StorageObjectFactory,
                 DateTime.UtcNow,
                 result);
@@ -73,6 +80,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToRetrieveNonExistingObjectThrowsException()
         {
             var retrieveOperation = new RetrieveDynamicObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });

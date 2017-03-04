@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.Query;
 using Savannah.Xml;
 
@@ -8,8 +9,10 @@ namespace Savannah.Tests
 {
     [TestClass]
     public class ObjectStoreQueryFilterTests
+        : UnitTest
     {
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithByteArrayValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", new byte[0]);
@@ -18,6 +21,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithByteArrayValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -27,6 +31,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithByteArrayValueReturnOperatorWithSameValue()
         {
             var value = new byte[0];
@@ -36,6 +41,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithBooleanValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", true);
@@ -44,6 +50,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithBooleanValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -53,6 +60,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithBooleanValueReturnOperatorWithSameValue()
         {
             var value = true;
@@ -62,6 +70,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithDateTimeValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", DateTime.UtcNow);
@@ -70,6 +79,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithDateTimeValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -79,6 +89,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithDateTimeValueReturnOperatorWithSameValue()
         {
             var value = DateTime.UtcNow;
@@ -88,6 +99,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithDoubleValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", 1.0D);
@@ -96,6 +108,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithDoubleValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -105,6 +118,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithDoubleValueReturnOperatorWithSameValue()
         {
             var value = 1.0D;
@@ -114,6 +128,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithGuidValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", Guid.NewGuid());
@@ -122,6 +137,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithGuidValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -131,6 +147,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithGuidValueReturnOperatorWithSameValue()
         {
             var value = Guid.NewGuid();
@@ -140,6 +157,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithIntValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", 1);
@@ -148,6 +166,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithIntValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -157,6 +176,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithIntValueReturnOperatorWithSameValue()
         {
             var value = 1;
@@ -166,6 +186,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithLongValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", 1L);
@@ -174,6 +195,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithLongValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -183,6 +205,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithLongValueReturnOperatorWithSameValue()
         {
             var value = 1L;
@@ -192,6 +215,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithStringValueReturnOperatorOfTypeEqual()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -200,6 +224,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithStringValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -209,6 +234,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingEqualWithStringValueReturnOperatorWithSameValue()
         {
             var value = "testValue";
@@ -218,6 +244,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithByteArrayValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", new byte[0]);
@@ -226,6 +253,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithByteArrayValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -235,6 +263,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithByteArrayValueReturnOperatorWithSameValue()
         {
             var value = new byte[0];
@@ -244,6 +273,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithBooleanValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", true);
@@ -252,6 +282,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithBooleanValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -261,6 +292,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithBooleanValueReturnOperatorWithSameValue()
         {
             var value = true;
@@ -270,6 +302,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithDateTimeValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", DateTime.UtcNow);
@@ -278,6 +311,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithDateTimeValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -287,6 +321,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithDateTimeValueReturnOperatorWithSameValue()
         {
             var value = DateTime.UtcNow;
@@ -296,6 +331,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithDoubleValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", 1.0D);
@@ -304,6 +340,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithDoubleValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -313,6 +350,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithDoubleValueReturnOperatorWithSameValue()
         {
             var value = 1.0D;
@@ -322,6 +360,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithGuidValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", Guid.NewGuid());
@@ -330,6 +369,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithGuidValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -339,6 +379,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithGuidValueReturnOperatorWithSameValue()
         {
             var value = Guid.NewGuid();
@@ -348,6 +389,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithIntValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", 1);
@@ -356,6 +398,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithIntValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -365,6 +408,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithIntValueReturnOperatorWithSameValue()
         {
             var value = 1;
@@ -374,6 +418,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithLongValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", 1L);
@@ -382,6 +427,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithLongValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -391,6 +437,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithLongValueReturnOperatorWithSameValue()
         {
             var value = 1L;
@@ -400,6 +447,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithStringValueReturnOperatorOfTypeNotEqual()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", "testValue");
@@ -408,6 +456,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithStringValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -417,6 +466,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingNotEqualWithStringValueReturnOperatorWithSameValue()
         {
             var value = "testValue";
@@ -426,6 +476,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithByteArrayValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", new byte[0]);
@@ -434,6 +485,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithByteArrayValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -443,6 +495,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithByteArrayValueReturnOperatorWithSameValue()
         {
             var value = new byte[0];
@@ -452,6 +505,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithBooleanValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", true);
@@ -460,6 +514,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithBooleanValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -469,6 +524,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithBooleanValueReturnOperatorWithSameValue()
         {
             var value = true;
@@ -478,6 +534,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithDateTimeValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", DateTime.UtcNow);
@@ -486,6 +543,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithDateTimeValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -495,6 +553,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithDateTimeValueReturnOperatorWithSameValue()
         {
             var value = DateTime.UtcNow;
@@ -504,6 +563,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithDoubleValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", 1.0D);
@@ -512,6 +572,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithDoubleValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -521,6 +582,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithDoubleValueReturnOperatorWithSameValue()
         {
             var value = 1.0D;
@@ -530,6 +592,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithGuidValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", Guid.NewGuid());
@@ -538,6 +601,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithGuidValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -547,6 +611,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithGuidValueReturnOperatorWithSameValue()
         {
             var value = Guid.NewGuid();
@@ -556,6 +621,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithIntValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", 1);
@@ -564,6 +630,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithIntValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -573,6 +640,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithIntValueReturnOperatorWithSameValue()
         {
             var value = 1;
@@ -582,6 +650,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithLongValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", 1L);
@@ -590,6 +659,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithLongValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -599,6 +669,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithLongValueReturnOperatorWithSameValue()
         {
             var value = 1L;
@@ -608,6 +679,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithStringValueReturnOperatorOfTypeLessThan()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", "testValue");
@@ -616,6 +688,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithStringValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -625,6 +698,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanWithStringValueReturnOperatorWithSameValue()
         {
             var value = "testValue";
@@ -634,6 +708,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithByteArrayValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", new byte[0]);
@@ -642,6 +717,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithByteArrayValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -651,6 +727,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithByteArrayValueReturnOperatorWithSameValue()
         {
             var value = new byte[0];
@@ -660,6 +737,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithBooleanValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", true);
@@ -668,6 +746,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithBooleanValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -677,6 +756,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithBooleanValueReturnOperatorWithSameValue()
         {
             var value = true;
@@ -686,6 +766,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithDateTimeValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", DateTime.UtcNow);
@@ -694,6 +775,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithDateTimeValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -703,6 +785,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithDateTimeValueReturnOperatorWithSameValue()
         {
             var value = DateTime.UtcNow;
@@ -712,6 +795,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithDoubleValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", 1.0D);
@@ -720,6 +804,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithDoubleValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -729,6 +814,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithDoubleValueReturnOperatorWithSameValue()
         {
             var value = 1.0D;
@@ -738,6 +824,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithGuidValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", Guid.NewGuid());
@@ -746,6 +833,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithGuidValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -755,6 +843,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithGuidValueReturnOperatorWithSameValue()
         {
             var value = Guid.NewGuid();
@@ -764,6 +853,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithIntValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", 1);
@@ -772,6 +862,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithIntValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -781,6 +872,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithIntValueReturnOperatorWithSameValue()
         {
             var value = 1;
@@ -790,6 +882,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithLongValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", 1L);
@@ -798,6 +891,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithLongValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -807,6 +901,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithLongValueReturnOperatorWithSameValue()
         {
             var value = 1L;
@@ -816,6 +911,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithStringValueReturnOperatorOfTypeLessThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", "testValue");
@@ -824,6 +920,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithStringValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -833,6 +930,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingLessThanOrEqualWithStringValueReturnOperatorWithSameValue()
         {
             var value = "testValue";
@@ -842,6 +940,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithByteArrayValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", new byte[0]);
@@ -850,6 +949,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithByteArrayValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -859,6 +959,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithByteArrayValueReturnOperatorWithSameValue()
         {
             var value = new byte[0];
@@ -868,6 +969,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithBooleanValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", true);
@@ -876,6 +978,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithBooleanValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -885,6 +988,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithBooleanValueReturnOperatorWithSameValue()
         {
             var value = true;
@@ -894,6 +998,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithDateTimeValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", DateTime.UtcNow);
@@ -902,6 +1007,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithDateTimeValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -911,6 +1017,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithDateTimeValueReturnOperatorWithSameValue()
         {
             var value = DateTime.UtcNow;
@@ -920,6 +1027,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithDoubleValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", 1.0D);
@@ -928,6 +1036,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithDoubleValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -937,6 +1046,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithDoubleValueReturnOperatorWithSameValue()
         {
             var value = 1.0D;
@@ -946,6 +1056,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithGuidValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", Guid.NewGuid());
@@ -954,6 +1065,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithGuidValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -963,6 +1075,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithGuidValueReturnOperatorWithSameValue()
         {
             var value = Guid.NewGuid();
@@ -972,6 +1085,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithIntValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", 1);
@@ -980,6 +1094,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithIntValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -989,6 +1104,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithIntValueReturnOperatorWithSameValue()
         {
             var value = 1;
@@ -998,6 +1114,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithLongValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", 1L);
@@ -1006,6 +1123,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithLongValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1015,6 +1133,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithLongValueReturnOperatorWithSameValue()
         {
             var value = 1L;
@@ -1024,6 +1143,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithStringValueReturnOperatorOfTypeGreaterThan()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", "testValue");
@@ -1032,6 +1152,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithStringValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1041,6 +1162,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanWithStringValueReturnOperatorWithSameValue()
         {
             var value = "testValue";
@@ -1050,6 +1172,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithByteArrayValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", new byte[0]);
@@ -1058,6 +1181,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithByteArrayValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1067,6 +1191,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithByteArrayValueReturnOperatorWithSameValue()
         {
             var value = new byte[0];
@@ -1076,6 +1201,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithBooleanValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", true);
@@ -1084,6 +1210,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithBooleanValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1093,6 +1220,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithBooleanValueReturnOperatorWithSameValue()
         {
             var value = true;
@@ -1102,6 +1230,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithDateTimeValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", DateTime.UtcNow);
@@ -1110,6 +1239,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithDateTimeValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1119,6 +1249,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithDateTimeValueReturnOperatorWithSameValue()
         {
             var value = DateTime.UtcNow;
@@ -1128,6 +1259,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithDoubleValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", 1.0D);
@@ -1136,6 +1268,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithDoubleValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1145,6 +1278,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithDoubleValueReturnOperatorWithSameValue()
         {
             var value = 1.0D;
@@ -1154,6 +1288,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithGuidValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", Guid.NewGuid());
@@ -1162,6 +1297,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithGuidValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1171,6 +1307,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithGuidValueReturnOperatorWithSameValue()
         {
             var value = Guid.NewGuid();
@@ -1180,6 +1317,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithIntValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", 1);
@@ -1188,6 +1326,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithIntValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1197,6 +1336,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithIntValueReturnOperatorWithSameValue()
         {
             var value = 1;
@@ -1206,6 +1346,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithLongValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", 1L);
@@ -1214,6 +1355,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithLongValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1223,6 +1365,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithLongValueReturnOperatorWithSameValue()
         {
             var value = 1L;
@@ -1232,6 +1375,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithStringValueReturnOperatorOfTypeGreaterThanOrEqual()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", "testValue");
@@ -1240,6 +1384,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithStringValueReturnOperatorWithSamePropertyName()
         {
             var propertyName = "testProperty";
@@ -1249,6 +1394,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCreatingGreaterThanOrEqualWithStringValueReturnOperatorWithSameValue()
         {
             var value = "testValue";
@@ -1258,6 +1404,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestEqualOperatorReturnsNotEqualOperatorOnNot()
         {
             var filter = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1268,6 +1415,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestEqualOperatorReturnsOperatorWithSameProperty()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1278,6 +1426,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestEqualOperatorReturnsOperatorWithSameValue()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1288,6 +1437,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNotEqualOperatorReturnsEqualOperatorOnNot()
         {
             var filter = ObjectStoreQueryFilter.NotEqual("testProperty", "testValue");
@@ -1298,6 +1448,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNotEqualOperatorReturnsOperatorWithSameProperty()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.NotEqual("testProperty", "testValue");
@@ -1308,6 +1459,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNotEqualOperatorReturnsOperatorWithSameValue()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.NotEqual("testProperty", "testValue");
@@ -1318,6 +1470,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestLessThanOperatorReturnsGreaterThanOrEqualOperatorOnNot()
         {
             var filter = ObjectStoreQueryFilter.LessThan("testProperty", "testValue");
@@ -1328,6 +1481,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestLessThanOperatorReturnsOperatorWithSameProperty()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.LessThan("testProperty", "testValue");
@@ -1338,6 +1492,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestLessThanOperatorReturnsOperatorWithSameValue()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.LessThan("testProperty", "testValue");
@@ -1348,6 +1503,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestLessThanOrEqualOperatorReturnsGreaterThanOperatorOnNot()
         {
             var filter = ObjectStoreQueryFilter.LessThanOrEqual("testProperty", "testValue");
@@ -1358,6 +1514,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestLessThanOrEqualOperatorReturnsOperatorWithSameProperty()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.LessThanOrEqual("testProperty", "testValue");
@@ -1368,6 +1525,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestLessThanOrEqualOperatorReturnsOperatorWithSameValue()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.LessThanOrEqual("testProperty", "testValue");
@@ -1378,6 +1536,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestGreaterThanOperatorReturnsLessThanOrEqualOperatorOnNot()
         {
             var filter = ObjectStoreQueryFilter.GreaterThan("testProperty", "testValue");
@@ -1388,6 +1547,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestGreaterThanOperatorReturnsOperatorWithSameProperty()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.GreaterThan("testProperty", "testValue");
@@ -1398,6 +1558,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestGreaterThanOperatorReturnsOperatorWithSameValue()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.GreaterThan("testProperty", "testValue");
@@ -1408,6 +1569,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestGreaterThanOrEqualOperatorReturnsLessThanOperatorOnNot()
         {
             var filter = ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", "testValue");
@@ -1418,6 +1580,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestGreaterThanOrEqualOperatorReturnsOperatorWithSameProperty()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", "testValue");
@@ -1428,6 +1591,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestGreaterThanOrEqualOperatorReturnsOperatorWithSameValue()
         {
             var filter = (ObjectStoreQueryValueFilter)ObjectStoreQueryFilter.GreaterThanOrEqual("testProperty", "testValue");
@@ -1438,6 +1602,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCombiningTwoFiltersWithAndProducesAnAndFilter()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1449,6 +1614,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCombiningTwoFiltersWithAndProducesAnAndFilterHavingTheSameLeftOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1460,6 +1626,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCombiningTwoFiltersWithAndProducesAnAndFilterHavingTheSameRightOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1472,6 +1639,7 @@ namespace Savannah.Tests
 
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCombiningTwoFiltersWithOrProducesAnOrFilter()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1483,6 +1651,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCombiningTwoFiltersWithOrProducesAnOrFilterHavingTheSameLeftOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1494,6 +1663,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestCombiningTwoFiltersWithOrProducesAnOrFilterHavingTheSameRightOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1505,6 +1675,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNegatingAnAndFilterReturnsAnOrFilter()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1517,6 +1688,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNegatingAnAndFilterReturnsTheNegatedLeftOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1529,6 +1701,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNegatingAnAndFilterReturnsTheNegatedRightOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1541,6 +1714,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNegatingAnOrFilterReturnsAnAndFilter()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1553,6 +1727,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNegatingAnOrFilterReturnsTheNegatedLeftOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1565,6 +1740,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestNegatingAnOrFilterReturnsTheNegatedRightOperand()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("testProperty", "testValue");
@@ -1576,19 +1752,19 @@ namespace Savannah.Tests
             Assert.AreEqual(filter1.Not().Operator, notOrFilter.RightOperand.Operator);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, new byte[] { 0xFF, 0x99 }, "FF99")]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, new byte[] { 0xFF, 0x99 }, "FF99")]
-        [DataRow(ObjectStoreQueryOperator.LessThan, new byte[] { 0xFF, 0x99 }, "FF99")]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, new byte[] { 0xFF, 0x99 }, "FF99")]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, new byte[] { 0xFF, 0x99 }, "FF99")]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, new byte[] { 0xFF, 0x99 }, "FF99")]
-        public void TestToStringForByteArrayValueFilter(ObjectStoreQueryOperator operatorType, byte[] byteArray, string byteArrayString)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForByteArrayValueFilter()
         {
-            var propertyName = "propertyName";
-            var value = byteArray;
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Binary, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+            var byteArrayString = string.Join(string.Empty, row.BinaryValue.Select(@byte => @byte.ToString("X2")));
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Binary, row.BinaryValue, operatorType);
 
             Assert.AreEqual(
                 $"{propertyName} {operatorType} [Binary] {byteArrayString}",
@@ -1596,154 +1772,166 @@ namespace Savannah.Tests
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, true)]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, false)]
-        [DataRow(ObjectStoreQueryOperator.LessThan, true)]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, false)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, true)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, false)]
-        public void TestToStringForBooleanValueFilter(ObjectStoreQueryOperator operatorType, bool value)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForBooleanValueFilter()
         {
-            var propertyName = "propertyName";
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Boolean, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Boolean, row.BooleanValue, operatorType);
 
             Assert.AreEqual(
-                $"{propertyName} {operatorType} [Boolean] {(value ? bool.TrueString : bool.FalseString)}",
+                $"{propertyName} {operatorType} [Boolean] {(row.BooleanValue ? bool.TrueString : bool.FalseString)}",
                 filter.ToString(),
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, 1601, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, 2016, 1, 24, 12, 20, 10, 14, DateTimeKind.Utc)]
-        [DataRow(ObjectStoreQueryOperator.LessThan, 2016, 1, 24, 12, 20, 10, 14, DateTimeKind.Local)]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, 2016, 1, 24, 12, 20, 10, 14, DateTimeKind.Unspecified)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, 9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Utc)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, 9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Utc)]
-        public void TestToStringForDateTimeValueFilter(ObjectStoreQueryOperator operatorType, int year, int month, int day, int hour, int minute, int second, int millisecond, DateTimeKind dateTimeKind)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForDateTimeValueFilter()
         {
-            var propertyName = "propertyName";
-            var value = new DateTime(year, month, day, hour, minute, second, millisecond, dateTimeKind);
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.DateTime, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.DateTime, row.DateTimeValue, operatorType);
 
             Assert.AreEqual(
-                    $"{propertyName} {operatorType} [DateTime] {value.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)}",
+                    $"{propertyName} {operatorType} [DateTime] {row.DateTimeValue.ToString(XmlSettings.DateTimeFormat, CultureInfo.InvariantCulture)}",
                     filter.ToString(),
                     ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, 1.0D)]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, 1.0D)]
-        [DataRow(ObjectStoreQueryOperator.LessThan, 1.0D)]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, 1.0D)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, 1.0D)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, 1.0D)]
-        public void TestToStringForDoubleValueFilter(ObjectStoreQueryOperator operatorType, double value)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForDoubleValueFilter()
         {
-            var propertyName = "propertyName";
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Double, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Double, row.DoubleValue, operatorType);
 
             Assert.AreEqual(
-                $"{propertyName} {operatorType} [Double] {value.ToString("e", CultureInfo.InvariantCulture)}",
+                $"{propertyName} {operatorType} [Double] {row.DoubleValue.ToString("e", CultureInfo.InvariantCulture)}",
                 filter.ToString(),
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, new byte[16] { 0x0B, 0x3C, 0x29, 0x59, 0x12, 0xFB, 0xAD, 0x44, 0xA8, 0x77, 0x15, 0xF5, 0x69, 0x22, 0xE0, 0x7F })]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, new byte[16] { 0x6E, 0xEE, 0xD2, 0x6F, 0x20, 0xF4, 0x85, 0x46, 0xA7, 0x5C, 0x8E, 0xAF, 0xE6, 0x3A, 0x81, 0xD6 })]
-        [DataRow(ObjectStoreQueryOperator.LessThan, new byte[16] { 0x9F, 0xF3, 0x9D, 0xFC, 0xF7, 0xE8, 0x24, 0x4E, 0xB2, 0xFA, 0x91, 0xDC, 0xD6, 0xFE, 0x8B, 0x71 })]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, new byte[16] { 0xB3, 0x3B, 0xB0, 0xB5, 0xA9, 0xBF, 0x10, 0x48, 0x88, 0x97, 0x59, 0x13, 0x6A, 0xFA, 0xC8, 0x5C })]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, new byte[16] { 0xEF, 0xA1, 0xD0, 0x26, 0xC0, 0xCF, 0x3C, 0x46, 0x93, 0x9D, 0x75, 0x3C, 0x69, 0x18, 0x31, 0xB9 })]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, new byte[16] { 0xF2, 0x25, 0x4E, 0x9D, 0xA5, 0x19, 0xAC, 0x44, 0xAA, 0x92, 0x13, 0xEA, 0xCF, 0x82, 0xD0, 0x0B })]
-        public void TestToStringForGuidValueFilter(ObjectStoreQueryOperator operatorType, byte[] guidBytes)
-        {
-            var propertyName = "propertyName";
-            var value = new Guid(guidBytes);
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Guid, value, operatorType);
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForGuidValueFilter()
+        {
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
+
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Guid, row.GuidValue, operatorType);
 
             Assert.AreEqual(
-                $"{propertyName} {operatorType} [Guid] {value}",
+                $"{propertyName} {operatorType} [Guid] {row.GuidValue}",
                 filter.ToString(),
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, 12345)]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, 12345)]
-        [DataRow(ObjectStoreQueryOperator.LessThan, 12345)]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, 12345)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, 12345)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, 12345)]
-        public void TestToStringForIntValueFilter(ObjectStoreQueryOperator operatorType, int value)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForIntValueFilter()
         {
-            var propertyName = "propertyName";
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Int, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Int, row.Int32Value, operatorType);
 
             Assert.AreEqual(
-                $"{propertyName} {operatorType} [Int] {value.ToString("n0", CultureInfo.InvariantCulture)}",
+                $"{propertyName} {operatorType} [Int] {row.Int32Value.ToString("n0", CultureInfo.InvariantCulture)}",
                 filter.ToString(),
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal, 12345)]
-        [DataRow(ObjectStoreQueryOperator.NotEqual, 12345)]
-        [DataRow(ObjectStoreQueryOperator.LessThan, 12345)]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual, 12345)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan, 12345)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual, 12345)]
-        public void TestToStringForLongValueFilter(ObjectStoreQueryOperator operatorType, long value)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForLongValueFilter()
         {
-            var propertyName = "propertyName";
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Long, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.Long, row.Int64Value, operatorType);
 
             Assert.AreEqual(
-                $"{propertyName} {operatorType} [Long] {value.ToString("n0", CultureInfo.InvariantCulture)}",
+                $"{propertyName} {operatorType} [Long] {row.Int64Value.ToString("n0", CultureInfo.InvariantCulture)}",
                 filter.ToString(),
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.Equal)]
-        [DataRow(ObjectStoreQueryOperator.NotEqual)]
-        [DataRow(ObjectStoreQueryOperator.LessThan)]
-        [DataRow(ObjectStoreQueryOperator.LessThanOrEqual)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThan)]
-        [DataRow(ObjectStoreQueryOperator.GreaterThanOrEqual)]
-        public void TestToStringForStringValueFilter(ObjectStoreQueryOperator operatorType)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreValueFileterQueryOperatorTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForStringValueFilter()
         {
-            var propertyName = "propertyName";
-            var value = "testValue";
+            var row = GetRow<ObjectStoreValueFileterQueryOperatorRow>();
 
-            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.String, value, operatorType);
+            var propertyName = "propertyName";
+            var operatorType = (ObjectStoreQueryOperator)Enum.Parse(typeof(ObjectStoreQueryOperator), row.Name);
+
+            var filter = new ObjectStoreQueryValueFilter(propertyName, operatorType, ValueType.String, row.StringValue, operatorType);
 
             Assert.AreEqual(
-                $"{propertyName} {operatorType} [String] {value}",
+                $"{propertyName} {operatorType} [String] {row.StringValue}",
                 filter.ToString(),
                 ignoreCase: false);
         }
 
-        [DataTestMethod]
-        [DataRow(ObjectStoreQueryOperator.And)]
-        [DataRow(ObjectStoreQueryOperator.Or)]
-        public void TestToStringForLogicalFilter(ObjectStoreQueryOperator operatorType)
+        [TestMethod]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForLogicalAndFilter()
         {
             var filter1 = ObjectStoreQueryFilter.Equal("property1", "value1");
             var filter2 = ObjectStoreQueryFilter.Equal("property2", "value2");
 
-            var filter = new ObjectStoreQueryLogicalFilter(filter1, operatorType, filter2, operatorType);
+            var filter = new ObjectStoreQueryLogicalFilter(filter1, ObjectStoreQueryOperator.And, filter2, ObjectStoreQueryOperator.And);
 
             Assert.AreEqual(
-                $"({filter1} {operatorType} {filter2})",
+                $"({filter1} And {filter2})",
+                filter.ToString(),
+                ignoreCase: false);
+        }
+
+        [TestMethod]
+        [Owner("Andrei Fangli")]
+        public void TestToStringForLogicalOrFilter()
+        {
+            var filter1 = ObjectStoreQueryFilter.Equal("property1", "value1");
+            var filter2 = ObjectStoreQueryFilter.Equal("property2", "value2");
+
+            var filter = new ObjectStoreQueryLogicalFilter(filter1, ObjectStoreQueryOperator.Or, filter2, ObjectStoreQueryOperator.Or);
+
+            Assert.AreEqual(
+                $"({filter1} Or {filter2})",
                 filter.ToString(),
                 ignoreCase: false);
         }

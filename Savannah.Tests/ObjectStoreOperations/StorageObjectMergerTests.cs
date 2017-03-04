@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 
 namespace Savannah.Tests.ObjectStoreOperations
@@ -11,6 +11,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         private static StorageObjectMerger _Merger { get; } = new StorageObjectMerger();
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectPropertiesAreMerged()
         {
             var partitionKey = Guid.NewGuid().ToString();
@@ -45,6 +46,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectPropertyIsReplacedIfAlreadyExists()
         {
             var partitionKey = Guid.NewGuid().ToString();
@@ -69,6 +71,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectTimestampIsReplacedByTheOneInNewObject()
         {
             var partitionKey = Guid.NewGuid().ToString();

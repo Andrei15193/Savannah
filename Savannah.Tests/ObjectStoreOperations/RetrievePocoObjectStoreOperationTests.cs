@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests.ObjectStoreOperations
 {
     [TestClass]
-    public class RetrievePocoObjectStoreOperation
+    public class RetrievePocoObjectStoreOperationTests
         : ObjectStoreOperationTestsTemplate
     {
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestRetrieveReturnsSameStorageObject()
         {
             var retrieveOperation = new RetrievePocoObjectStoreOperation<MockObject>(new object());
@@ -27,16 +28,19 @@ namespace Savannah.Tests.ObjectStoreOperations
             Assert.AreSame(storageObject, actualStorageObject);
         }
 
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey")]
-        [DataRow("", "")]
-        public void TestRetrieveExistingObject(string partitionKey, string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectKeysTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestRetrieveExistingObject()
         {
-            var @object = new { PartitionKey = partitionKey, RowKey = rowKey };
+            var row = GetRow<ObjectKeysRow>();
+
+            var @object = new { row.PartitionKey, row.RowKey };
             var retrieveOperation = new RetrievePocoObjectStoreOperation<MockObject>(@object);
             var result = new List<object>();
             var executionContext = new ObjectStoreOperationExectionContext(
-                new StorageObject(partitionKey, rowKey, null),
+                new StorageObject(row.PartitionKey, row.RowKey, null),
                 StorageObjectFactory,
                 DateTime.UtcNow,
                 result);
@@ -49,16 +53,19 @@ namespace Savannah.Tests.ObjectStoreOperations
                 new { actualObject.PartitionKey, actualObject.RowKey });
         }
 
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey")]
-        [DataRow("", "")]
-        public void TestRetrieveExistingObjectWithSpecifiedProperties(string partitionKey, string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectKeysTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestRetrieveExistingObjectWithSpecifiedProperties()
         {
-            var @object = new { PartitionKey = partitionKey, RowKey = rowKey };
+            var row = GetRow<ObjectKeysRow>();
+
+            var @object = new { row.PartitionKey, row.RowKey };
             var retrieveOperation = new RetrievePocoObjectStoreOperation<MockObject>(@object, new[] { nameof(MockObject.PartitionKey) });
             var result = new List<object>();
             var executionContext = new ObjectStoreOperationExectionContext(
-                new StorageObject(partitionKey, rowKey, null),
+                new StorageObject(row.PartitionKey, row.RowKey, null),
                 StorageObjectFactory,
                 DateTime.UtcNow,
                 result);
@@ -72,6 +79,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToRetrieveNonExistingObjectThrowsException()
         {
             var retrieveOperation = new RetrievePocoObjectStoreOperation<MockObject>(new { PartitionKey = string.Empty, RowKey = string.Empty });

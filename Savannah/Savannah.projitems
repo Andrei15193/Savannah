@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>70740afb-7067-4d2c-ad45-6202eb552879</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Savannah</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)FileSystem\IFileSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileSystem\IFileSystemFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileSystem\IFileSystemFolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectMetadata.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreBatchOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreLimitations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\DeleteObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\InsertObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\InsertOrMergeObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\InsertOrReplaceObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\MergeObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ObjectStoreOperationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ObjectStoreOperationExectionContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ReplaceObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrieveDynamicObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrieveObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrieveResolverObjectStoreOperation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\StorageObjectMerger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperationType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreQueryFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreQueryOperator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PropertyValueFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Query\IResultBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Query\ObjectStoreQueryLogicalFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Query\ObjectStoreQueryPredicate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Query\ObjectStoreQueryValueFilter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Query\ResultBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Query\SynchronizedResultBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageObjectFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageObjectProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\IHashValueProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ValueType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\ObjectStoreXmlNameTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlReaderExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlWriterExtensions.cs" />
+  </ItemGroup>
+</Project>

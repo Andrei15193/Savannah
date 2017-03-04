@@ -1,110 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Savannah.Tests
 {
     [TestClass]
     public class StorageObjectTests
+        : UnitTest
     {
-        private string _PartitionKey { get; set; }
-
-        private string _RowKey { get; set; }
-
-        private string _Timestamp { get; set; }
-
-        private IEnumerable<StorageObjectProperty> _Properties { get; set; }
-
-        [TestInitialize]
-        public void TestInitialize()
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, KeyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectSetsSamePartitionKey()
         {
-            _PartitionKey = Guid.NewGuid().ToString();
-            _RowKey = Guid.NewGuid().ToString();
-            _Timestamp = Guid.NewGuid().ToString();
-            _Properties = Enumerable.Empty<StorageObjectProperty>();
-        }
+            var row = GetRow<KeyValuesRow>();
+            var partitionKey = row.Value;
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            _Properties = null;
-            _Timestamp = null;
-            _RowKey = null;
-            _PartitionKey = null;
-        }
-
-        [DataTestMethod]
-        [DataRow("")]
-        [DataRow(" ")]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        [DataRow("test")]
-        [DataRow("test value")]
-        public void TestStorageObjectSetsSamePartitionKey(string partitionKey)
-        {
-            var storageObject = new StorageObject(partitionKey, _RowKey, _Timestamp, _Properties);
+            var storageObject = new StorageObject(partitionKey, null, null);
 
             Assert.AreSame(partitionKey, storageObject.PartitionKey);
         }
 
-        [DataTestMethod]
-        [DataRow("")]
-        [DataRow(" ")]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        [DataRow("test")]
-        [DataRow("test value")]
-        public void TestStorageObjectSetsSameRowKey(string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, KeyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectSetsSameRowKey()
         {
-            var storageObject = new StorageObject(_PartitionKey, rowKey, _Timestamp, _Properties);
+            var row = GetRow<KeyValuesRow>();
+            var rowKey = row.Value;
+
+            var storageObject = new StorageObject(null, rowKey, null);
 
             Assert.AreSame(rowKey, storageObject.RowKey);
         }
 
-        [DataTestMethod]
-        [DataRow("")]
-        [DataRow(" ")]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        [DataRow("test")]
-        [DataRow("test value")]
-        public void TestStorageObjectSetsSameTimestamp(string timestamp)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, KeyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectSetsSameTimestamp()
         {
-            var storageObject = new StorageObject(_PartitionKey, _RowKey, timestamp, _Properties);
+            var row = GetRow<KeyValuesRow>();
+            var timestamp = row.Value;
+
+            var storageObject = new StorageObject(null, null, timestamp);
 
             Assert.AreSame(timestamp, storageObject.Timestamp);
         }
 
-        [DataTestMethod]
-        [DataRow(default(string[]))]
-        [DataRow(new string[0])]
-        [DataRow(new string[] { null })]
-        [DataRow(new[] { "test" })]
-        [DataRow(new[] { "test value" })]
-        [DataRow(new[] { "test", "test value" })]
-        public void TestStorageObjectSetsSameProperties(string[] propertyValues)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, PropertyCountsTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectSetsSameProperties()
         {
-            IEnumerable<StorageObjectProperty> properties;
-            if (propertyValues == null)
-                properties = Enumerable.Empty<StorageObjectProperty>();
-            else
-                properties = propertyValues
-                    .Select(propertyValue => (propertyValue == null ? null : new StorageObjectProperty("test property name", propertyValue, ValueType.String)))
-                    .ToList();
+            var row = GetRow<PropertyCountsRow>();
+            var properties = Enumerable
+                .Range(0, row.Value)
+                .Select(rowIndex => new StorageObjectProperty(rowIndex.ToString(), rowIndex.ToString(), ValueType.Int))
+                .ToList();
 
-            var storageObject = new StorageObject(_PartitionKey, _RowKey, _Timestamp, properties);
+            var storageObject = new StorageObject(null, null, null, properties);
 
             Assert.AreSame(properties, storageObject.Properties);
         }
 
         [TestMethod]
-        public void TestStorageObjectSetsEmptyCollectionForNullProperties()
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectSetsEmptyPropertiesCollectionForNull()
         {
-            var storageObject = new StorageObject(_PartitionKey, _RowKey, _Timestamp, null);
+            IEnumerable<StorageObjectProperty> properties = null;
+
+            var storageObject = new StorageObject(null, null, null, properties);
 
             Assert.IsFalse(storageObject.Properties.Any());
         }

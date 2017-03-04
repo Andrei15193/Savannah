@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.Tests.Mocks;
+using Savannah.Tests.Utilities;
 using Savannah.Utilities;
-using Windows.Storage;
 
 namespace Savannah.Tests
 {
     [TestClass]
     public class ObjectStoreCollectionTests
+        : UnitTest
     {
         private const string _objectStoreFolderName = nameof(ObjectStoreCollectionTests);
         private const string _objectStoreCollectionName = "TestCollection";
@@ -19,13 +20,13 @@ namespace Savannah.Tests
 
         private ObjectStoreCollection _ObjectStoreCollection { get; set; }
 
-        private IHashProvider _HashProvider { get; set; }
+        private IHashValueProvider _HashValueProvider { get; set; }
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _HashProvider = new Md5HashProvider();
-            _ObjectStore = new ObjectStore(_objectStoreFolderName, new HashProviderMock(value => _HashProvider.GetHashFor(value)));
+            _HashValueProvider = new Md5HashValueProvider();
+            _ObjectStore = new ObjectStore(_objectStoreFolderName, new HashValueProviderMock(value => _HashValueProvider.GetHashFor(value)), new FileSystemMock());
             _ObjectStoreCollection = _ObjectStore.GetCollection(_objectStoreCollectionName);
             Task.Run(() => _ObjectStoreCollection.CreateIfNotExistsAsync()).Wait();
         }
@@ -35,14 +36,11 @@ namespace Savannah.Tests
         {
             _ObjectStore = null;
             _ObjectStoreCollection = null;
-            _HashProvider = null;
-            var localTestFolder = ApplicationData.Current.LocalFolder;
-            var objectStoreFolder = Task.Run(localTestFolder.CreateFolderAsync(_objectStoreFolderName, CreationCollisionOption.OpenIfExists).AsTask).Result;
-
-            Task.Run(objectStoreFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask).Wait();
+            _HashValueProvider = null;
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToCreteACollectionThatAlreadyExistsThrowsException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestTryingToCreteACollectionThatAlreadyExistsThrowsException));
@@ -54,6 +52,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestEnsuringThatACollectionIsCreatedDoesNotThrowException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatACollectionIsCreatedDoesNotThrowException));
@@ -63,6 +62,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToExecuteAnOperationOnACollectionThatIsNotCreatedThrowsException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestTryingToQueryACollectionThatIsNotCreatedThrowsException));
@@ -74,6 +74,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToQueryACollectionThatIsNotCreatedThrowsException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestTryingToQueryACollectionThatIsNotCreatedThrowsException));
@@ -84,6 +85,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToDeleteCollectionThatDoesNotExistThrowsException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestTryingToDeleteCollectionThatDoesNotExistThrowsException));
@@ -94,6 +96,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestEnsuringThatACollectionIsDeletedDoesNotThrowException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatACollectionIsDeletedDoesNotThrowException));
@@ -102,6 +105,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestDeletingAnExistingCollectionDoesNotThrowException()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestDeletingAnExistingCollectionDoesNotThrowException));
@@ -111,6 +115,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestEnsuringThatAnExistingCollectionIsDeleted()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatAnExistingCollectionIsDeleted));
@@ -120,6 +125,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestRecreatingACollection()
         {
             var collection = _ObjectStore.GetCollection(nameof(TestRecreatingACollection));
@@ -130,6 +136,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestStoredObjectIsRetrievedWithSamePartitionKey()
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
@@ -143,6 +150,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestStoredObjectIsRetrievedWithSameRowKey()
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
@@ -156,6 +164,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestStoredObjectIsNotCached()
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
@@ -169,6 +178,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestObjectStoreCannotContainSameObjectTwice()
         {
             var objectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
@@ -181,6 +191,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestObjectStoreInsertTwoObjectsInSamePartition()
         {
             var firstObjectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
@@ -206,9 +217,10 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestObjectStoreInsertTwoObjectsInDifferentPartitionInSameFile()
         {
-            _HashProvider = new HashProviderMock(value => "testPartitonFile");
+            _HashValueProvider = new HashValueProviderMock(value => "testPartitonFile");
 
             var firstObjectToStore = new MockObject { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
             var firstOperation = ObjectStoreOperation.Insert(firstObjectToStore);
@@ -234,16 +246,17 @@ namespace Savannah.Tests
                     .Select(@object => new { @object.PartitionKey, @object.RowKey })));
         }
 
-        [DataTestMethod]
-        [DataRow(new[] { "1", "2", "3" })]
-        [DataRow(new[] { "1", "3", "2" })]
-        [DataRow(new[] { "2", "1", "3" })]
-        [DataRow(new[] { "2", "3", "1" })]
-        [DataRow(new[] { "3", "2", "1" })]
-        [DataRow(new[] { "3", "1", "2" })]
-        public async Task TestObjectStoresObjectsSortedByTheirRowKeyInTheSamePartition(string[] rowKeys)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectSetRowKeyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestObjectStoresObjectsSortedByTheirRowKeyInTheSamePartition()
         {
+            var row = GetRow<ObjectSetRowKeyValuesRow>();
+
             var partitionKey = Guid.NewGuid().ToString();
+            var rowKeys = new[] { row.RowKey1, row.RowKey2, row.RowKey3 };
+
             foreach (var rowKey in rowKeys)
             {
                 var objectToStore = new MockObject { PartitionKey = partitionKey, RowKey = rowKey };
@@ -260,6 +273,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestDeletingOnlyObjectFromObjectStoreLeavesItEmpty()
         {
             var @object = new
@@ -277,13 +291,17 @@ namespace Savannah.Tests
             Assert.IsFalse(storedObjects.Any());
         }
 
-        [DataTestMethod]
-        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey1")]
-        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey2")]
-        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey3")]
-        [DataRow(new[] { "partitionKey1", "partitionKey2", "partitionKey3", "partitionKey4" }, "partitionKey4")]
-        public async Task TestDeletingObjectFromDifferentPartition(string[] paritionKeys, string partitionKeyToRemove)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, PartitionKeyDeleteSetTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestDeletingObjectFromDifferentPartition()
         {
+            var row = GetRow<PartitionKeyDeleteSetRow>();
+
+            var paritionKeys = new[] { row.PartitionKey1, row.PartitionKey2, row.PartitionKey3, row.PartitionKey4 };
+            var partitionKeyToRemove = row.PartitionKeyToRemove;
+
             var rowKey = Guid.NewGuid().ToString();
             foreach (var partitionKey in paritionKeys)
             {
@@ -308,13 +326,17 @@ namespace Savannah.Tests
                     .OrderBy(partitionKey => partitionKey)));
         }
 
-        [DataTestMethod]
-        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey1")]
-        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey2")]
-        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey3")]
-        [DataRow(new[] { "rowKey1", "rowKey2", "rowKey3", "rowKey4" }, "rowKey4")]
-        public async Task TestDeletingObjectFromSamePartition(string[] rowKeys, string rowKeyToRemove)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, RowKeyDeleteSetTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public async Task TestDeletingObjectFromSamePartition()
         {
+            var row = GetRow<RowKeyDeleteSetRow>();
+
+            var rowKeys = new[] { row.RowKey1, row.RowKey2, row.RowKey3, row.RowKey4 };
+            var rowKeyToRemove = row.RowKeyToRemove;
+
             var partitionKey = Guid.NewGuid().ToString();
             foreach (var rowKey in rowKeys)
             {
@@ -340,6 +362,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToDeleteAnObjectThatDoesNotExistThrowsException()
         {
             var @object = new
@@ -355,6 +378,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToDeleteAnObjectThatDoesNotExposeAPartitionKeyThrowsException()
         {
             var operation = ObjectStoreOperation.Delete(new { RowKey = Guid.NewGuid().ToString() });
@@ -365,6 +389,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestTryingToDeleteAnObjectThatDoesNotExposeARowKeyThrowsException()
         {
             var operation = ObjectStoreOperation.Delete(new { PartitionKey = Guid.NewGuid().ToString() });
@@ -375,6 +400,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestInsertingTwoObjectsThroughBatchOperation()
         {
             var partitionKey = Guid.NewGuid().ToString();
@@ -400,6 +426,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestInsertingAndDeletingSameObjectInABatchLeavesTheStoreEmpty()
         {
             var @object = new { PartitionKey = Guid.NewGuid().ToString(), RowKey = Guid.NewGuid().ToString() };
@@ -416,6 +443,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestInsertingTwoObjectsAndDeletingOneOfThemInABatchLeavesTheStoreWithOneObject()
         {
             var partitionKey = Guid.NewGuid().ToString();
@@ -436,6 +464,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestDeletingAnObjectThatDoesNotExistAfterTwoHaveBeenInsertedInABatchCrashesTheOperationInAnException()
         {
             var partitionKey = Guid.NewGuid().ToString();
@@ -455,6 +484,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestDeletingAnObjectThatDoesNotExistAfterTwoHaveBeenInsertedInABatchLeavesTheCollectionInInitialState()
         {
             var partitionKey = Guid.NewGuid().ToString();
@@ -482,6 +512,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestQueryingForDynamicObjectsReturnsObjectsOfAllTypes()
         {
             var object1 = new { PartitionKey = "partitionKey", RowKey = "rowKey1", Property1 = "value1" };
@@ -509,6 +540,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestQueryingForDynamicObjectsReturnsOnlySelectedProperties()
         {
             var object1 = new { PartitionKey = "partitionKey", RowKey = "rowKey1", Property1 = "value1" };
@@ -525,6 +557,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestQueryingForDynamicObjectsWhereNoneHaveSelectedPropertyReturnsEmptyResult()
         {
             var object1 = new { PartitionKey = "partitionKey", RowKey = "rowKey1", Property1 = "value1" };
@@ -539,6 +572,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestQueryingForPartitionKeyOnlyGetsObjectsFromThatPartition()
         {
             var object1 = new { PartitionKey = "partitionKey1", RowKey = "rowKey1" };
@@ -559,6 +593,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestQueryingForPartitionKeyOnlyGetsAsManyObjectsAsSpecified()
         {
             var object1 = new { PartitionKey = "partitionKey1", RowKey = "rowKey1" };
@@ -575,6 +610,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public async Task TestQueryingWithEntityResolverCallsIntoCallback()
         {
             var callbackCallCount = 0;

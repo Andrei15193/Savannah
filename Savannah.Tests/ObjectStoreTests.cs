@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using Windows.Storage;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Savannah.Tests
 {
     [TestClass]
     public class ObjectStoreTests
+        : UnitTest
     {
         private const string _objectStoreFolderName = nameof(ObjectStoreTests);
 
@@ -22,19 +20,18 @@ namespace Savannah.Tests
         public void TestCleanup()
         {
             _ObjectStore = null;
-            var localTestFolder = ApplicationData.Current.LocalFolder;
-            var objectStoreFolder = Task.Run(localTestFolder.CreateFolderAsync(_objectStoreFolderName, CreationCollisionOption.OpenIfExists).AsTask).Result;
-
-            Task.Run(objectStoreFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask).Wait();
         }
 
-        [DataTestMethod]
-        [DataRow("collectionName")]
-        [DataRow("test")]
-        public void TestGettingCollectionWithSameNameReturnsExactSameInstance(string collectionName)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectStoreCollectionNamesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestGettingCollectionWithSameNameReturnsExactSameInstance()
         {
-            var collection1 = _ObjectStore.GetCollection(collectionName.ToUpperInvariant());
-            var collection2 = _ObjectStore.GetCollection(collectionName.ToLowerInvariant());
+            var row = GetRow<ObjectStoreCollectionNamesRow>();
+
+            var collection1 = _ObjectStore.GetCollection(row.Value.ToUpperInvariant());
+            var collection2 = _ObjectStore.GetCollection(row.Value.ToLowerInvariant());
 
             Assert.AreSame(collection1, collection2);
         }

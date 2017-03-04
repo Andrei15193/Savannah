@@ -3,55 +3,48 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Savannah.FileSystem;
 using Savannah.Utilities;
-using Windows.Storage;
 
 namespace Savannah
 {
-    public class ObjectStore
+    public partial class ObjectStore
     {
-        private static readonly IHashProvider _defaultHashProvider = new Md5HashProvider();
-
-        private static async Task<IStorageFolder> _GetDataFolderAsync(string dataFolderName)
+        private static async Task<IFileSystemFolder> _GetDataFolderAsync(string dataFolderName, IFileSystem fileSystem)
         {
-            var dataFolder = ApplicationData.Current.LocalFolder;
+            var dataFolder = await fileSystem.GetRootFolderAsync().ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(dataFolderName))
-                dataFolder = await ApplicationData
-                    .Current
-                    .LocalFolder
-                    .CreateFolderAsync(dataFolderName, CreationCollisionOption.OpenIfExists)
-                    .AsTask();
+                dataFolder = await dataFolder.CreateFolderIfNotExistsAsync(dataFolderName).ConfigureAwait(false);
 
             return dataFolder;
         }
 
-        private readonly IHashProvider _hashProvider;
-        private readonly Task<IStorageFolder> _dataFolderTask;
+        private readonly IHashValueProvider _hashValueProvider;
+        private readonly IFileSystem _fileSystem;
+        private readonly Task<IFileSystemFolder> _dataFolderTask;
         private readonly ConcurrentDictionary<string, ObjectStoreCollection> _collections;
 
-        public ObjectStore(string storageFolderName)
-            : this(storageFolderName, _defaultHashProvider)
-        {
-        }
-
-        internal ObjectStore(string storageFolderName, IHashProvider hashProvider)
+        internal ObjectStore(string storageFolderName, IHashValueProvider hashValueProvider, IFileSystem fileSystem)
         {
 #if DEBUG
-            if (hashProvider == null)
-                throw new ArgumentNullException(nameof(hashProvider));
+            if (hashValueProvider == null)
+                throw new ArgumentNullException(nameof(hashValueProvider));
+            if (fileSystem == null)
+                throw new ArgumentNullException(nameof(fileSystem));
 #endif
-            _hashProvider = hashProvider;
-            _dataFolderTask = _GetDataFolderAsync(storageFolderName);
+            _hashValueProvider = hashValueProvider;
+            _fileSystem = fileSystem;
+            _dataFolderTask = _GetDataFolderAsync(storageFolderName, fileSystem);
             _collections = new ConcurrentDictionary<string, ObjectStoreCollection>(ObjectStoreLimitations.CollectionNameComparer);
 
-            Debug.WriteLine($"Object Store Folder: {Path.Combine(ApplicationData.Current.LocalFolder.Path, storageFolderName)}");
+            Debug.WriteLine($"Object Store Folder: {Path.Combine(fileSystem.RootPath, storageFolderName)}");
         }
 
         public ObjectStoreCollection GetCollection(string collectionName)
         {
             ObjectStoreLimitations.CheckCollectionName(collectionName);
 
-            return _collections.GetOrAdd(collectionName, delegate { return new ObjectStoreCollection(_dataFolderTask, _hashProvider, collectionName); });
+            return _collections.GetOrAdd(collectionName, delegate { return new ObjectStoreCollection(_fileSystem, _dataFolderTask, _hashValueProvider, collectionName); });
         }
     }
 }

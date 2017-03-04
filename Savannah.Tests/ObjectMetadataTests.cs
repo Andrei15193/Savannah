@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.Tests.Mocks;
 
 namespace Savannah.Tests
@@ -76,6 +76,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsAllPublicNonStaticReadableProperties()
         {
             var metadata = ObjectMetadata.GetFor<TestObject>();
@@ -96,6 +97,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsAllPublicNonStaticWritableProperties()
         {
             var metadata = ObjectMetadata.GetFor<TestObject>();
@@ -116,6 +118,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataHasPartitionKeyPropertyListedInReadableProperties()
         {
             var metadata = ObjectMetadata.GetFor<TestObject>();
@@ -124,6 +127,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataHasRowKeyPropertyListedInReadableProperties()
         {
             var metadata = ObjectMetadata.GetFor<TestObject>();
@@ -141,6 +145,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsPartitionKeyPropertyIfItIsPublicNonStaticReadableAndWritable()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithKeysAndTimestamp>();
@@ -149,6 +154,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsRowKeyPropertyIfItIsPublicNonStaticReadableAndWritable()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithKeysAndTimestamp>();
@@ -157,6 +163,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsTimestampPropertyIfItIsPublicNonStaticReadableAndWritable()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithKeysAndTimestamp>();
@@ -174,6 +181,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsPartitionKeyPropertyIfItIsPublicNonStaticReadable()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithReadOnlyKeysAndTimestamp>();
@@ -182,6 +190,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsRowKeyPropertyIfItIsPublicNonStaticReadable()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithReadOnlyKeysAndTimestamp>();
@@ -190,6 +199,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsTimestampPropertyIfItIsPublicNonStaticReadable()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithReadOnlyKeysAndTimestamp>();
@@ -207,6 +217,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsPartitionKeyPropertyIfItIsPublicNonStaticWriteOnly()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithWriteOnlyKeysAndTimestamp>();
@@ -216,6 +227,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsRowKeyPropertyIfItIsPublicNonStaticWriteOnly()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithWriteOnlyKeysAndTimestamp>();
@@ -225,6 +237,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsTimestampPropertyIfItIsPublicNonStaticWriteOnly()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithWriteOnlyKeysAndTimestamp>();
@@ -243,6 +256,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapPartitionKeyPropertyIfItIsStatic()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithStaticKeysTimestamp>();
@@ -251,6 +265,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapRowKeyPropertyIfItIsStatic()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithStaticKeysTimestamp>();
@@ -259,6 +274,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapTimestampPropertyIfItIsStatic()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithStaticKeysTimestamp>();
@@ -267,6 +283,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataMapsPropertiesFromAnonymousType()
         {
             var @object =
@@ -289,6 +306,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapPartitionKeyIfItNotDefined()
         {
             var metadata = ObjectMetadata.GetFor<object>();
@@ -297,6 +315,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapRowKeyIfItNotDefined()
         {
             var metadata = ObjectMetadata.GetFor<object>();
@@ -319,6 +338,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapReadableIndexer()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithIndexer>();
@@ -327,6 +347,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotMapWritableIndexer()
         {
             var metadata = ObjectMetadata.GetFor<ObjectWithIndexer>();
@@ -346,6 +367,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToGetObjectMetadataForTypeContainingPublicPropertiesOfUnsupportedTypesThrowsException()
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -359,6 +381,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotSupportPartitionKeyOfDifferentTypeThanString()
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -372,6 +395,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotSupportRowKeyOfDifferentTypeThanString()
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -385,6 +409,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataDoesNotSupportTimestampOfDifferentTypeThanDateTime()
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -908,6 +933,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToGetObjectMetadataForTypeContainingMoreThanTheSupportedNumberOfPropertiesThrowsException()
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -921,6 +947,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToGetObjectMetadataForTypeContainingPropertiesStrtingWithXMLThrowsException()
         {
             AssertExtra.ThrowsException<InvalidOperationException>(
@@ -929,6 +956,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataListsReadablePropertiesSortedByName()
         {
             var metadata = ObjectMetadata.GetFor<MockObject>();
@@ -942,6 +970,7 @@ namespace Savannah.Tests
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestObjectMetadataListsWritablePropertiesSortedByName()
         {
             var metadata = ObjectMetadata.GetFor<MockObject>();

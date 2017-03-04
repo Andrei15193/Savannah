@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 
 namespace Savannah.Tests.ObjectStoreOperations
@@ -10,6 +10,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         : ObjectStoreOperationTestsTemplate
     {
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestDeleteExistingObject()
         {
             var deleteOperation = new DeleteObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });
@@ -22,6 +23,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToDeleteNonExistingObjectThrowsException()
         {
             var deleteOperation = new DeleteObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });

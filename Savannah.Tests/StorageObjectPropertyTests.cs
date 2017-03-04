@@ -1,76 +1,50 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Savannah.Tests
 {
     [TestClass]
     public class StorageObjectPropertyTests
+        : UnitTest
     {
-        private string _PropertyName { get; set; }
-
-        private string _PropertyValue { get; set; }
-
-        private ValueType _PropertyType { get; set; }
-
-        [TestInitialize]
-        public void TestInitialize()
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, KeyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectPropertySetsSamePropertyName()
         {
-            _PropertyName = Guid.NewGuid().ToString();
-            _PropertyValue = Guid.NewGuid().ToString();
-            _PropertyType = default(ValueType);
-        }
+            var row = GetRow<KeyValuesRow>();
+            var propertyName = row.Value;
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            _PropertyType = default(ValueType);
-            _PropertyValue = Guid.NewGuid().ToString();
-            _PropertyName = Guid.NewGuid().ToString();
-        }
-
-        [DataTestMethod]
-        [DataRow("")]
-        [DataRow(" ")]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        [DataRow("test")]
-        [DataRow("test value")]
-        public void TestStorageObjectPropertySetsSamePropertyName(string propertyName)
-        {
-            var storageObjectProperty = new StorageObjectProperty(propertyName, _PropertyValue, _PropertyType);
+            var storageObjectProperty = new StorageObjectProperty(propertyName, null, default(ValueType));
 
             Assert.AreSame(propertyName, storageObjectProperty.Name);
         }
 
-        [DataTestMethod]
-        [DataRow("")]
-        [DataRow(" ")]
-        [DataRow("\t")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        [DataRow("test")]
-        [DataRow("test value")]
-        public void TestStorageObjectPropertySetsSamePropertyValue(string propertyValue)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, KeyValuesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectPropertySetsSamePropertyValue()
         {
-            var storageObjectProperty = new StorageObjectProperty(_PropertyName, propertyValue, _PropertyType);
+            var row = GetRow<KeyValuesRow>();
+            var propertyValue = row.Value;
+
+            var storageObjectProperty = new StorageObjectProperty(null, propertyValue, default(ValueType));
 
             Assert.AreSame(propertyValue, storageObjectProperty.Value);
         }
 
-        [DataTestMethod]
-        [DataRow((ValueType)(-1))]
-        [DataRow(ValueType.String)]
-        [DataRow(ValueType.Binary)]
-        [DataRow(ValueType.Boolean)]
-        [DataRow(ValueType.DateTime)]
-        [DataRow(ValueType.Double)]
-        [DataRow(ValueType.Guid)]
-        [DataRow(ValueType.Int)]
-        [DataRow(ValueType.Long)]
-        public void TestStorageObjectPropertySetsSamePropertyType(object propertyType)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ValueTypesTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestStorageObjectPropertySetsSamePropertyType()
         {
-            var storageObjectProperty = new StorageObjectProperty(_PropertyName, _PropertyValue, (ValueType)propertyType);
+            var row = GetRow<ValueTypesRow>();
+            var propertyType = (ValueType)Enum.Parse(typeof(ValueType), row.Value);
+
+            var storageObjectProperty = new StorageObjectProperty(null, null, propertyType);
 
             Assert.AreEqual(propertyType, storageObjectProperty.Type);
         }

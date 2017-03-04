@@ -1,6 +1,6 @@
 ﻿namespace Savannah.Utilities
 {
-    internal interface IHashProvider
+    internal interface IHashValueProvider
     {
         string GetHashFor(string value);
     }

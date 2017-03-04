@@ -1,10 +1,11 @@
-﻿using Windows.Security.Cryptography;
+﻿using Savannah.Utilities;
+using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 
-namespace Savannah.Utilities
+namespace Savannah.WindowsUniversalPlatform.Utilities
 {
-    internal sealed class Md5HashProvider
-        : IHashProvider
+    internal sealed class Md5HashValueProvider
+        : IHashValueProvider
     {
         private static readonly HashAlgorithmProvider _hashAlgorithm = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 using Savannah.Xml;
 
@@ -12,12 +12,15 @@ namespace Savannah.Tests.ObjectStoreOperations
     public class InsertObjectStoreOperationTests
         : ObjectStoreOperationTestsTemplate
     {
-        [DataTestMethod]
-        [DataRow("partitionKey", "rowKey")]
-        [DataRow("", "")]
-        public void TestInsertNewObject(string partitionKey, string rowKey)
+        [TestMethod]
+        [DeploymentItem(DataFilePath)]
+        [DataSource(DataProviderName, DataFileName, ObjectKeysTable, DataAccessMethod.Sequential)]
+        [Owner("Andrei Fangli")]
+        public void TestInsertNewObject()
         {
-            var @object = new { PartitionKey = partitionKey, RowKey = rowKey };
+            var row = GetRow<ObjectKeysRow>();
+
+            var @object = new { row.PartitionKey, row.RowKey };
             var inserOperation = new InsertObjectStoreOperation(@object);
             var executionContext = new ObjectStoreOperationExectionContext(null, StorageObjectFactory, DateTime.UtcNow, new List<object>());
 
@@ -29,6 +32,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToInsertWithExistingStorageObjectThrowsException()
         {
             var inserOperation = new InsertObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });
@@ -41,6 +45,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestEchoingContentPlacesSameObjectIntoResult()
         {
             var @object = new { PartitionKey = string.Empty, RowKey = string.Empty };
@@ -64,6 +69,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestEchoingContentUpdatesObjectTimestampProperty()
         {
             var timestamp = DateTime.UtcNow;

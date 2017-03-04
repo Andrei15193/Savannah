@@ -8,8 +8,8 @@
     <ProjectGuid>{2B989DA8-7DB9-4FA7-BC93-DEC188C4732D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Savannah</RootNamespace>
-    <AssemblyName>Savannah</AssemblyName>
+    <RootNamespace>Savannah.WindowsUniversalPlatform</RootNamespace>
+    <AssemblyName>Savannah.WindowsUniversalPlatform</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -41,49 +41,14 @@
     <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ObjectFactory.cs" />
-    <Compile Include="ObjectMetadata.cs" />
+    <Compile Include="FileSystem\WindowsUniversalPlatformFileSystem.cs" />
+    <Compile Include="FileSystem\WindowsUniversalPlatformFileSystemFile.cs" />
+    <Compile Include="FileSystem\WindowsUniversalPlatformFileSystemFolder.cs" />
     <Compile Include="ObjectStore.cs" />
-    <Compile Include="ObjectStoreBatchOperation.cs" />
-    <Compile Include="ObjectStoreCollection.cs" />
-    <Compile Include="ObjectStoreOperations\ObjectStoreOperationExectionContext.cs" />
-    <Compile Include="ObjectStoreOperations\DeleteObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\InsertObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\InsertOrMergeObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\InsertOrReplaceObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\MergeObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\ReplaceObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\RetrieveDynamicObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\RetrieveResolverObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\RetrieveObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
-    <Compile Include="ObjectStoreOperations\StorageObjectMerger.cs" />
-    <Compile Include="ObjectStoreOperationType.cs" />
-    <Compile Include="ObjectStoreQuery.cs" />
-    <Compile Include="ObjectStoreLimitations.cs" />
-    <Compile Include="ObjectStoreQueryFilter.cs" />
-    <Compile Include="ObjectStoreQueryOperator.cs" />
-    <Compile Include="Query\IResultBuilder.cs" />
-    <Compile Include="Query\ResultBuilder.cs" />
-    <Compile Include="Query\SynchronizedResultBuilder.cs" />
-    <Compile Include="Xml\ObjectStoreXmlNameTable.cs" />
-    <Compile Include="ObjectStoreOperations\ObjectStoreOperationContext.cs" />
-    <Compile Include="PropertyValueFactory.cs" />
-    <Compile Include="Query\ObjectStoreQueryLogicalFilter.cs" />
-    <Compile Include="Query\ObjectStoreQueryPredicate.cs" />
-    <Compile Include="Query\ObjectStoreQueryValueFilter.cs" />
-    <Compile Include="StorageObjectFactory.cs" />
-    <Compile Include="ValueType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StorageObject.cs" />
-    <Compile Include="StorageObjectProperty.cs" />
-    <Compile Include="Utilities\IHashProvider.cs" />
-    <Compile Include="Utilities\Md5HashProvider.cs" />
-    <Compile Include="Xml\XmlReaderExtensions.cs" />
-    <Compile Include="Xml\XmlSettings.cs" />
-    <Compile Include="Xml\XmlWriterExtensions.cs" />
+    <Compile Include="Utilities\Md5HashValueProvider.cs" />
   </ItemGroup>
+  <Import Project="..\Savannah\Savannah.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

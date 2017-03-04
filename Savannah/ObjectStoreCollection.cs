@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Savannah.FileSystem;
 using Savannah.ObjectStoreOperations;
 using Savannah.Query;
 using Savannah.Utilities;
 using Savannah.Xml;
-using Windows.Storage;
 
 namespace Savannah
 {
@@ -20,7 +20,7 @@ namespace Savannah
         {
             private readonly Func<StorageObject, bool> _objectPredicate;
 
-            internal BucketFilter(IStorageFile file, IEnumerable<string> partitionKeys, IEnumerable<string> rowKeys, Func<StorageObject, bool> objectPredicate)
+            internal BucketFilter(IFileSystemFile file, IEnumerable<string> partitionKeys, IEnumerable<string> rowKeys, Func<StorageObject, bool> objectPredicate)
             {
 #if DEBUG
                 if (file == null)
@@ -34,7 +34,7 @@ namespace Savannah
                 _objectPredicate = objectPredicate;
             }
 
-            internal IStorageFile File { get; }
+            internal IFileSystemFile File { get; }
 
             internal IEnumerable<string> PartitionKeys { get; }
 
@@ -107,33 +107,28 @@ namespace Savannah
             ? XmlReader.Create(new StringReader(_EmptyBucketFileContents), XmlSettings.ReaderSettings)
             : XmlReader.Create(bucketFileStream, XmlSettings.ReaderSettings));
 
-        private static async Task<IStorageFile> _GetTemporaryFolderAsync(CancellationToken cancellationToken)
-        {
-            return await ApplicationData
-                .Current
-                .TemporaryFolder
-                .CreateFileAsync(Guid.NewGuid().ToString(), CreationCollisionOption.GenerateUniqueName)
-                .AsTask(cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        private readonly Task<IStorageFolder> _dataFolderTask;
+        private readonly IFileSystem _fileSystem;
+        private readonly Task<IFileSystemFolder> _dataFolderTask;
+        private readonly IHashValueProvider _hashValueProvider;
         private readonly string _collectionName;
-        private readonly IHashProvider _hashProvider;
-        private IStorageFolder _collectionFolder;
 
-        internal ObjectStoreCollection(Task<IStorageFolder> dataFolderTask, IHashProvider hashProvider, string collectionName)
+        private volatile IFileSystemFolder _collectionFolder;
+
+        internal ObjectStoreCollection(IFileSystem fileSystem, Task<IFileSystemFolder> dataFolderTask, IHashValueProvider hashValueProvider, string collectionName)
         {
 #if DEBUG
+            if (fileSystem == null)
+                throw new ArgumentNullException(nameof(fileSystem));
             if (dataFolderTask == null)
                 throw new ArgumentNullException(nameof(dataFolderTask));
-            if (hashProvider == null)
-                throw new ArgumentNullException(nameof(hashProvider));
+            if (hashValueProvider == null)
+                throw new ArgumentNullException(nameof(hashValueProvider));
             ObjectStoreLimitations.CheckCollectionName(collectionName);
 #endif
+            _fileSystem = fileSystem;
             _dataFolderTask = dataFolderTask;
+            _hashValueProvider = hashValueProvider;
             _collectionName = collectionName;
-            _hashProvider = hashProvider;
             _collectionFolder = null;
         }
 
@@ -148,7 +143,7 @@ namespace Savannah
             var dataFolder = await _dataFolderTask.ConfigureAwait(false);
             try
             {
-                _collectionFolder = await dataFolder.CreateFolderAsync(_collectionName, CreationCollisionOption.FailIfExists).AsTask(cancellationToken).ConfigureAwait(false);
+                _collectionFolder = await dataFolder.CreateFolderAsync(_collectionName, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -164,7 +159,7 @@ namespace Savannah
             if (_collectionFolder == null)
             {
                 var dataFolder = await _dataFolderTask.ConfigureAwait(false);
-                _collectionFolder = await dataFolder.CreateFolderAsync(_collectionName, CreationCollisionOption.OpenIfExists).AsTask(cancellationToken).ConfigureAwait(false);
+                _collectionFolder = await dataFolder.CreateFolderAsync(_collectionName, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -175,21 +170,21 @@ namespace Savannah
         {
             if (_collectionFolder == null)
             {
-                IStorageFolder collectionFolder;
+                IFileSystemFolder collectionFolder;
                 var dataFolder = await _dataFolderTask.ConfigureAwait(false);
                 try
                 {
-                    collectionFolder = await dataFolder.GetFolderAsync(_collectionName).AsTask(cancellationToken).ConfigureAwait(false);
+                    collectionFolder = await dataFolder.GetExistingFolderAsync(_collectionName, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
                     throw new InvalidOperationException("The Object Store Collection does not exists. To ensure that a collection is removed call one of the DeleteIfExistsAsync overloads.");
                 }
-                await collectionFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask(cancellationToken).ConfigureAwait(false);
+                await collectionFolder.DeleteAsync(cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await _collectionFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask(cancellationToken).ConfigureAwait(false);
+                await _collectionFolder.DeleteAsync(cancellationToken).ConfigureAwait(false);
                 _collectionFolder = null;
             }
         }
@@ -202,12 +197,12 @@ namespace Savannah
             if (_collectionFolder == null)
             {
                 var dataFolder = await _dataFolderTask.ConfigureAwait(false);
-                var collectionFolder = await dataFolder.CreateFolderAsync(_collectionName, CreationCollisionOption.OpenIfExists).AsTask(cancellationToken).ConfigureAwait(false);
-                await collectionFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask(cancellationToken).ConfigureAwait(false);
+                var collectionFolder = await dataFolder.CreateFolderIfNotExistsAsync(_collectionName, cancellationToken).ConfigureAwait(false);
+                await collectionFolder.DeleteAsync(cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await _collectionFolder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask(cancellationToken).ConfigureAwait(false);
+                await _collectionFolder.DeleteAsync(cancellationToken).ConfigureAwait(false);
                 _collectionFolder = null;
             }
         }
@@ -281,7 +276,7 @@ namespace Savannah
                 var dataFolder = await _dataFolderTask.ConfigureAwait(false);
                 try
                 {
-                    _collectionFolder = await dataFolder.GetFolderAsync(_collectionName).AsTask(cancellationToken).ConfigureAwait(false);
+                    _collectionFolder = await dataFolder.GetExistingFolderAsync(_collectionName, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
@@ -303,14 +298,12 @@ namespace Savannah
 
             IEnumerable<object> result;
             var bucketFile = await _GetBucketFileForAsync(batchPartitionKey, cancellationToken).ConfigureAwait(false);
-            var temporaryFile = await _GetTemporaryFolderAsync(cancellationToken).ConfigureAwait(false);
+            var temporaryFile = await _fileSystem.GetTemporaryFileAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                using (var temporaryFileStream = await temporaryFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                using (var bucketFileStream = await bucketFile.OpenReadAsync(cancellationToken).ConfigureAwait(false))
+                using (var temporaryFileStream = await temporaryFile.OpenWriteAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
                     using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
                     using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
                     {
@@ -320,20 +313,20 @@ namespace Savannah
                     }
                 }
 
-                await temporaryFile.MoveAndReplaceAsync(bucketFile).AsTask().ConfigureAwait(false);
+                await temporaryFile.ReplaceAsync(bucketFile, cancellationToken).ConfigureAwait(false);
             }
             catch
             {
-                await temporaryFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
+                await temporaryFile.DeleteAsync().ConfigureAwait(false);
                 throw;
             }
             finally
             {
                 var isBucketFileEmpty = true;
-                using (var bucketFileStream = await bucketFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                using (var bucketFileStream = await bucketFile.OpenReadAsync().ConfigureAwait(false))
                     isBucketFileEmpty = (bucketFileStream.Length == 0);
                 if (isBucketFileEmpty)
-                    await bucketFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().ConfigureAwait(false);
+                    await bucketFile.DeleteAsync().ConfigureAwait(false);
             }
 
             return result;
@@ -446,15 +439,15 @@ namespace Savannah
 
             if (predicate.PartitionKeys == null)
             {
-                var bucketFiles = await _collectionFolder.GetFilesAsync().AsTask(cancellationToken).ConfigureAwait(false);
+                var bucketFiles = await _collectionFolder.GetAllRootFilesAsync(cancellationToken).ConfigureAwait(false);
                 return bucketFiles.Select(bucketFile => new BucketFilter(bucketFile, null, predicate.RowKeys, predicate.IsMatch));
             }
             else
                 return await Task.WhenAll(predicate
                     .PartitionKeys
-                    .GroupBy(_hashProvider.GetHashFor, StringComparer.OrdinalIgnoreCase)
+                    .GroupBy(_hashValueProvider.GetHashFor, StringComparer.OrdinalIgnoreCase)
                     .Select(async partitionKeysByBucketName => new BucketFilter(
-                        await _collectionFolder.GetFileAsync(partitionKeysByBucketName.Key).AsTask(cancellationToken).ConfigureAwait(false),
+                        await _collectionFolder.GetExistingFileAsync(partitionKeysByBucketName.Key, cancellationToken).ConfigureAwait(false),
                         partitionKeysByBucketName.AsEnumerable(),
                         predicate.RowKeys,
                         predicate.IsMatch)));
@@ -504,7 +497,7 @@ namespace Savannah
 
             var canFindObjects = true;
 
-            using (var bucketStream = await bucketFilter.File.OpenStreamForReadAsync().ConfigureAwait(false))
+            using (var bucketStream = await bucketFilter.File.OpenReadAsync(cancellationToken).ConfigureAwait(false))
             using (var xmlReader = XmlReader.Create(bucketStream, XmlSettings.ReaderSettings))
                 do
                     if (!xmlReader.IsEmptyElement && xmlReader.IsOnPartitionElement()
@@ -524,13 +517,13 @@ namespace Savannah
                 while (canFindObjects && xmlReader.ReadState != ReadState.EndOfFile);
         }
 
-        private async Task<IStorageFile> _GetBucketFileForAsync(string partitionKey, CancellationToken cancellationToken)
+        private async Task<IFileSystemFile> _GetBucketFileForAsync(string partitionKey, CancellationToken cancellationToken)
         {
             await _EnsureCollectionExists(cancellationToken).ConfigureAwait(false);
-            var partitionKeyHash = _hashProvider.GetHashFor(partitionKey);
+            var partitionKeyHash = _hashValueProvider.GetHashFor(partitionKey);
+
             var partitionFile = await _collectionFolder
-                .CreateFileAsync(partitionKeyHash, CreationCollisionOption.OpenIfExists)
-                .AsTask(cancellationToken)
+                .CreateFileIfNotExistsAsync(partitionKeyHash, cancellationToken)
                 .ConfigureAwait(false);
 
             return partitionFile;

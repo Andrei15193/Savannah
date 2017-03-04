@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Savannah.ObjectStoreOperations;
 using Savannah.Xml;
 
@@ -13,6 +13,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         : ObjectStoreOperationTestsTemplate
     {
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestMergingAnExistingObjectReturnsAMergedObject()
         {
             var inserOrMergeOperation = new MergeObjectStoreOperation(
@@ -61,6 +62,7 @@ namespace Savannah.Tests.ObjectStoreOperations
         }
 
         [TestMethod]
+        [Owner("Andrei Fangli")]
         public void TestTryingToMergeNonExistingObjectThrowsException()
         {
             var deleteOperation = new MergeObjectStoreOperation(new { PartitionKey = string.Empty, RowKey = string.Empty });
