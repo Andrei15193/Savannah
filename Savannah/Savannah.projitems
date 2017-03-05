@@ -47,6 +47,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)StorageObjectFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StorageObjectProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\IHashValueProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities\AsyncAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValueType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\ObjectStoreXmlNameTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xml\XmlReaderExtensions.cs" />

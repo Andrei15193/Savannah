@@ -6,6 +6,8 @@ namespace Savannah.FileSystem
 {
     internal interface IFileSystemFile
     {
+        string Name { get; }
+
         string Path { get; }
 
         Task<Stream> OpenReadAsync();

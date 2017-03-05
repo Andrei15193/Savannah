@@ -78,22 +78,23 @@ namespace Savannah.Tests.Mocks
 
         private static readonly Task _completedTask = Task.FromResult<object>(null);
 
-        private readonly string _name;
         private readonly IDictionary<string, MemoryStream> _files;
 
         internal FileSystemFileMock(string name, IDictionary<string, MemoryStream> filesInFolder)
         {
-            _name = name;
+            Name = name;
             _files = filesInFolder;
         }
 
+        public string Name { get; }
+
         public string Path
-            => _name;
+            => Name;
 
         public Task DeleteAsync()
         {
             lock (_files)
-                _files.Remove(_name);
+                _files.Remove(Name);
             return _completedTask;
         }
 
@@ -105,7 +106,7 @@ namespace Savannah.Tests.Mocks
             lock (_files)
             {
                 var memoryStreamCopy = new MemoryStream();
-                var memoryStream = _files[_name];
+                var memoryStream = _files[Name];
 
                 memoryStream.Seek(0L, SeekOrigin.Begin);
                 memoryStream.CopyTo(memoryStreamCopy);
@@ -124,7 +125,7 @@ namespace Savannah.Tests.Mocks
                 stream =>
                 {
                     lock (_files)
-                        _files[_name] = stream;
+                        _files[Name] = stream;
                 });
 
             return Task.FromResult<Stream>(writeStreamMock);
@@ -137,25 +138,25 @@ namespace Savannah.Tests.Mocks
         {
             var fileSystemFileMock = (FileSystemFileMock)file;
 
-            if (_name.CompareTo(fileSystemFileMock._name) <= 0)
+            if (Name.CompareTo(fileSystemFileMock.Name) <= 0)
                 lock (_files)
                 {
-                    if (!_files.ContainsKey(_name))
+                    if (!_files.ContainsKey(Name))
                         throw new InvalidOperationException("File no longer exists.");
 
                     lock (fileSystemFileMock._files)
-                        fileSystemFileMock._files[fileSystemFileMock._name] = _files[_name];
-                    _files.Remove(_name);
+                        fileSystemFileMock._files[fileSystemFileMock.Name] = _files[Name];
+                    _files.Remove(Name);
                 }
             else
                 lock (fileSystemFileMock._files)
                 {
-                    if (!_files.ContainsKey(_name))
+                    if (!_files.ContainsKey(Name))
                         throw new InvalidOperationException("File no longer exists.");
 
                     lock (_files)
-                        fileSystemFileMock._files[fileSystemFileMock._name] = _files[_name];
-                    _files.Remove(_name);
+                        fileSystemFileMock._files[fileSystemFileMock.Name] = _files[Name];
+                    _files.Remove(Name);
                 }
 
             return _completedTask;

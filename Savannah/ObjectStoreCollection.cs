@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
@@ -111,6 +112,7 @@ namespace Savannah
         private readonly Task<IFileSystemFolder> _dataFolderTask;
         private readonly IHashValueProvider _hashValueProvider;
         private readonly string _collectionName;
+        private readonly ConcurrentDictionary<string, AsyncAccessor> _bucketAsyncAccessors;
 
         private volatile IFileSystemFolder _collectionFolder;
 
@@ -130,6 +132,7 @@ namespace Savannah
             _hashValueProvider = hashValueProvider;
             _collectionName = collectionName;
             _collectionFolder = null;
+            _bucketAsyncAccessors = new ConcurrentDictionary<string, AsyncAccessor>(StringComparer.OrdinalIgnoreCase);
         }
 
         public string Name
@@ -269,6 +272,9 @@ namespace Savannah
             return objects;
         }
 
+        private AsyncAccessor _GetAsyncAccessorFor(string batchFileName)
+            => _bucketAsyncAccessors.GetOrAdd(batchFileName, delegate { return new AsyncAccessor(); });
+
         private async Task _EnsureCollectionExists(CancellationToken cancellationToken)
         {
             if (_collectionFolder == null)
@@ -292,44 +298,105 @@ namespace Savannah
             if (batchOperation.Count == 0)
                 return Enumerable.Empty<object>();
 
-            var timestamp = DateTime.UtcNow;
             var batchPartitionKey = batchOperation.First().PartitionKey;
-            var storageObjectFactory = new StorageObjectFactory(timestamp);
+            var batchFileName = _hashValueProvider.GetHashFor(batchPartitionKey);
+            var bucketAsyncAccessor = _GetAsyncAccessorFor(batchFileName);
 
-            IEnumerable<object> result;
-            var bucketFile = await _GetBucketFileForAsync(batchPartitionKey, cancellationToken).ConfigureAwait(false);
-            var temporaryFile = await _fileSystem.GetTemporaryFileAsync(cancellationToken).ConfigureAwait(false);
-            try
+            if (batchOperation.All(operation => operation.OperationType == ObjectStoreOperationType.Retrieve))
             {
-                using (var bucketFileStream = await bucketFile.OpenReadAsync(cancellationToken).ConfigureAwait(false))
-                using (var temporaryFileStream = await temporaryFile.OpenWriteAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
-                    using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
+                var hasResults = await bucketAsyncAccessor.WriteAsync(
+                    async delegate
                     {
-                        var context = new ObjectStoreOperationContext(storageObjectFactory, timestamp, xmlReader, xmlWriter);
-                        await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
-                        result = context.Result;
-                    }
-                }
+                        var bucketFile = await _GetBucketFileAsync(batchFileName, cancellationToken).ConfigureAwait(false);
+                        bool isBucketFileEmpty;
+                        using (var bucketFileStream = await bucketFile.OpenReadAsync().ConfigureAwait(false))
+                            isBucketFileEmpty = (bucketFileStream.Length == 0);
+                        if (isBucketFileEmpty)
+                            await bucketFile.DeleteAsync().ConfigureAwait(false);
 
-                await temporaryFile.ReplaceAsync(bucketFile, cancellationToken).ConfigureAwait(false);
-            }
-            catch
-            {
-                await temporaryFile.DeleteAsync().ConfigureAwait(false);
-                throw;
-            }
-            finally
-            {
-                var isBucketFileEmpty = true;
-                using (var bucketFileStream = await bucketFile.OpenReadAsync().ConfigureAwait(false))
-                    isBucketFileEmpty = (bucketFileStream.Length == 0);
-                if (isBucketFileEmpty)
-                    await bucketFile.DeleteAsync().ConfigureAwait(false);
-            }
+                        return isBucketFileEmpty;
+                    },
+                    CancellationToken.None);
 
-            return result;
+                if (!hasResults)
+                    return Enumerable.Empty<object>();
+                return await bucketAsyncAccessor.ReadAsync(
+                    async delegate
+                    {
+                        IEnumerable<object> result;
+
+                        var timestamp = DateTime.UtcNow;
+                        var storageObjectFactory = new StorageObjectFactory(timestamp);
+
+                        var bucketFile = await _GetBucketFileAsync(batchFileName, cancellationToken).ConfigureAwait(false);
+                        try
+                        {
+                            using (var bucketFileStream = await bucketFile.OpenReadAsync(cancellationToken).ConfigureAwait(false))
+                            using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
+                            using (var xmlWriter = XmlWriter.Create(new MemoryStream(), XmlSettings.WriterSettings))
+                            {
+                                var context = new ObjectStoreOperationContext(storageObjectFactory, timestamp, xmlReader, xmlWriter);
+                                await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
+                                result = context.Result;
+                            }
+                        }
+                        finally
+                        {
+                            bool isBucketFileEmpty;
+                            using (var bucketFileStream = await bucketFile.OpenReadAsync().ConfigureAwait(false))
+                                isBucketFileEmpty = (bucketFileStream.Length == 0);
+                            if (isBucketFileEmpty)
+                                await bucketFile.DeleteAsync().ConfigureAwait(false);
+                        }
+
+                        return result;
+                    },
+                    cancellationToken);
+            }
+            else
+                return await bucketAsyncAccessor.WriteAsync(
+                    async delegate
+                    {
+                        IEnumerable<object> result;
+
+                        var timestamp = DateTime.UtcNow;
+                        var storageObjectFactory = new StorageObjectFactory(timestamp);
+
+                        var bucketFile = await _GetBucketFileAsync(batchFileName, cancellationToken).ConfigureAwait(false);
+                        var temporaryFile = await _fileSystem.GetTemporaryFileAsync(cancellationToken).ConfigureAwait(false);
+                        try
+                        {
+                            using (var bucketFileStream = await bucketFile.OpenReadAsync(cancellationToken).ConfigureAwait(false))
+                            using (var temporaryFileStream = await temporaryFile.OpenWriteAsync(cancellationToken).ConfigureAwait(false))
+                            {
+                                using (var xmlReader = _GetXmlReaderFor(bucketFileStream))
+                                using (var xmlWriter = XmlWriter.Create(temporaryFileStream, XmlSettings.WriterSettings))
+                                {
+                                    var context = new ObjectStoreOperationContext(storageObjectFactory, timestamp, xmlReader, xmlWriter);
+                                    await _ExecuteAsync(batchOperation, context, cancellationToken).ConfigureAwait(false);
+                                    result = context.Result;
+                                }
+                            }
+
+                            await temporaryFile.ReplaceAsync(bucketFile, cancellationToken).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            await temporaryFile.DeleteAsync().ConfigureAwait(false);
+                            throw;
+                        }
+                        finally
+                        {
+                            bool isBucketFileEmpty;
+                            using (var bucketFileStream = await bucketFile.OpenReadAsync().ConfigureAwait(false))
+                                isBucketFileEmpty = (bucketFileStream.Length == 0);
+                            if (isBucketFileEmpty)
+                                await bucketFile.DeleteAsync().ConfigureAwait(false);
+                        }
+
+                        return result;
+                    },
+                    cancellationToken);
         }
 
         private static async Task _ExecuteAsync(ObjectStoreBatchOperation batchOperation, ObjectStoreOperationContext context, CancellationToken cancellationToken)
@@ -497,36 +564,42 @@ namespace Savannah
 
             var canFindObjects = true;
 
-            using (var bucketStream = await bucketFilter.File.OpenReadAsync(cancellationToken).ConfigureAwait(false))
-            using (var xmlReader = XmlReader.Create(bucketStream, XmlSettings.ReaderSettings))
-                do
-                    if (!xmlReader.IsEmptyElement && xmlReader.IsOnPartitionElement()
-                        && (partitionKeys?.Contains(xmlReader.GetPartitionKeyAttribute()) ?? true))
+            var bucketAsyncAccessor = _GetAsyncAccessorFor(bucketFilter.File.Name);
+
+            await bucketAsyncAccessor.ReadAsync(
+                async delegate
+                {
+                    using (var bucketStream = await bucketFilter.File.OpenReadAsync(cancellationToken).ConfigureAwait(false))
+                    using (var xmlReader = XmlReader.Create(bucketStream, XmlSettings.ReaderSettings))
                         do
-                            if (xmlReader.IsOnObjectElement() && (rowKeys?.Contains(xmlReader.GetRowKeyAttribute()) ?? true))
-                            {
-                                var storageObject = await xmlReader.ReadStorageObjectAsync(cancellationToken).ConfigureAwait(false);
-                                if (bucketFilter.IsMatch(storageObject))
-                                    canFindObjects = resultBuilder.TryAdd(storageObject);
-                            }
+                            if (!xmlReader.IsEmptyElement && xmlReader.IsOnPartitionElement()
+                                && (partitionKeys?.Contains(xmlReader.GetPartitionKeyAttribute()) ?? true))
+                                do
+                                    if (xmlReader.IsOnObjectElement() && (rowKeys?.Contains(xmlReader.GetRowKeyAttribute()) ?? true))
+                                    {
+                                        var storageObject = await xmlReader.ReadStorageObjectAsync(cancellationToken).ConfigureAwait(false);
+                                        if (bucketFilter.IsMatch(storageObject))
+                                            canFindObjects = resultBuilder.TryAdd(storageObject);
+                                    }
+                                    else
+                                        await xmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+                                while (canFindObjects && !xmlReader.IsOnPartitionEndElement());
                             else
                                 await xmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-                        while (canFindObjects && !xmlReader.IsOnPartitionEndElement());
-                    else
-                        await xmlReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-                while (canFindObjects && xmlReader.ReadState != ReadState.EndOfFile);
+                        while (canFindObjects && xmlReader.ReadState != ReadState.EndOfFile);
+                },
+                cancellationToken);
         }
 
-        private async Task<IFileSystemFile> _GetBucketFileForAsync(string partitionKey, CancellationToken cancellationToken)
+        private async Task<IFileSystemFile> _GetBucketFileAsync(string bucketFileName, CancellationToken cancellationToken)
         {
             await _EnsureCollectionExists(cancellationToken).ConfigureAwait(false);
-            var partitionKeyHash = _hashValueProvider.GetHashFor(partitionKey);
 
-            var partitionFile = await _collectionFolder
-                .CreateFileIfNotExistsAsync(partitionKeyHash, cancellationToken)
+            var bucketFile = await _collectionFolder
+                .CreateFileIfNotExistsAsync(bucketFileName, cancellationToken)
                 .ConfigureAwait(false);
 
-            return partitionFile;
+            return bucketFile;
         }
 
         private static async Task _WriteStorageObjectInPartitionAsync(XmlWriter xmlWriter, StorageObject storageObject, CancellationToken cancellationToken)

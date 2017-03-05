@@ -17,6 +17,9 @@ namespace Savannah.WindowsUniversalPlatform.FileSystem
             _storageFile = storageFile;
         }
 
+        public string Name
+            => _storageFile.Name;
+
         public string Path
             => _storageFile.Path;
 

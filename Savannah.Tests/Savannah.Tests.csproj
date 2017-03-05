@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="Utilities\Md5HashValueProvider.cs" />
     <Compile Include="Utilities\Md5HashValueProviderTests.cs" />
+    <Compile Include="Utilities\AsyncAccessorTests.cs" />
     <Compile Include="Xml\XmlReaderExtensionsTests.cs" />
     <Compile Include="Xml\XmlWriterExtensionsTests.cs" />
   </ItemGroup>
