@@ -162,7 +162,7 @@ namespace Savannah
             if (_collectionFolder == null)
             {
                 var dataFolder = await _dataFolderTask.ConfigureAwait(false);
-                _collectionFolder = await dataFolder.CreateFolderAsync(_collectionName, cancellationToken).ConfigureAwait(false);
+                _collectionFolder = await dataFolder.CreateFolderIfNotExistsAsync(_collectionName, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -192,10 +192,10 @@ namespace Savannah
             }
         }
 
-        public Task DeleteIfExists()
-            => DeleteIfExists(CancellationToken.None);
+        public Task DeleteIfExistsAsync()
+            => DeleteIfExistsAsync(CancellationToken.None);
 
-        public async Task DeleteIfExists(CancellationToken cancellationToken)
+        public async Task DeleteIfExistsAsync(CancellationToken cancellationToken)
         {
             if (_collectionFolder == null)
             {

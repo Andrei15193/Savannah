@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Savannah</id>
+    <version>1.0.0</version>
+    <title>Savannah</title>
+    <authors>Andrei Fangli</authors>
+    <owners>Andrei Fangli</owners>
+    <projectUrl>https://andrei15193.visualstudio.com/Savannah</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A small and powerful local database engine for Windows Runtime applications.</description>
+    <copyright>Copyright 2017</copyright>
+    <tags>no sql azure table storage local</tags>
+  </metadata>
+</package>

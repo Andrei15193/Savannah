@@ -9,6 +9,11 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Savannah", "Savannah\Savann
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Savannah.Tests", "Savannah.Tests\Savannah.Tests.csproj", "{B3648063-19BF-4A9E-9ADB-55E7188FC219}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5146ED29-D577-491A-8A10-21AF8B4C91B8}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.md = ReadMe.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Savannah\Savannah.projitems*{2b989da8-7db9-4fa7-bc93-dec188c4732d}*SharedItemsImports = 4

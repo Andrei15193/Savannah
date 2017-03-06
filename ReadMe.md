@@ -1,0 +1,1 @@
+Generate NuGet package using: `nuget pack .\Savannah.WindowsUniversalPlatform\Savannah.WindowsUniversalPlatform.csproj -Prop Configuration=Release`

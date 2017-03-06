@@ -116,7 +116,7 @@ namespace Savannah.Tests
         {
             var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatACollectionIsDeletedDoesNotThrowException));
 
-            await collection.DeleteIfExists();
+            await collection.DeleteIfExistsAsync();
         }
 
         [TestMethod]
@@ -136,7 +136,7 @@ namespace Savannah.Tests
             var collection = _ObjectStore.GetCollection(nameof(TestEnsuringThatAnExistingCollectionIsDeleted));
 
             await collection.CreateAsync();
-            await collection.DeleteIfExists();
+            await collection.DeleteIfExistsAsync();
         }
 
         [TestMethod]
