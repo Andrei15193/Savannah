@@ -4,22 +4,22 @@ using System.Xml;
 
 namespace Savannah.ObjectStoreOperations
 {
-    internal sealed class ObjectStoreOperationContext
+    internal sealed class ObjectStoreWriteOperationContext
     {
-        internal ObjectStoreOperationContext(StorageObjectFactory storageObjectFactory, DateTime timestamp, XmlReader xmlReader, XmlWriter xmlWriter)
+        internal ObjectStoreWriteOperationContext(StorageObjectFactory storageObjectFactory, DateTime timestamp, XmlReader xmlReader, XmlWriterProvider xmlWriterProvider)
         {
 #if DEBUG
             if (storageObjectFactory == null)
                 throw new ArgumentNullException(nameof(storageObjectFactory));
             if (xmlReader == null)
                 throw new ArgumentNullException(nameof(xmlReader));
-            if (xmlWriter == null)
-                throw new ArgumentNullException(nameof(xmlWriter));
+            if (xmlWriterProvider == null)
+                throw new ArgumentNullException(nameof(xmlWriterProvider));
 #endif
             StorageObjectFactory = storageObjectFactory;
             Timestamp = timestamp;
             XmlReader = xmlReader;
-            XmlWriter = xmlWriter;
+            XmlWriterProvider = xmlWriterProvider;
             Result = new List<object>();
         }
 
@@ -27,7 +27,7 @@ namespace Savannah.ObjectStoreOperations
 
         internal XmlReader XmlReader { get; }
 
-        internal XmlWriter XmlWriter { get; }
+        internal XmlWriterProvider XmlWriterProvider { get; }
 
         internal DateTime Timestamp { get; }
 

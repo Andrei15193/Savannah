@@ -24,6 +24,10 @@ namespace Savannah.FileSystem
 
         Task<IEnumerable<IFileSystemFile>> GetAllRootFilesAsync(CancellationToken cancellationToken);
 
+        Task<IFileSystemFile> TryGetFile(string name);
+
+        Task<IFileSystemFile> TryGetFile(string name, CancellationToken cancellationToken);
+
         Task<IFileSystemFile> GetExistingFileAsync(string name);
 
         Task<IFileSystemFile> GetExistingFileAsync(string name, CancellationToken cancellationToken);

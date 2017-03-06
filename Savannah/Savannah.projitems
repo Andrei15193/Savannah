@@ -24,7 +24,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\InsertOrMergeObjectStoreOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\InsertOrReplaceObjectStoreOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\MergeObjectStoreOperation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ObjectStoreOperationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ObjectStoreReadOperationContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ObjectStoreWriteOperationContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ObjectStoreOperationExectionContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\ReplaceObjectStoreOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrieveDynamicObjectStoreOperation.cs" />
@@ -32,6 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrievePocoObjectStoreOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\RetrieveResolverObjectStoreOperation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\StorageObjectMerger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperations\XmlWriterProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreOperationType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreQuery.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ObjectStoreQueryFilter.cs" />

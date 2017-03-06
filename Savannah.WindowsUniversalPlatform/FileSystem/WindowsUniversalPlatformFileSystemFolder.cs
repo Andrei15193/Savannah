@@ -76,6 +76,22 @@ namespace Savannah.WindowsUniversalPlatform.FileSystem
             return storageFiles.Select(storageFile => new WindowsUniversalPlatformFileSystemFile(storageFile)).ToList();
         }
 
+        public Task<IFileSystemFile> TryGetFile(string name)
+            => TryGetFile(name, CancellationToken.None);
+
+        public async Task<IFileSystemFile> TryGetFile(string name, CancellationToken cancellationToken)
+        {
+            var storageFiles = await _storageFolder
+                .GetFilesAsync()
+                .AsTask(cancellationToken)
+                .ConfigureAwait(false);
+
+            return storageFiles
+                .Where(storageFile => string.Equals(name, storageFile.Name, StringComparison.OrdinalIgnoreCase))
+                .Select(storageFile => new WindowsUniversalPlatformFileSystemFile(storageFile))
+                .SingleOrDefault();
+        }
+
         public Task<IFileSystemFile> GetExistingFileAsync(string name)
             => GetExistingFileAsync(name, CancellationToken.None);
 

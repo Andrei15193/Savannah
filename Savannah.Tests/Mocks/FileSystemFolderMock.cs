@@ -92,6 +92,23 @@ namespace Savannah.Tests.Mocks
         public Task<IEnumerable<IFileSystemFile>> GetAllRootFilesAsync(CancellationToken cancellationToken)
             => GetAllRootFilesAsync();
 
+        public Task<IFileSystemFile> TryGetFile(string name)
+        {
+            lock (_files)
+            {
+                MemoryStream fileMemoryStream;
+                if (!_files.TryGetValue(name, out fileMemoryStream))
+                    return Task.FromResult<IFileSystemFile>(null);
+                if (fileMemoryStream == null)
+                    throw new InvalidOperationException("A folder with the same name exists.");
+
+                return Task.FromResult<IFileSystemFile>(new FileSystemFileMock(name, _files));
+            }
+        }
+
+        public Task<IFileSystemFile> TryGetFile(string name, CancellationToken cancellationToken)
+            => TryGetFile(name);
+
         public Task<IFileSystemFile> GetExistingFileAsync(string name)
         {
             lock (_files)

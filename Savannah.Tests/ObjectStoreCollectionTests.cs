@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Savannah.FileSystem;
 using Savannah.Tests.Mocks;
 using Savannah.Tests.Utilities;
 using Savannah.Utilities;
@@ -22,11 +23,25 @@ namespace Savannah.Tests
 
         private IHashValueProvider _HashValueProvider { get; set; }
 
+        private IFileSystem _FileSystem { get; set; }
+
+        private IFileSystemFolder _CollectionFileSystemFolder { get; set; }
+
         [TestInitialize]
         public void TestInitialize()
         {
             _HashValueProvider = new Md5HashValueProvider();
-            _ObjectStore = new ObjectStore(_objectStoreFolderName, new HashValueProviderMock(value => _HashValueProvider.GetHashFor(value)), new FileSystemMock());
+
+            _FileSystem = new FileSystemMock();
+            _CollectionFileSystemFolder = Task
+                .Run(
+                    () => Task
+                        .Run(() => _FileSystem.GetRootFolderAsync())
+                        .Result
+                        .CreateFolderIfNotExistsAsync(_objectStoreCollectionName))
+                .Result;
+
+            _ObjectStore = new ObjectStore(_objectStoreFolderName, new HashValueProviderMock(value => _HashValueProvider.GetHashFor(value)), _FileSystem);
             _ObjectStoreCollection = _ObjectStore.GetCollection(_objectStoreCollectionName);
             Task.Run(() => _ObjectStoreCollection.CreateIfNotExistsAsync()).Wait();
         }
@@ -625,6 +640,18 @@ namespace Savannah.Tests
             var result = await _ObjectStoreCollection.QueryAsync(new ObjectStoreQuery(), delegate { callbackCallCount++; return new object(); });
 
             Assert.AreEqual(3, callbackCallCount);
+        }
+
+        [TestMethod]
+        [Owner("Andrei Fangli")]
+        public async Task TestCreatingAnObjectThenDeletingItLeavesTheFileSystemClean()
+        {
+            var @object = new { PartitionKey = "partitionKey1", RowKey = "rowKey1" };
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Insert(@object));
+            await _ObjectStoreCollection.ExecuteAsync(ObjectStoreOperation.Delete(@object));
+
+            var files = await _CollectionFileSystemFolder.GetAllRootFilesAsync();
+            Assert.IsFalse(files.Any());
         }
     }
 }
