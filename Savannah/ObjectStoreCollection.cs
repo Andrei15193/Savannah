@@ -429,7 +429,7 @@ namespace Savannah
                         context.Result));
                 hasValue = operation.MoveNext();
             } while (hasValue && ObjectStoreLimitations.StringComparer.Equals(previousRowKey, operation.Current.RowKey));
-            
+
             return hasValue;
         }
 
@@ -549,14 +549,20 @@ namespace Savannah
                 return bucketFiles.Select(bucketFile => new BucketFilter(bucketFile, null, predicate.RowKeys, predicate.IsMatch));
             }
             else
-                return await Task.WhenAll(predicate
+            {
+                var filters = await Task.WhenAll(predicate
                     .PartitionKeys
                     .GroupBy(_hashValueProvider.GetHashFor, StringComparer.OrdinalIgnoreCase)
-                    .Select(async partitionKeysByBucketName => new BucketFilter(
-                        await _collectionFolder.GetExistingFileAsync(partitionKeysByBucketName.Key, cancellationToken).ConfigureAwait(false),
-                        partitionKeysByBucketName.AsEnumerable(),
-                        predicate.RowKeys,
-                        predicate.IsMatch)));
+                    .Select(async partitionKeysByBucketName =>
+                    {
+                        var file = await _collectionFolder.TryGetFile(partitionKeysByBucketName.Key, cancellationToken).ConfigureAwait(false);
+                        if (file != null)
+                            return new BucketFilter(file, partitionKeysByBucketName.AsEnumerable(), predicate.RowKeys, predicate.IsMatch);
+                        else
+                            return null;
+                    })).ConfigureAwait(false);
+                return filters.Where(filter => filter != null);
+            }
         }
 
         private async Task<IEnumerable<T>> _ExecuteQueryAsync<T>(ObjectStoreQuery query, Func<StorageObject, IEnumerable<string>, T> objectFactory, CancellationToken cancellationToken)
